@@ -2,14 +2,24 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import App from '../src/App';
+import TransactionList from '../src/components/TransactionList'
 
 
 describe('User first interaction', () => {
   it('List of last Transactions is rendered', () => {
     // The app is rendered
     const app = mount(<App />)
-    const transactionList = app.find('transactionList')
+
+    // A transaction list with title Recent Transactions is shown
+    const transactionList = app.find(TransactionList)
     expect(transactionList).toHaveLength(1)
-    fail("Finish tests!")
+    const title = transactionList.find("span.title")
+    expect(title.html()).toContain("Recent Transactions")
+
+    // The table has no entries!
+    const table = transactionList.find('.table')
+    expect(table).toHaveLength(1)
+    expect(table.find('td').toHaveLength(0))
+    expect(table.find('tr').toHaveLength(0))
   })
 })
