@@ -17,9 +17,9 @@ describe('User first interaction', () => {
     expect(title.html()).toContain("Recent Transactions")
 
     // The table has no entries!
-    const table = transactionList.find('.table')
+    const table = transactionList.find('table')
     expect(table).toHaveLength(1)
-    expect(table.find('td').toHaveLength(0))
-    expect(table.find('tr').toHaveLength(0))
+    expect(table.find('td')).toHaveLength(0)
+    expect(table.find('tr')).toHaveLength(0)
   })
 })
