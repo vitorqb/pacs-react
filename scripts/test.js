@@ -17,7 +17,5 @@ require('../config/env');
 
 
 const jest = require('jest');
-const execSync = require('child_process').execSync;
 let argv = process.argv.slice(2);
-
 jest.run(argv);
