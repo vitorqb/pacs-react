@@ -1,29 +1,29 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import TransactionList from '../TransactionList';
+import TransactionTable from '../TransactionTable';
 
 
-describe('Testing TransactionList', () => {
-  let mountTransactionList = (title, transactions) => {
-    return mount(<TransactionList title={title} transactions={transactions} />)
+describe('Testing TransactionTable', () => {
+  let mountTransactionTable = (title, transactions) => {
+    return mount(<TransactionTable title={title} transactions={transactions} />)
   }
   it('Renders with correct prop title', () => {
     const title = "My Title"
-    const list = mountTransactionList(title)
+    const list = mountTransactionTable(title)
     expect(list.props().title).toEqual(title)
   })
   it('Renders with correct title in dom', () => {
     const title = "Another Title"
-    const list = mountTransactionList(title)
+    const list = mountTransactionTable(title)
     expect(list.find('span.title').html()).toContain(title)
   })
   it('Mounts with a table', () => {
-    const list = mountTransactionList()
+    const list = mountTransactionTable()
     expect(list.find("table")).toHaveLength(1)
   })
   it('Mounts with correct list of transactions', () => {
     const transactions = [{}];
-    const list = mountTransactionList("", transactions)
+    const list = mountTransactionTable("", transactions)
     expect(list.props().transactions).toEqual(transactions)
   })
   it('Renders the transactions in the dom', () => {
@@ -31,7 +31,7 @@ describe('Testing TransactionList', () => {
       {id: 1, description: "Supermarket"},
       {id: 2, description: "Salary"}
     ];
-    const list = mountTransactionList("", transactions)
+    const list = mountTransactionTable("", transactions)
     const trs = list.find("tr")
    
     expect(trs).toHaveLength(transactions.length)

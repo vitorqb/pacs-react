@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TransactionList(props) {
+export default function TransactionTable(props) {
   const { transactions = [] } = props
   const rows = transactions.map((trans, i) => {
     return <tr key={i}><td>{trans.id}</td><td>{trans.description}</td></tr>

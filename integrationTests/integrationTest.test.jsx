@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import App from '../src/App';
-import TransactionList from '../src/components/TransactionList'
+import TransactionTable from '../src/components/TransactionTable'
 
 
 describe('User first interaction', () => {
@@ -11,7 +11,7 @@ describe('User first interaction', () => {
     const app = mount(<App />)
 
     // A transaction list with title Recent Transactions is shown
-    const transactionList = app.find(TransactionList)
+    const transactionList = app.find(TransactionTable)
     expect(transactionList).toHaveLength(1)
     const title = transactionList.find("span.title")
     expect(title.html()).toContain("Recent Transactions")
