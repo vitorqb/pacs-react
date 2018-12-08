@@ -13,5 +13,10 @@ export function ajaxGetRecentTransactions(axios) {
   return axios.get(url).then(parseResponse)
 }
 
-// !!!! TODO
-export const axiosWrapper = axios;
+// TODO -> Dont hardcore token (how?)
+export const axiosWrapper = axios.create({
+  baseURL: 'http://138.68.66.242/',
+  headers: {
+    Authorization: "Token {$,<6$X*~vEdZw;>YN(!64=sKTv!@G*&&Kc)Mgwb.z5hM>>U=T"
+  }
+});
