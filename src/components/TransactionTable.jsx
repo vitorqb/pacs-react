@@ -1,5 +1,6 @@
 import React from 'react';
 
+// !!!! TODO -> Add date
 export default function TransactionTable(props) {
   const { transactions = [] } = props
   const rows = transactions.map((trans, i) => {
