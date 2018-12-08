@@ -1,0 +1,11 @@
+{
+    "plugins":{
+        "modules":{},
+        "es_modules":{},
+        "webpack":{
+            "configPath":"./config/webpack.config.dev.js"
+        }
+    },
+    "libs": [],
+    "ecmaVersion": 6
+}

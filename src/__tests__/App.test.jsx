@@ -4,17 +4,23 @@ import { mount } from 'enzyme';
 import App from '../App';
 import TransactionTable from '../components/TransactionTable'
 
-
 function mountApp(opts) {
   const { transactions=[] } = opts || {}
-  return mount(<App transactions={transactions} />)
+
+  // Prepares a function that returns transactions when called
+  function getTransactions() {
+    return Promise.resolve(transactions)
+  }
+  
+  return mount(<App getTransactions={getTransactions} />)
 }
 
 
 describe('User first interaction', () => {
-  it('Empty list of last Transactions is rendered', () => {
+  it('Empty list of last Transactions is rendered', async () => {
     // The app is rendered
-    const app = mountApp()
+    const app = await mountApp()
+    await app.update()
 
     // A transaction list with title Recent Transactions is shown
     const transactionList = app.find(TransactionTable)
@@ -28,13 +34,14 @@ describe('User first interaction', () => {
     expect(table.find('td')).toHaveLength(0)
     expect(table.find('tr')).toHaveLength(0)
   })
-  it('Two-long table of transactions is rendered', () => {
+  it('Two-long table of transactions is rendered', async () => {
     // The app is rendered with two transactions
     const transactions = [
       {id: 5, description: "Salary November"},
       {id: 12, description: "Japanese Restaurant!"}
     ]
-    const app = mountApp({ transactions })
+    const app = await mountApp({ transactions })
+    await app.update()
 
     // Two rows are found
     expect(app.find("tr")).toHaveLength(2);
