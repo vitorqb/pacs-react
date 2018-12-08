@@ -1,8 +1,8 @@
 // Integration tests for pacs-react
 import React from 'react';
 import { mount } from 'enzyme';
-import App from '../src/App';
-import TransactionTable from '../src/components/TransactionTable'
+import App from '../App';
+import TransactionTable from '../components/TransactionTable'
 
 
 function mountApp(opts) {
