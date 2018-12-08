@@ -16,47 +16,72 @@ function mountApp(opts) {
 }
 
 
-describe('User first interaction', () => {
-  it('Empty list of last Transactions is rendered', async () => {
-    // The app is rendered
-    const app = await mountApp()
-    await app.update()
+describe('App.test.jsx', () => {
 
-    // A transaction list with title Recent Transactions is shown
-    const transactionList = app.find(TransactionTable)
-    expect(transactionList).toHaveLength(1)
-    const title = transactionList.find("span.title")
-    expect(title.html()).toContain("Recent Transactions")
-
-    // The table has no entries!
-    const table = transactionList.find('table')
-    expect(table).toHaveLength(1)
-    expect(table.find('td')).toHaveLength(0)
-    expect(table.find('tr')).toHaveLength(0)
+  describe('renderTransactionTable', () => {
+    it('Still loading', () => {
+      const resp = App.renderTransactionTable(null)
+      expect(resp).toEqual(<p>Loading...</p>)
+    })
+    it('Finished loading', () => {
+      const transactions = [
+        {id: 1, description: "hola"}
+      ]
+      const resp = App.renderTransactionTable(transactions)
+      expect(resp).toEqual(
+        <TransactionTable
+          title="Recent Transactions"
+          transactions={transactions} />
+      )
+    })
   })
-  it('Two-long table of transactions is rendered', async () => {
-    // The app is rendered with two transactions
-    const transactions = [
-      {id: 5, description: "Salary November"},
-      {id: 12, description: "Japanese Restaurant!"}
-    ]
-    const app = await mountApp({ transactions })
-    await app.update()
+  
+  describe('Entire App rendering', () => {
 
-    // Two rows are found
-    expect(app.find("tr")).toHaveLength(2);
+    it('Empty list of last Transactions is rendered', async () => {
+      // The app is rendered
+      const app = await mountApp()
+      await app.update()
 
-    // And fours tds
-    expect(app.find("td")).toHaveLength(4);
+      // A transaction list with title Recent Transactions is shown
+      const transactionList = app.find(TransactionTable)
+      expect(transactionList).toHaveLength(1)
+      const title = transactionList.find("span.title")
+      expect(title.html()).toContain("Recent Transactions")
 
-    // And their contents is as expected
-    const expectedTds = transactions.reduce((acc, trans) => {
-      const { id, description } = trans
-      return [...acc, <td>{id}</td>, <td>{description}</td>]
-    }, [])
-    for (var i=0; i < expectedTds.length; i++) {
-      const td = expectedTds[i]
-      expect(app.find("td").contains(td)).toBe(true)
-    }
+      // The table has no entries!
+      const table = transactionList.find('table')
+      expect(table).toHaveLength(1)
+      expect(table.find('td')).toHaveLength(0)
+      expect(table.find('tr')).toHaveLength(0)
+    })
+
+    it('Two-long table of transactions is rendered', async () => {
+      // The app is rendered with two transactions
+      const transactions = [
+        {id: 5, description: "Salary November"},
+        {id: 12, description: "Japanese Restaurant!"}
+      ]
+      const app = await mountApp({ transactions })
+      await app.update()
+
+      // Two rows are found
+      expect(app.find("tr")).toHaveLength(2);
+
+      // And fours tds
+      expect(app.find("td")).toHaveLength(4);
+
+      // And their contents is as expected
+      const expectedTds = transactions.reduce((acc, trans) => {
+        const { id, description } = trans
+        return [...acc, <td>{id}</td>, <td>{description}</td>]
+      }, [])
+      for (var i=0; i < expectedTds.length; i++) {
+        const td = expectedTds[i]
+        expect(app.find("td").contains(td)).toBe(true)
+      }
+    })
+
   })
+  
 })

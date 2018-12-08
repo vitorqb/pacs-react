@@ -34,22 +34,22 @@ class App extends Component {
 
   render() {
     const { transactions } = this.state;
-    let transactionTable;
-
-    // !!!! Refactor to own function
-    if (transactions == null) {
-      transactionTable = <p>Loading...</p>;
-    } else {
-      transactionTable = (
-        <TransactionTable
-          title="Recent Transactions"
-          transactions={transactions} />
-      )
-    }
+    const transactionTable = App.renderTransactionTable(transactions)
               
     return (
       <div className="App">{transactionTable}</div>
     );
+  }
+
+  static renderTransactionTable(transactions) {
+    // Renders the transactionTable or a loading <p> if transactions is null
+    if (transactions) {
+      return (
+        <TransactionTable title="Recent Transactions" transactions={transactions} />
+      )
+    } else {
+      return <p>Loading...</p>
+    }
   }
 
 }
