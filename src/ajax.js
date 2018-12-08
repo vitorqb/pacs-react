@@ -1,4 +1,5 @@
 // This module contains all functions that performs ajax requests
+import axios from 'axios';
 
 
 export function ajaxGetRecentTransactions(axios) {
@@ -11,3 +12,6 @@ export function ajaxGetRecentTransactions(axios) {
 
   return axios.get(url).then(parseResponse)
 }
+
+// !!!! TODO
+export const axiosWrapper = axios;

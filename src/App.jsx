@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
-import TransactionTable from "./components/TransactionTable"
+import TransactionTable from "./components/TransactionTable";
+import { axiosWrapper, ajaxGetRecentTransactions } from "./ajax";
+
 
 class App extends Component {
   // The main application
+  // Props here are used only for testing purposes, and their defaults
+  // are the production defaults.
+  // Props:
+  //   getTransactions: A function that returns a promise of transactions
+  //                    on .get().
 
   constructor(props) {
     // Defines the initial state
@@ -16,8 +23,8 @@ class App extends Component {
 
   componentDidMount() {
     // Loads transactions and sets state on return
-    const { getTransactions } = this.props;
-    getTransactions().then(transactions => {
+    const { getTransactions = ajaxGetRecentTransactions } = this.props;
+    getTransactions(axiosWrapper).then(transactions => {
       this.setState({
         isLoaded: true,
         transactions
