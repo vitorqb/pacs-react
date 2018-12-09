@@ -12,6 +12,10 @@ class App extends Component {
   //   getTransactions: A function that returns a promise of transactions
   //                    on .get().
 
+  // allows external acces to the promise used in componentDidMount,
+  // so we can test it.
+  busy;
+
   constructor(props) {
     // Defines the initial state
     super(props);
@@ -24,7 +28,7 @@ class App extends Component {
   componentDidMount() {
     // Loads transactions and sets state on return
     const { getTransactions = ajaxGetRecentTransactions } = this.props;
-    getTransactions(axiosWrapper).then(transactions => {
+    this.busy = getTransactions(axiosWrapper).then(transactions => {
       this.setState({
         isLoaded: true,
         transactions
@@ -34,11 +38,9 @@ class App extends Component {
 
   render() {
     const { transactions } = this.state;
-    const transactionTable = App.renderTransactionTable(transactions)
+    const transactionTable = App.renderTransactionTable(transactions);
               
-    return (
-      <div className="App">{transactionTable}</div>
-    );
+    return <div className="App">{transactionTable}</div>;
   }
 
   static renderTransactionTable(transactions) {

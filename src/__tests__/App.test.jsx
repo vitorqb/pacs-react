@@ -5,12 +5,18 @@ import App from '../App';
 import TransactionTable from '../components/TransactionTable'
 
 function mountApp(opts) {
-  const { transactions=[] } = opts || {}
+  // Mounts the app for testing purposes
+  // opts:
+  //   transactions: transactions to use on mocked ajax call.
+  //                 Defaults to [].
+  //   timeout: time to wait for the mocked ajax to resolve.
+  //            Defaults to 0.
+  const { transactions=[], timeout } = opts || {}
 
   // Prepares a function that returns transactions when called
-  function getTransactions() {
-    return Promise.resolve(transactions)
-  }
+  const getTransactions = () => new Promise(resolve => {
+    setTimeout(() => resolve(transactions), 0)
+  })
   
   return mount(<App getTransactions={getTransactions} />)
 }
@@ -38,9 +44,20 @@ describe('App.test.jsx', () => {
   
   describe('Entire App rendering', () => {
 
+    it('Displays loading until Transactions load', async () => {
+      const app = mountApp({ timeout: 1000 });
+      expect(app.contains(<p>Loading...</p>)).toBe(true)
+      expect(app.find("table")).toHaveLength(0)
+      await app.instance().busy
+      await app.update()
+      expect(app.contains(<p>Loading...</p>)).toBe(false)
+      expect(app.find("table")).toHaveLength(1)
+    })
+
     it('Empty list of last Transactions is rendered', async () => {
       // The app is rendered
-      const app = await mountApp()
+      const app = mountApp();
+      await app.instance().busy
       await app.update()
 
       // A transaction list with title Recent Transactions is shown
@@ -62,8 +79,9 @@ describe('App.test.jsx', () => {
         {id: 5, description: "Salary November"},
         {id: 12, description: "Japanese Restaurant!"}
       ]
-      const app = await mountApp({ transactions })
-      await app.update()
+      const app = await mountApp({ transactions });
+      await app.instance().busy
+      await app.update();
 
       // Two rows are found
       expect(app.find("tr")).toHaveLength(2);
