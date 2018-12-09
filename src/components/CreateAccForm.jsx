@@ -34,41 +34,54 @@ export default class CreateAccForm extends Component {
   }
 
   render() {
-    const { name, accType, parent } = this.state;
     // !!!! -> Abstract title maker?
-    // !!!! -> Function to create input
+    const inputs = this.renderInputs();
     return (
       <div className="accFormDiv">
         <span className="title">{this.props.title}</span>
         <form onSubmit={this.handleSubmit}>
-          <div className="inputDiv">
-            Name: 
-            <input
-              type="text"
-              name="name"
-              value={name}
-              onChange={this.handleNameUpdate} />
-          </div>
-          <div className="inputDiv">
-            accType:
-            <input
-              type="text"
-              name="accType"
-              value={accType}
-              onChange={this.handleAccTypeUpdate} />
-          </div>
-          <div className="inputDiv">
-            Parent: 
-            <input
-              type="number"
-              name="parent"
-              value={parent}
-              onChange={this.handleParentUpdate} />
-          </div>
+          {inputs}
           <input type="submit" value="Submit" />
         </form>
       </div>
     )
+  }
+
+  /**
+    * Renders the `input` tags for the form.
+    * @returns - an array of Input tags.
+    */
+  renderInputs() {
+    function createInput({ type, name, onChange, value }) {
+      return (
+        <div className="inputDiv" key={name}>
+            {name}: 
+            <input type={type} name={name} value={value} onChange={onChange} />
+        </div>
+      );
+    }
+    const { name, accType, parent } = this.state;
+    const inputsData = [
+      {
+        type: "text",
+        name: "name",
+        onChange: this.handleNameUpdate,
+        value: name
+      },
+      {
+        type: "text",
+        name: "accType",
+        onChange: this.handleAccTypeUpdate,
+        value: accType
+      },
+      {
+        type: "number",
+        name: "parent",
+        onChange: this.handleParentUpdate,
+        value: parent
+      }
+    ]
+    return inputsData.map(createInput)
   }
 }
 
