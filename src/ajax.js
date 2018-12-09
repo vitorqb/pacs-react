@@ -13,6 +13,18 @@ export function ajaxGetRecentTransactions(axios) {
   return axios.get(url).then(parseResponse)
 }
 
+/**
+  * Sends a post request to create a new account.
+  * @param {Axios} axios - An axios-like api to use.
+  * @param {Object} params - Params passed directly to the post request.
+  */
+export function ajaxCreateAcc(axios, params) {
+  const url = "/accounts/"
+  const parseResponse = resp => resp.data
+  
+  return axios.post(url, params).then(parseResponse)
+}
+
 // TODO -> Dont hardcore token (how?)
 export const axiosWrapper = axios.create({
   baseURL: 'http://138.68.66.242/',

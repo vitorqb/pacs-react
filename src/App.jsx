@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
 import CreateAccForm from './components/CreateAccForm';
-import { axiosWrapper, ajaxGetRecentTransactions } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc } from "./ajax";
 
 
 class App extends Component {
@@ -38,7 +38,7 @@ class App extends Component {
   }
 
   render() {
-    const { createAcc } = this.props;
+    const { createAcc = ajaxCreateAcc } = this.props;
     const { transactions } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
               
