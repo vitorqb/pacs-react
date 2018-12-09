@@ -1,3 +1,4 @@
+import * as R from 'ramda'
 import React, { Component } from 'react';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
@@ -41,18 +42,13 @@ class App extends Component {
     const { createAcc = ajaxCreateAcc } = this.props;
     const { transactions } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
+    const createAccForm = App.renderCreateAccForm(createAcc);
 
-    // Parametrizes createAcc with axios
-    const parametrizedCreateAcc = (x) => createAcc(axiosWrapper, x)
-              
+    // !!!! Move divs to sub functions
     return (
       <div className="App">
-        <div className="TransactionTableDiv">
           {transactionTable}
-        </div>
-        <div className="CreateAccFormDiv">
-          <CreateAccForm title="Create Account" createAcc={parametrizedCreateAcc}/>
-        </div>
+          {createAccForm}
       </div>
     );
   }
@@ -61,11 +57,31 @@ class App extends Component {
     // Renders the transactionTable or a loading <p> if transactions is null
     if (transactions) {
       return (
-        <TransactionTable title="Recent Transactions" transactions={transactions} />
+        <div className="TransactionTableDiv">
+          <TransactionTable
+            title="Recent Transactions"
+            transactions={transactions} />
+        </div>
       )
     } else {
       return <p>Loading...</p>
     }
+  }
+
+  /**
+   * Renders the CreateAccForm for the app.
+   * @param {Function} createAcc - A function that receives (Axios, accRawParams)
+   *    and performs the creation of the account.
+   */
+  static renderCreateAccForm(createAcc) {
+    // We parametrize createAcc with the AxiosWrapper.
+    const parametrizedCreateAcc = R.partial(createAcc, [axiosWrapper]);
+    
+    return (
+      <div className="CreateAccFormDiv">
+        <CreateAccForm title="Create Account" createAcc={parametrizedCreateAcc}/>
+      </div>
+    );
   }
 
 }

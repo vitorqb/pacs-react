@@ -45,9 +45,11 @@ describe('App.test.jsx', () => {
       ]
       const resp = App.renderTransactionTable(transactions)
       expect(resp).toEqual(
-        <TransactionTable
-          title="Recent Transactions"
-          transactions={transactions} />
+        <div className="TransactionTableDiv">
+          <TransactionTable
+            title="Recent Transactions"
+            transactions={transactions} />
+        </div>
       )
     })
   })
