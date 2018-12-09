@@ -1,3 +1,4 @@
+import moment from 'moment';
 import sinon from 'sinon';
 import { ajaxGetRecentTransactions, ajaxCreateAcc } from '../ajax';
 
@@ -29,8 +30,9 @@ describe('Test ajax', () => {
       })
     })
 
+    // !!!! TODO -> Use async
     it('Get one long', () => {
-      const transactions = [{id: 1, description: "A"}]
+      const transactions = [{id: 1, description: "A", date: moment("2018-12-12")}]
       const axiosMock = getAxiosMock({ transactions })
       const result = ajaxGetRecentTransactions(axiosMock)
 

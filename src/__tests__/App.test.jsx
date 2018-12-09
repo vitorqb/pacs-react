@@ -1,6 +1,7 @@
 // Integration tests for pacs-react
 import React from 'react';
 import sinon from 'sinon';
+import moment from 'moment';
 import { mount } from 'enzyme';
 import App from '../App';
 import TransactionTable from '../components/TransactionTable'
@@ -40,7 +41,7 @@ describe('App.test.jsx', () => {
     })
     it('Finished loading', () => {
       const transactions = [
-        {id: 1, description: "hola"}
+        {id: 1, description: "hola", date: moment("1993-11-23")}
       ]
       const resp = App.renderTransactionTable(transactions)
       expect(resp).toEqual(
@@ -85,8 +86,8 @@ describe('App.test.jsx', () => {
     it('Two-long table of transactions is rendered', async () => {
       // The app is rendered with two transactions
       const transactions = [
-        {id: 5, description: "Salary November"},
-        {id: 12, description: "Japanese Restaurant!"}
+        {id: 5, description: "Salary November", date: moment("2018-01-01")},
+        {id: 12, description: "Japanese Restaurant!", date: moment("1970-01-01")}
       ]
       const app = await mountApp({ transactions });
       await app.instance().busy
@@ -96,12 +97,13 @@ describe('App.test.jsx', () => {
       expect(app.find("tr")).toHaveLength(2);
 
       // And fours tds
-      expect(app.find("td")).toHaveLength(4);
+      expect(app.find("td")).toHaveLength(6);
 
       // And their contents is as expected
       const expectedTds = transactions.reduce((acc, trans) => {
-        const { id, description } = trans
-        return [...acc, <td>{id}</td>, <td>{description}</td>]
+        const { id, description } = trans;
+        const date = trans.date.format();
+        return [...acc, <td>{id}</td>, <td>{description}</td>, <td>{date}</td>]
       }, [])
       for (var i=0; i < expectedTds.length; i++) {
         const td = expectedTds[i]

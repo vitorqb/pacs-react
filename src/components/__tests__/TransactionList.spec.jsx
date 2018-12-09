@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { mount } from 'enzyme';
 import TransactionTable from '../TransactionTable';
 
@@ -28,8 +29,8 @@ describe('Testing TransactionTable', () => {
   })
   it('Renders the transactions in the dom', () => {
     const transactions = [
-      {id: 1, description: "Supermarket"},
-      {id: 2, description: "Salary"}
+      {id: 1, description: "Supermarket", date: moment("1994-11-14")},
+      {id: 2, description: "Salary", date: moment("1994-11-23")}
     ];
     const list = mountTransactionTable("", transactions)
     const trs = list.find("tr")
@@ -38,7 +39,9 @@ describe('Testing TransactionTable', () => {
     const tds = trs.find("td")
     expect(tds.contains(<td>{transactions[0].id}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[0].description}</td>)).toBe(true)
+    expect(tds.contains(<td>{transactions[0].date.format()}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[1].id}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[1].description}</td>)).toBe(true)
+    expect(tds.contains(<td>{transactions[1].date.format()}</td>)).toBe(true)
   })
 })
