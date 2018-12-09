@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
+import CreateAccForm from './components/CreateAccForm';
 import { axiosWrapper, ajaxGetRecentTransactions } from "./ajax";
 
 
@@ -37,10 +38,20 @@ class App extends Component {
   }
 
   render() {
+    const { createAcc } = this.props;
     const { transactions } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
               
-    return <div className="App">{transactionTable}</div>;
+    return (
+      <div className="App">
+        <div className="TransactionTableDiv">
+          {transactionTable}
+        </div>
+        <div className="CreateAccFormDiv">
+          <CreateAccForm title="Create Account" createAcc={createAcc}/>
+        </div>
+      </div>
+    );
   }
 
   static renderTransactionTable(transactions) {

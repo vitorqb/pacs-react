@@ -1,5 +1,5 @@
-import sinon from 'sinon'
-import { ajaxGetRecentTransactions } from '../ajax'
+import sinon from 'sinon';
+import { ajaxGetRecentTransactions } from '../ajax';
 
 
 describe('Test ajaxGetRecentTransactions', () => {
