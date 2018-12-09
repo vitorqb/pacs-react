@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { createTitle } from '../utils';
+import { createTitle, createInput } from '../utils';
 
 
 /** A react component that represents a form to create an account. */
@@ -53,14 +53,6 @@ export default class CreateAccForm extends Component {
     * @returns - an array of Input tags.
     */
   renderInputs() {
-    function createInput({ type, name, onChange, value }) {
-      return (
-        <div className="inputDiv" key={name}>
-            {name}: 
-            <input type={type} name={name} value={value} onChange={onChange} />
-        </div>
-      );
-    }
     const { name, accType, parent } = this.state;
     const inputsData = [
       {
