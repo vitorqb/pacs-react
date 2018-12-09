@@ -15,7 +15,7 @@ describe('Testing TransactionTable', () => {
   it('Renders with correct title in dom', () => {
     const title = "Another Title"
     const list = mountTransactionTable(title)
-    expect(list.find('span.title').html()).toContain(title)
+    expect(list.find('span.titleSpan').html()).toContain(title)
   })
   it('Mounts with a table', () => {
     const list = mountTransactionTable()

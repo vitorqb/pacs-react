@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { createTitle } from '../utils';
 
 
 /** A react component that represents a form to create an account. */
@@ -34,11 +35,11 @@ export default class CreateAccForm extends Component {
   }
 
   render() {
-    // !!!! -> Abstract title maker?
     const inputs = this.renderInputs();
+    const title = createTitle(this.props.title);
     return (
       <div className="accFormDiv">
-        <span className="title">{this.props.title}</span>
+        {title}
         <form onSubmit={this.handleSubmit}>
           {inputs}
           <input type="submit" value="Submit" />

@@ -72,7 +72,7 @@ describe('App.test.jsx', () => {
       // A transaction list with title Recent Transactions is shown
       const transactionList = app.find(TransactionTable)
       expect(transactionList).toHaveLength(1)
-      const title = transactionList.find("span.title")
+      const title = transactionList.find("span.titleSpan")
       expect(title.html()).toContain("Recent Transactions")
 
       // The table has no entries!

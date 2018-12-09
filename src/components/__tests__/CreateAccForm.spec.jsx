@@ -13,7 +13,7 @@ describe('CreateAccForm', () => {
   it('Mounts with title', () => {
     const title = "A Title";
     const form = mountForm({ title });
-    const titleSpan = form.find("span.title");
+    const titleSpan = form.find("span.titleSpan");
 
     expect(titleSpan).toHaveLength(1);
     expect(titleSpan.html()).toContain(title);
