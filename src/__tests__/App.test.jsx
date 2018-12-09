@@ -116,23 +116,25 @@ describe('App.test.jsx', () => {
       expect(app.find(CreateAccForm)).toHaveLength(1)
     })
 
-    it('Submits a create account form', () => {
+    it('Submits a create account form', async () => {
       const createAcc = sinon.fake();
       const app = mountApp({ createAcc });
       const accForm = app.find(CreateAccForm)
-      const accData = { name: "TestAcc", accType: "Leaf", parent: 1 }
+      const rawAccData = { name: "TestAcc", accType: "Leaf", parent: 1 }
 
       function setInput(inputName, value) {
         accForm.find({name: inputName}).simulate('change', { target: { value }})
       }
 
-      setInput("name", accData.name)
-      setInput("accType", accData.accType)
-      setInput("parent", accData.parent)
+      setInput("name", rawAccData.name)
+      setInput("accType", rawAccData.accType)
+      setInput("parent", rawAccData.parent)
 
-      accForm.find('input[type="submit"]').simulate("click")
+      accForm.find("form").simulate("submit")
 
-      expect(createAcc.calledWith(accData)).toBe(true)
+      expect(createAcc.calledOnce).toBe(true)
+      const args = createAcc.lastCall.args[1]
+      expect(args).toEqual(rawAccData)
     })
 
   })

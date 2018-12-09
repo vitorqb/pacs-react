@@ -29,6 +29,7 @@ export default class CreateAccForm extends Component {
   }
 
   handleSubmit = (event) => {
+    event.preventDefault()
     this.props.createAcc(this.state)
   }
 
@@ -39,23 +40,32 @@ export default class CreateAccForm extends Component {
     return (
       <div className="accFormDiv">
         <span className="title">{this.props.title}</span>
-        <form>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={this.handleNameUpdate} />
-          <input
-            type="text"
-            name="accType"
-            value={accType}
-            onChange={this.handleAccTypeUpdate} />
-          <input
-            type="number"
-            name="parent"
-            value={parent}
-            onChange={this.handleParentUpdate} />
-          <input type="submit" onClick={this.handleSubmit}/>
+        <form onSubmit={this.handleSubmit}>
+          <div className="inputDiv">
+            Name: 
+            <input
+              type="text"
+              name="name"
+              value={name}
+              onChange={this.handleNameUpdate} />
+          </div>
+          <div className="inputDiv">
+            accType:
+            <input
+              type="text"
+              name="accType"
+              value={accType}
+              onChange={this.handleAccTypeUpdate} />
+          </div>
+          <div className="inputDiv">
+            Parent: 
+            <input
+              type="number"
+              name="parent"
+              value={parent}
+              onChange={this.handleParentUpdate} />
+          </div>
+          <input type="submit" value="Submit" />
         </form>
       </div>
     )

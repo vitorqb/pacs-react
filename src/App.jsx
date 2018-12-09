@@ -41,6 +41,9 @@ class App extends Component {
     const { createAcc = ajaxCreateAcc } = this.props;
     const { transactions } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
+
+    // Parametrizes createAcc with axios
+    const parametrizedCreateAcc = (x) => createAcc(axiosWrapper, x)
               
     return (
       <div className="App">
@@ -48,7 +51,7 @@ class App extends Component {
           {transactionTable}
         </div>
         <div className="CreateAccFormDiv">
-          <CreateAccForm title="Create Account" createAcc={createAcc}/>
+          <CreateAccForm title="Create Account" createAcc={parametrizedCreateAcc}/>
         </div>
       </div>
     );

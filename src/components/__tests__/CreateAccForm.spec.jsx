@@ -50,8 +50,7 @@ describe('CreateAccForm', () => {
   it('accCretor is called when submit', () => {
     const createAcc = sinon.fake();
     const form = mountForm({ createAcc });
-    const submit = form.find('input[type="submit"]');
-    submit.simulate("click")
+    form.find("form").simulate("submit")
     expect(createAcc.called).toBe(true)
   })
 })

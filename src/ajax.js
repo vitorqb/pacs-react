@@ -1,6 +1,6 @@
 // This module contains all functions that performs ajax requests
 import axios from 'axios';
-
+import * as R from 'ramda';
 
 export function ajaxGetRecentTransactions(axios) {
   // (Axios) -> [Transaction]
@@ -16,12 +16,30 @@ export function ajaxGetRecentTransactions(axios) {
 /**
   * Sends a post request to create a new account.
   * @param {Axios} axios - An axios-like api to use.
-  * @param {Object} params - Params passed directly to the post request.
+  * @param {Object} rawParams - Params passed to the post request.
   */
-export function ajaxCreateAcc(axios, params) {
+export function ajaxCreateAcc(axios, rawParams) {
+
+  /**
+    * Prepares a parameter of accounts to the post request.
+    * @param {Any} key - The key of the param.
+    * @param {Any} value - The value of the param.
+    * @returns {Object} The parsed object.
+    */
+  function prepareRawParamForPost([key, value]) {
+    switch (key) {
+    case "accType":
+      return ["acc_type", value]
+    default:
+      return [key, value]
+    }
+  }
+
   const url = "/accounts/"
   const parseResponse = resp => resp.data
-  
+  const params = R.fromPairs(
+    R.toPairs(rawParams).map(prepareRawParamForPost)
+  )
   return axios.post(url, params).then(parseResponse)
 }
 

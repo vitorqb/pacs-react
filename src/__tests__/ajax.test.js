@@ -51,5 +51,13 @@ describe('Test ajax', () => {
 
       expect(axiosMock.post.calledWith(url, params)).toBe(true)
     })
+
+    it('Corrects accType -> acc_type', () => {
+      const axiosMock = { post: sinon.fake.resolves({data: ""}) };
+      const params = {accType: 1};
+      const result = ajaxCreateAcc(axiosMock, params);
+
+      expect(axiosMock.post.calledWith(url, {acc_type: 1})).toBe(true)
+    })
   })
 })
