@@ -44,7 +44,6 @@ class App extends Component {
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(createAcc);
 
-    // !!!! Move divs to sub functions
     return (
       <div className="App">
           {transactionTable}

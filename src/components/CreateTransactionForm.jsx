@@ -17,7 +17,6 @@ export default class CreateTransactionForm extends Component {
     }
   }
 
-  // !!!! TODO -> use immer
   handleDescriptionUpdate = (e) => {
     this.setState({...this.state, description: e.target.value})
   }

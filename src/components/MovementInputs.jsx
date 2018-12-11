@@ -1,5 +1,4 @@
 import * as R from 'ramda';
-import { Map, List } from 'immutable';
 import React, { Component } from 'react';
 import { createTitle } from '../utils';
 
