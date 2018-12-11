@@ -30,6 +30,7 @@
     "fs-extra": "7.0.0",
     "html-webpack-plugin": "4.0.0-alpha.2",
     "identity-obj-proxy": "3.0.0",
+    "immutable": "^4.0.0-rc.12",
     "jest": "23.6.0",
     "jest-pnp-resolver": "1.0.1",
     "jest-resolve": "23.6.0",
@@ -59,7 +60,8 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "tern": "NODE_ENV=development tern --persistent --verbose --ignore-stdin --strip-crs --port 4123"
   },
   "eslintConfig": {
     "extends": "react-app"

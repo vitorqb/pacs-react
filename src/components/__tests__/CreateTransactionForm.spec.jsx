@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 import { mount } from 'enzyme';
 import CreateTransactionForm from '../CreateTransactionForm';
-import MovementForm from '../MovementForm';
+import MovementInputs from '../MovementInputs';
 
 
 /**
@@ -25,7 +25,7 @@ describe('CreateTransactionForm', () => {
   it('Mounts with title', () => {
     const title = "aloha";
     const formComponent = mountCreateTransactionForm({title});
-    expect(formComponent.find("span.titleSpan").html()).toContain(title);
+    expect(formComponent.find("span.titleSpan").first().html()).toContain(title);
   })
 
   it('Mounts with all inputs and empty strings', () => {
@@ -38,13 +38,52 @@ describe('CreateTransactionForm', () => {
     }
   })
 
-  it('Mounts with two empty MovementForm', () => {
-    const movementForms = formComponent.find(MovementForm);
-    expect(movementForms).toHaveLength(2);
-    for (var i=0; i<movementForms.length; i++) {
-      const movementForm = movementForms.get(i);
-      expect(movementForm.isEmpty()).toBe(true);
-    }
+  it('Mounts with two empty states for movements', () => {
+    const movementsInputsStates = formComponent.state().movements;
+    expect(movementsInputsStates).toEqual([
+      {
+        quantity: "",
+        account: "",
+        currency: ""
+      },
+      {
+        quantity: "",
+        account: "",
+        currency: ""
+      }
+    ])
+  })
+
+  it('Mounts with two MovementInputs components', () => {
+    expect(formComponent.find(MovementInputs)).toHaveLength(2);
+  })
+
+  it('Updates on change of movement account', () => {
+    const value = 12345;
+    const movementInputsOne = formComponent.find(MovementInputs).at(0);
+    movementInputsOne.find('input[name="account"]').simulate(
+      "change",
+      { "target": { value } }
+    );
+    expect(formComponent.state().movements[0].account).toBe(value);
+  })
+
+  it('Updates on change of movement currency', () => {
+    const value = 2;
+    formComponent.find(MovementInputs).at(1).find('input[name="currency"]').simulate(
+      "change",
+      { "target": { value } }
+    );
+    expect(formComponent.state().movements[1].currency).toBe(value);
+    expect(formComponent.state().movements[0].currency).toBe("");
+  })
+
+  it('Updates state when MovementInputs changeHandler is called', () => {
+    const newState = {account: 1, quantity: 2, currency: 3};
+    formComponent.find(MovementInputs).at(0).instance().getOnChangeCallback()(
+      newState
+    );
+    expect(formComponent.state().movements[0]).toBe(newState);
   })
 
   it('Updates description on change', () => {
