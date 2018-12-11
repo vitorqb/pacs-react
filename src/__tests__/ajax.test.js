@@ -30,18 +30,14 @@ describe('Test ajax', () => {
       })
     })
 
-    // !!!! TODO -> Use async
-    it('Get one long', () => {
-      const transactions = [{id: 1, description: "A", date: moment("2018-12-12")}]
-      const axiosMock = getAxiosMock({ transactions })
-      const result = ajaxGetRecentTransactions(axiosMock)
-
+    it('Get one long', async () => {
+      const transactions = [{id: 1, description: "A", date: moment("2018-12-12")}];
+      const axiosMock = getAxiosMock({ transactions });
+      const result = await ajaxGetRecentTransactions(axiosMock);
+      expect(result).toEqual(transactions)
       assertCalledWithUrl(axiosMock)
-      return result.then(x => {
-        expect(x).toEqual(transactions)
       })
     })
-  })
 
   describe('Test ajaxCreateAcc', () => {
     const url = "/accounts/"
