@@ -25,17 +25,23 @@ export default class CreateTransactionForm extends Component {
     this.setState({...this.state, date: e.target.value})
   }
 
+  handleSubmit = (e) => {
+    const { createTransaction=(() => {}) } = this.props || {};
+    const transactionData = R.pick(["description", "date", "movements"], this.state);
+    createTransaction(transactionData);
+  }
+
   render() {
     const { title="" } = this.props;
     const titleSpan = createTitle(title);
     const inputs = this.renderInputs();
     const movementInputs = this.renderMovementsInputs();
-
     return (
-      <form>
+      <form onSubmit={this.handleSubmit}>
         {titleSpan}
         {inputs}
         {movementInputs}
+        <input type="submit" />
       </form>
     )
   }
