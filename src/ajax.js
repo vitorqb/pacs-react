@@ -43,6 +43,36 @@ export function ajaxCreateAcc(axios, rawParams) {
   return axios.post(url, params).then(parseResponse)
 }
 
+/**
+ * A curried function that receives an Axios-like and some data for
+ * a transactions and sends a post request to create it.
+ * @param {Axios} axios - An axios-like api to use.
+ * @param {Object} data - Data for transaction.
+ * @param {string} data.description - Description.
+ * @param {string} data.date - Date as YYYY-MM-DD.
+ * @param {Movement[]} data.movements - An array of movements for this transaction,
+ *    in the format {account: int, currency: int, quantity: int}
+ */
+function _ajaxCreateTransaction(axios, { description, date, movements }) {
+  // !!!! DOnt hardocde url
+  const url = "/transactions/";
+
+  function parseMovement(m) {
+    const money = R.pick(["currency", "quantity"], m);
+    return {account: m.account, money }
+  }
+
+  const parsedData = {
+    description,
+    date,
+    movements_specs: movements.map(parseMovement)
+  }
+  return axios.post(url, parsedData)
+}
+
+export const ajaxCreateTransaction = R.curry(_ajaxCreateTransaction);
+
+                                             
 // TODO -> Dont hardcore token (how?)
 export const axiosWrapper = axios.create({
   baseURL: 'http://138.68.66.242/',

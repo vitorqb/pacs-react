@@ -1,6 +1,6 @@
 import moment from 'moment';
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc } from '../ajax';
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction } from '../ajax';
 
 
 describe('Test ajax', () => {
@@ -57,5 +57,33 @@ describe('Test ajax', () => {
 
       expect(axiosMock.post.calledWith(url, {acc_type: 1})).toBe(true)
     })
+  })
+
+  describe('Test ajaxCreateTransaction', () => {
+    // !!!! TODO -> Don't hardcode urls.
+    const url = "/transactions/";
+
+    it('Posts to url after parsing arguments', () => {
+      const rawParams = {
+        description: "Some Description",
+        date: "2018-01-01",
+        movements: [
+          {account: 1, currency: 2, quantity: 3},
+          {account: 4, currency: 5, quantity: 6}
+        ]
+      }
+      const parsedParams = {
+        description: rawParams.description,
+        date: rawParams.date,
+        movements_specs: [
+          {account: 1, money: {currency: 2, quantity: 3}},
+          {account: 4, money: {currency: 5, quantity: 6}}
+        ]
+      };
+      const axiosMock = { post: sinon.fake.resolves() };
+      ajaxCreateTransaction(axiosMock)(rawParams);
+      expect(axiosMock.post.calledWith(url, parsedParams)).toBe(true)
+    })
+
   })
 })
