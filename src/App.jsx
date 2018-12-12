@@ -97,7 +97,7 @@ class App extends Component {
     return (
       <CreateTransactionForm
         title="Create Transaction"
-        createTransaction={createTransaction(axiosWrapper)} />
+        createTransaction={createTransaction} />
     )
   }
 }

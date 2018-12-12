@@ -26,6 +26,7 @@ export default class CreateTransactionForm extends Component {
   }
 
   handleSubmit = (e) => {
+    e.preventDefault()
     const { createTransaction=(() => {}) } = this.props || {};
     const transactionData = R.pick(["description", "date", "movements"], this.state);
     createTransaction(transactionData);
