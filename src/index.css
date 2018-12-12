@@ -18,3 +18,8 @@ span.titleSpan {
     font-weight: bold;
     display: block;
 }
+
+
+div.error-message {
+    background-color: #ffe6ff;
+}

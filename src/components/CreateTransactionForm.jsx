@@ -2,6 +2,7 @@ import * as R from "ramda";
 import React, { Component } from 'react';
 import { createTitle, createInput } from '../utils';
 import MovementInputs from './MovementInputs';
+import ErrorMessage from './ErrorMessage';
 
 /**
  * A component that wraps a form to create a Transaction.
@@ -13,7 +14,8 @@ export default class CreateTransactionForm extends Component {
     this.state = {
       description: "",
       date: "",
-      movements: [0, 0].map(_ => ({account: "", currency: "", quantity: ""}))
+      movements: [0, 0].map(_ => ({account: "", currency: "", quantity: ""})),
+      errorMessage: ""
     }
   }
 
@@ -25,11 +27,17 @@ export default class CreateTransactionForm extends Component {
     this.setState({...this.state, date: e.target.value})
   }
 
+  setErrorMessage = (x) => {
+    this.setState({...this.state, errorMessage: x})
+  }
+
   handleSubmit = (e) => {
     e.preventDefault()
     const { createTransaction=(() => {}) } = this.props || {};
     const transactionData = R.pick(["description", "date", "movements"], this.state);
-    createTransaction(transactionData);
+    return createTransaction(transactionData)
+      .then(_ => this.setErrorMessage(""))
+      .catch(e => this.setErrorMessage(e))
   }
 
   render() {
@@ -45,6 +53,7 @@ export default class CreateTransactionForm extends Component {
           {movementInputs}
           <input type="submit" value="Submit" />
         </form>
+        <ErrorMessage value={this.state.errorMessage} />
       </div>
     )
   }

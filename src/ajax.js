@@ -64,18 +64,27 @@ function _ajaxCreateTransaction(axios, { description, date, movements }) {
     return {account: m.account, money }
   }
 
+  function parseError(e) {
+    if (e.response) {
+      throw e.response.data
+    }
+    throw e
+  }
+
   const parsedData = {
     description,
     date,
-    movements_specs: movements.map(parseMovement)
+    movements_specs: movements ? movements.map(parseMovement) : []
   }
-  return axios.post(url, parsedData)
+
+  return axios.post(url, parsedData).catch(parseError)
 }
 
 export const ajaxCreateTransaction = R.curry(_ajaxCreateTransaction);
 
                                              
-// TODO -> Dont hardcore token (how?)
+// !!!! TODO -> Dont hardcore token (how?)
+// !!!! TODO -> Parse response and errors here according to server API.
 export const axiosWrapper = axios.create({
   baseURL: 'http://138.68.66.242/',
   headers: {

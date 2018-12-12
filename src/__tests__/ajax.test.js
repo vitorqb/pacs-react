@@ -65,26 +65,51 @@ describe('Test ajax', () => {
     // !!!! TODO -> Don't hardcode urls.
     const url = "/transactions/";
 
-    it('Posts to url after parsing arguments', () => {
-      const rawParams = {
-        description: "Some Description",
-        date: "2018-01-01",
-        movements: [
-          {account: 1, currency: 2, quantity: 3},
-          {account: 4, currency: 5, quantity: 6}
-        ]
-      }
-      const parsedParams = {
-        description: rawParams.description,
-        date: rawParams.date,
-        movements_specs: [
-          {account: 1, money: {currency: 2, quantity: 3}},
-          {account: 4, money: {currency: 5, quantity: 6}}
-        ]
-      };
-      const axiosMock = { post: sinon.fake.resolves() };
-      ajaxCreateTransaction(axiosMock)(rawParams);
-      expect(axiosMock.post.calledWith(url, parsedParams)).toBe(true)
+    describe('Posting...', () => {
+      it('Posts to url after parsing arguments', () => {
+        const rawParams = {
+          description: "Some Description",
+          date: "2018-01-01",
+          movements: [
+            {account: 1, currency: 2, quantity: 3},
+            {account: 4, currency: 5, quantity: 6}
+          ]
+        }
+        const parsedParams = {
+          description: rawParams.description,
+          date: rawParams.date,
+          movements_specs: [
+            {account: 1, money: {currency: 2, quantity: 3}},
+            {account: 4, money: {currency: 5, quantity: 6}}
+          ]
+        };
+        const axiosMock = { post: sinon.fake.resolves() };
+        ajaxCreateTransaction(axiosMock)(rawParams);
+        expect(axiosMock.post.calledWith(url, parsedParams)).toBe(true)
+      })      
+    })
+
+    describe('Erroring...', () => {
+      it('Rethrows the error with its response data.', () => {
+        const axiosError = {response: {data: "Some error!"}};
+        const rejectedPromise = Promise.reject(axiosError);
+        const axiosMock = { post: () =>  rejectedPromise}
+
+        const respPromise = ajaxCreateTransaction(axiosMock, {})
+        return respPromise.catch(e => {
+          expect(e).toEqual(axiosError.response.data)
+        })
+      })
+      it('Rethrows the raw error if no response data.', () => {
+        const nonAxiosError = {message: "Some raw message!"};
+        const rejectedPromise = Promise.reject(nonAxiosError);
+        const axiosMock = { post: () => rejectedPromise };
+        
+        const respPromise = ajaxCreateTransaction(axiosMock, {});
+        return respPromise.catch(e => {
+          expect(e).toEqual(nonAxiosError)
+        });
+      })
     })
 
   })

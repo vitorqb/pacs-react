@@ -4,18 +4,26 @@ import React from 'react';
 import { mount } from 'enzyme';
 import CreateTransactionForm from '../CreateTransactionForm';
 import MovementInputs from '../MovementInputs';
-
+import ErrorMessage from '../ErrorMessage';
 
 /**
  * Uses enzyme to mount a CreateTransactionForm
  * @param {string} props.title - The title.
  */
 function mountCreateTransactionForm(
-  { title="", createTransactionMock=(()=>{}) }={}
+  { title="", createTransactionMock=(()=>Promise.resolve({})) }={}
 ) {
   return mount(
     <CreateTransactionForm title={title} createTransaction={createTransactionMock} />
   )
+}
+
+/**
+ * Creates a stub for an axios promise that is rejected with an http error.
+ */
+function axiosReject(data) {
+  const error = { response: { data } };
+  return Promise.reject(error)
 }
 
 describe('CreateTransactionForm', () => {
@@ -127,7 +135,7 @@ describe('CreateTransactionForm', () => {
     let createTransactionMock;
 
     beforeEach(() => {
-      createTransactionMock = sinon.fake();
+      createTransactionMock = sinon.fake.resolves();
       formComponent = mountCreateTransactionForm({createTransactionMock});
     })
 
@@ -148,5 +156,99 @@ describe('CreateTransactionForm', () => {
       expect(calledArg).toEqual(state);
     })
 
+    it('Calls handleSubmit on submit', () => {
+      expect(formComponent.instance().handleSubmit).toBeTruthy();
+      formComponent.instance().handleSubmit = sinon.fake();
+      formComponent.instance().forceUpdate();
+      formComponent.find("form").update();
+
+      formComponent.find("form").simulate("submit");
+
+      expect(formComponent.instance().handleSubmit.calledOnce).toBe(true);
+    })
+
   })
+
+  describe('Erroring...', () => {
+
+    let createTransactionMock;
+
+    function getErrorMessage() {
+      return formComponent.find(ErrorMessage)
+    }
+
+    function getErrorMessage_div() {
+      return getErrorMessage().find("div")
+    }
+
+    function simulateSubmit() {
+      const fakeEvent = {preventDefault: () => {}};
+      return formComponent.instance().handleSubmit(fakeEvent);
+    }
+
+    beforeEach(() => {
+      createTransactionMock = sinon.fake();
+      formComponent = mountCreateTransactionForm({createTransactionMock});
+    })
+
+    it('Renders with empty ErrorMessage...', () => {
+      expect(getErrorMessage()).toHaveLength(1);
+      expect(getErrorMessage().instance().hasError()).toBe(false);
+    })
+
+    it('Passes error message to ErrorMessage children...', () => {
+      expect(getErrorMessage().props().value).toBeFalsy();
+      const errorJson = { account: "This field can not be null!" };
+      formComponent.setState({errorMessage: errorJson});
+      formComponent.render();
+      expect(getErrorMessage().props().value).toBe(errorJson);
+    })
+
+    it('Set error message on request failure...', async () => {
+      const errorJson = { account: "This field can not be null!" };
+      const failedPromise = Promise.reject(errorJson);
+      createTransactionMock = () => failedPromise;
+
+      formComponent = mountCreateTransactionForm({createTransactionMock});
+      await simulateSubmit()
+
+      expect(formComponent.state().errorMessage).toBe(errorJson);
+
+      getErrorMessage().update()
+      expect(getErrorMessage().instance().hasError()).toBe(true);
+      expect(getErrorMessage().props().value).toBe(errorJson);
+    })
+
+    it('Displays error message from state...', () => {
+      formComponent.setState({ errorMessage: "My Error" });
+      expect(getErrorMessage_div().html()).toContain("My Error");
+    })
+
+    it('Resets error message on new submit...', async () => {
+      var callCount = 0;
+      const erroredPromise = axiosReject({data: "Err"}).catch(e => {
+        throw e.response
+      });
+      createTransactionMock = () => {
+        if (callCount === 0) {
+          callCount++;
+          return erroredPromise
+        }
+        return Promise.resolve()
+      }
+      formComponent = mountCreateTransactionForm({createTransactionMock});
+
+      await simulateSubmit();
+
+      getErrorMessage().update()
+      expect(getErrorMessage().props().value).toBeTruthy()
+
+      await simulateSubmit();
+
+      getErrorMessage().update()
+      expect(getErrorMessage().props().value).not.toBeTruthy()
+    })
+    
+  })
+  
 })

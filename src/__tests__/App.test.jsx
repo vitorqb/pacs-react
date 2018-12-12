@@ -156,7 +156,7 @@ describe('App.test.jsx', () => {
 
   describe('createTransactionForm', () => {
     it('Creating a transaction...', () => {
-      const createTransaction = sinon.fake();
+      const createTransaction = sinon.fake.resolves();
       const app = mountApp({createTransaction: createTransaction});
       const createTransactionForm = app.find(CreateTransactionForm).find("form");
       const description = "alojsda";
