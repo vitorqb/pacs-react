@@ -1,12 +1,15 @@
 // Integration tests for pacs-react
+import * as R from 'ramda';
 import React from 'react';
 import sinon from 'sinon';
 import moment from 'moment';
 import { mount } from 'enzyme';
 import App from '../App';
-import TransactionTable from '../components/TransactionTable'
+import TransactionTable from '../components/TransactionTable';
 import CreateAccForm from '../components/CreateAccForm';
-
+import CreateTransactionForm from '../components/CreateTransactionForm';
+import MovementInputs from '../components/MovementInputs';
+import axiosWrapper from '../ajax';
 
 /**
   * Uses enzyme to mount App.
@@ -19,7 +22,12 @@ import CreateAccForm from '../components/CreateAccForm';
   *    (parsed to CreateAccForm).
   */
 function mountApp(opts) {
-  const { transactions=[], timeout=0, createAcc=(() => {}) } = opts || {}
+  const {
+    transactions=[],
+    timeout=0,
+    createAcc=(() => {}),
+    createTransaction=(() => {})
+  } = opts || {}
 
   // Prepares a function that returns transactions when called
   const getTransactions = () => new Promise(resolve => {
@@ -27,7 +35,10 @@ function mountApp(opts) {
   })
 
   return mount(
-    <App getTransactions={getTransactions} createAcc={createAcc} />
+    <App
+      getTransactions={getTransactions}
+      createAcc={createAcc}
+      createTransaction={createTransaction} />
   )
 }
 
@@ -141,6 +152,53 @@ describe('App.test.jsx', () => {
       expect(args).toEqual(rawAccData)
     })
 
+  })
+
+  describe('createTransactionForm', () => {
+    it('Creating a transaction...', () => {
+      const createTransaction_two = sinon.fake();
+      const createTransaction_one = sinon.fake.returns(
+        createTransaction_two
+      );
+      const app = mountApp({createTransaction: createTransaction_one});
+      const createTransactionForm = app.find(CreateTransactionForm);
+      const description = "alojsda";
+      const date =  "1993-11-23";
+      const movements = [
+        {account: 12, quantity: 32, currency: 55},
+        {account: 11, quantity: -32, currency: 55}
+      ]
+
+      createTransactionForm.find('input[name="description"]').simulate(
+        "change",
+        { target: { value: description } }
+      )
+      createTransactionForm.find('input[name="date"]').simulate(
+        "change",
+        { target: { value: date } }
+      )
+
+      const movementsInputs = app.find(MovementInputs);
+      for (var i=0; i<movements.length; i++) {
+        movementsInputs.at(i).find('input[name="account"]').simulate(
+          "change",
+          { target: { value: movements[i].account } }
+        )
+        movementsInputs.at(i).find('input[name="quantity"]').simulate(
+          "change",
+          { target: { value: movements[i].quantity } }
+        )
+        movementsInputs.at(i).find('input[name="currency"]').simulate(
+          "change",
+          { target: { value: movements[i].currency } }
+        )
+      }
+
+      createTransactionForm.simulate("submit");
+
+      expect(createTransaction_two.calledWith({description, date, movements}))
+        .toBe(true)
+    })
   })
   
 })

@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
 import CreateAccForm from './components/CreateAccForm';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc } from "./ajax";
+import CreateTransactionForm from './components/CreateTransactionForm';
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction } from "./ajax";
 
 
 class App extends Component {
@@ -40,14 +41,17 @@ class App extends Component {
 
   render() {
     const { createAcc = ajaxCreateAcc } = this.props;
+    const { createTransaction = ajaxCreateTransaction(axiosWrapper) } = this.props;
     const { transactions } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(createAcc);
+    const createTransactionForm = App.renderCreateTransactionForm(createTransaction);
 
     return (
       <div className="App">
           {transactionTable}
           {createAccForm}
+          {createTransactionForm}
       </div>
     );
   }
@@ -83,6 +87,19 @@ class App extends Component {
     );
   }
 
+  /**
+   * Renders the CreateTransactionForm for the app.
+   * @param {Function} createTransaction - A curried function that maps an
+   *    Axios-like and transactionRawParameters and performs creation of
+   *    the transaction.
+   */
+  static renderCreateTransactionForm(createTransaction) {
+    return (
+      <CreateTransactionForm
+        title="Create Transaction"
+        createTransaction={createTransaction(axiosWrapper)} />
+    )
+  }
 }
 
 export default App;
