@@ -52,7 +52,7 @@ describe('App.test.jsx', () => {
     })
     it('Finished loading', () => {
       const transactions = [
-        {id: 1, description: "hola", date: moment("1993-11-23")}
+        {pk: 1, description: "hola", date: moment("1993-11-23")}
       ]
       const resp = App.renderTransactionTable(transactions)
       expect(resp).toEqual(
@@ -99,8 +99,8 @@ describe('App.test.jsx', () => {
     it('Two-long table of transactions is rendered', async () => {
       // The app is rendered with two transactions
       const transactions = [
-        {id: 5, description: "Salary November", date: moment("2018-01-01")},
-        {id: 12, description: "Japanese Restaurant!", date: moment("1970-01-01")}
+        {pk: 5, description: "Salary November", date: moment("2018-01-01")},
+        {pk: 12, description: "Japanese Restaurant!", date: moment("1970-01-01")}
       ]
       const app = await mountApp({ transactions });
       await app.instance().busy
@@ -114,9 +114,9 @@ describe('App.test.jsx', () => {
 
       // And their contents is as expected
       const expectedTds = transactions.reduce((acc, trans) => {
-        const { id, description } = trans;
+        const { pk, description } = trans;
         const date = trans.date.format();
-        return [...acc, <td>{id}</td>, <td>{description}</td>, <td>{date}</td>]
+        return [...acc, <td>{pk}</td>, <td>{description}</td>, <td>{date}</td>]
       }, [])
       for (var i=0; i < expectedTds.length; i++) {
         const td = expectedTds[i]
@@ -156,11 +156,8 @@ describe('App.test.jsx', () => {
 
   describe('createTransactionForm', () => {
     it('Creating a transaction...', () => {
-      const createTransaction_two = sinon.fake();
-      const createTransaction_one = sinon.fake.returns(
-        createTransaction_two
-      );
-      const app = mountApp({createTransaction: createTransaction_one});
+      const createTransaction = sinon.fake();
+      const app = mountApp({createTransaction: createTransaction});
       const createTransactionForm = app.find(CreateTransactionForm);
       const description = "alojsda";
       const date =  "1993-11-23";
@@ -179,24 +176,19 @@ describe('App.test.jsx', () => {
       )
 
       const movementsInputs = app.find(MovementInputs);
+      const inputNames = ["account", "quantity", "currency"]
       for (var i=0; i<movements.length; i++) {
-        movementsInputs.at(i).find('input[name="account"]').simulate(
-          "change",
-          { target: { value: movements[i].account } }
-        )
-        movementsInputs.at(i).find('input[name="quantity"]').simulate(
-          "change",
-          { target: { value: movements[i].quantity } }
-        )
-        movementsInputs.at(i).find('input[name="currency"]').simulate(
-          "change",
-          { target: { value: movements[i].currency } }
-        )
+        for (var j=0; j<inputNames.length; j++) {
+          movementsInputs.at(i).find(`input[name="${inputNames[j]}"]`).simulate(
+            "change",
+            { target: { value: movements[i][inputNames[j]] } }
+          )
+        }
       }
 
       createTransactionForm.simulate("submit");
 
-      expect(createTransaction_two.calledWith({description, date, movements}))
+      expect(createTransaction.calledWith({description, date, movements}))
         .toBe(true)
     })
   })

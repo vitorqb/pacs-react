@@ -37,10 +37,10 @@ describe('Testing TransactionTable', () => {
    
     expect(trs).toHaveLength(transactions.length)
     const tds = trs.find("td")
-    expect(tds.contains(<td>{transactions[0].id}</td>)).toBe(true)
+    expect(tds.contains(<td>{transactions[0].pk}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[0].description}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[0].date.format()}</td>)).toBe(true)
-    expect(tds.contains(<td>{transactions[1].id}</td>)).toBe(true)
+    expect(tds.contains(<td>{transactions[1].pk}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[1].description}</td>)).toBe(true)
     expect(tds.contains(<td>{transactions[1].date.format()}</td>)).toBe(true)
   })

@@ -14,7 +14,7 @@ export default function TransactionTable(props) {
     const formattedDate = trans.date ? trans.date.format() : "";
     return (
       <tr key={i}>
-        <td>{trans.id}</td>
+        <td>{trans.pk}</td>
         <td>{trans.description}</td>
         <td>{formattedDate}</td>
       </tr>
