@@ -1,4 +1,5 @@
 // This module contains all functions that performs ajax requests
+import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
 
@@ -9,8 +10,9 @@ export function ajaxGetRecentTransactions(axios) {
   // !!!! FIXME -> Dont hardcore url
   const url = "/transactions/"
   const parseResponse = resp => resp.data
+  const parseTransaction = R.evolve({date: moment.utc})
 
-  return axios.get(url).then(parseResponse)
+  return axios.get(url).then(parseResponse).then(R.map(parseTransaction))
 }
 
 /**

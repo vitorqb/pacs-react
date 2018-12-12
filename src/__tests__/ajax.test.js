@@ -31,8 +31,10 @@ describe('Test ajax', () => {
     })
 
     it('Get one long', async () => {
-      const transactions = [{id: 1, description: "A", date: moment("2018-12-12")}];
-      const axiosMock = getAxiosMock({ transactions });
+      const strDate = "2018-12-12";
+      const rawTransactionsResponse = [{id: 1, description: "A", date: strDate}];
+      const transactions = [{id: 1, description: "A", date: moment.utc(strDate)}];
+      const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
       const result = await ajaxGetRecentTransactions(axiosMock);
       expect(result).toEqual(transactions)
       assertCalledWithUrl(axiosMock)
