@@ -115,7 +115,7 @@ describe('App.test.jsx', () => {
       // And their contents is as expected
       const expectedTds = transactions.reduce((acc, trans) => {
         const { pk, description } = trans;
-        const date = trans.date.format();
+        const date = trans.date.format("YYYY-MM-DD");
         return [...acc, <td>{pk}</td>, <td>{description}</td>, <td>{date}</td>]
       }, [])
       for (var i=0; i < expectedTds.length; i++) {

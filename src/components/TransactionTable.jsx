@@ -11,7 +11,7 @@ import { createTitle } from '../utils';
 export default function TransactionTable(props) {
   const { transactions = [], title = "" } = props;
   const rows = transactions.map((trans, i) => {
-    const formattedDate = trans.date ? trans.date.format() : "";
+    const formattedDate = trans.date ? trans.date.format("YYYY-MM-DD") : "";
     return (
       <tr key={i}>
         <td>{trans.pk}</td>
