@@ -38,12 +38,14 @@ export default class CreateTransactionForm extends Component {
     const inputs = this.renderInputs();
     const movementInputs = this.renderMovementsInputs();
     return (
-      <form onSubmit={this.handleSubmit}>
-        {titleSpan}
-        {inputs}
-        {movementInputs}
-        <input type="submit" />
-      </form>
+      <div className="form-div">
+        <form onSubmit={this.handleSubmit}>
+          {titleSpan}
+          {inputs}
+          {movementInputs}
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
     )
   }
 
@@ -83,6 +85,7 @@ export default class CreateTransactionForm extends Component {
       return (
         <MovementInputs
           key={index}
+          title={`movements[${index}]`}
           account={account}
           quantity={quantity}
           currency={currency}

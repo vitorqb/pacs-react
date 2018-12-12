@@ -81,9 +81,7 @@ class App extends Component {
     const parametrizedCreateAcc = R.partial(createAcc, [axiosWrapper]);
     
     return (
-      <div className="CreateAccFormDiv">
         <CreateAccForm title="Create Account" createAcc={parametrizedCreateAcc}/>
-      </div>
     );
   }
 

@@ -49,9 +49,9 @@ export default class MovementInputs extends Component{
     return (
       <div>
         {titleSpan}
-        <input name="account" onChange={this.changeHandler("account")}/>
-        <input name="currency" onChange={this.changeHandler("currency")} />
-        <input name="quantity" onChange={this.changeHandler("quantity")}/>
+        acc: <input name="account" onChange={this.changeHandler("account")}/>
+        cur: <input name="currency" onChange={this.changeHandler("currency")} />
+        qua: <input name="quantity" onChange={this.changeHandler("quantity")}/>
       </div>
     )
   }

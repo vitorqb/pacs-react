@@ -38,7 +38,7 @@ export default class CreateAccForm extends Component {
     const inputs = this.renderInputs();
     const title = createTitle(this.props.title);
     return (
-      <div className="accFormDiv">
+      <div className="form-div">
         {title}
         <form onSubmit={this.handleSubmit}>
           {inputs}
