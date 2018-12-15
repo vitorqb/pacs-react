@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import React from 'react';
 import { mount } from 'enzyme';
 import CreateAccForm from '../CreateAccForm';
+import SuccessMessage from '../SuccessMessage';
 
 
 describe('CreateAccForm', () => {
@@ -48,9 +49,44 @@ describe('CreateAccForm', () => {
     expect(form.instance().state.parent).toBe(value)
   })
   it('accCretor is called when submit', () => {
-    const createAcc = sinon.fake();
+    const createAcc = sinon.fake.resolves();
     const form = mountForm({ createAcc });
     form.find("form").simulate("submit")
     expect(createAcc.called).toBe(true)
   })
+
+  describe('After submit...', () => {
+    function submitForm(f) {
+      return f.instance().handleSubmit({preventDefault: ()=>{}})
+    }
+    it('Inits with empty responseMsg', () => {
+      expect(mountForm().state().responseMsg).toBe("");
+    })
+    it('Sets response msg after submit', async () => {
+      const responseMsg = { pk: 1, name: "Some Created Acc" };
+      const createAcc = () => Promise.resolve(responseMsg);
+      const form = mountForm({ createAcc });
+
+      await submitForm(form);
+      expect(form.state().responseMsg).toEqual(responseMsg);
+    })
+    it('Resets response msg on new submit', () => {
+      const createAcc = () => Promise.resolve();
+      const form = mountForm({createAcc});
+      form.setState({responseMsg: "Some object"});
+
+      submitForm(form);
+
+      expect(form.state().responseMsg).toBe("");
+    })
+    it('Displays response msg with SuccessMessage component', () => {
+      const form = mountForm();
+      form.setState({responseMsg: "Some message"});
+      form.update();
+      form.instance().forceUpdate();
+
+      expect(form.find(SuccessMessage).props().value).toEqual("Some message");
+    })
+  })
+  
 })

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { createTitle, createInput } from '../utils';
-
+import SuccessMessage from './SuccessMessage';
+import * as R from 'ramda';
 
 /** A react component that represents a form to create an account. */
 export default class CreateAccForm extends Component {
@@ -14,7 +15,25 @@ export default class CreateAccForm extends Component {
     */
   constructor(props) {
     super(props);
-    this.state = { name: "", accType: "", parent: "" }
+    this.state = {
+      name: "",
+      accType: "",
+      parent: "",
+      responseMsg: ""
+    }
+  }
+
+  /**
+   * Set's the responseMsg state, that contains a response message when
+   * the account creation succeeds.
+   */
+  setResponseMsg = x => {
+    const newState = x || "";
+    this.setState({responseMsg: x})
+  }
+
+  resetResponseMsg = () => {
+    this.setResponseMsg("")
   }
 
   handleNameUpdate = (event) => {
@@ -30,8 +49,11 @@ export default class CreateAccForm extends Component {
   }
 
   handleSubmit = (event) => {
+    const accParams = R.pick(["accType", "name", "parent"], this.state);
+
     event.preventDefault()
-    this.props.createAcc(this.state)
+    this.resetResponseMsg()
+    this.props.createAcc(accParams).then(this.setResponseMsg)
   }
 
   render() {
@@ -44,6 +66,7 @@ export default class CreateAccForm extends Component {
           {inputs}
           <input type="submit" value="Submit" />
         </form>
+        <SuccessMessage value={this.state.responseMsg} />
       </div>
     )
   }

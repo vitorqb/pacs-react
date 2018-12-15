@@ -23,3 +23,7 @@ span.titleSpan {
 div.error-message {
     background-color: #ffe6ff;
 }
+
+div.success-message {
+    background-color: #e6ffe6;
+}

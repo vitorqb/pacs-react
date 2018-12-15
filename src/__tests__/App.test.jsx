@@ -132,7 +132,7 @@ describe('App.test.jsx', () => {
     })
 
     it('Submits a create account form', async () => {
-      const createAcc = sinon.fake();
+      const createAcc = sinon.fake.resolves();
       const app = mountApp({ createAcc });
       const accForm = app.find(CreateAccForm)
       const rawAccData = { name: "TestAcc", accType: "Leaf", parent: 1 }
