@@ -1,4 +1,4 @@
-import React, { ReactDOM } from 'react'
+import React from 'react'
 
 export default function({ value }) {
   if (!value) {

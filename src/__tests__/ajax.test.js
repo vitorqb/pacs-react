@@ -24,7 +24,7 @@ describe('Test ajax', () => {
       const axiosMock = getAxiosMock()
       const result = ajaxGetRecentTransactions(axiosMock)
 
-      assertCalledWithUrl(axiosMock)    
+      assertCalledWithUrl(axiosMock)
       return result.then(x => {
         expect(x).toEqual([])
       })
@@ -86,7 +86,13 @@ describe('Test ajax', () => {
         const axiosMock = { post: sinon.fake.resolves() };
         ajaxCreateTransaction(axiosMock)(rawParams);
         expect(axiosMock.post.calledWith(url, parsedParams)).toBe(true)
-      })      
+      })
+      it('Parses response data', () => {
+        const response = {data: {a: 1, b: 2}}
+        const axiosMock = { post: () => Promise.resolve(response) };
+        const responsePromise = ajaxCreateTransaction(axiosMock, {});
+        return responsePromise.then(x => expect(x).toEqual(response.data))
+      })
     })
 
     describe('Erroring...', () => {
@@ -104,7 +110,7 @@ describe('Test ajax', () => {
         const nonAxiosError = {message: "Some raw message!"};
         const rejectedPromise = Promise.reject(nonAxiosError);
         const axiosMock = { post: () => rejectedPromise };
-        
+
         const respPromise = ajaxCreateTransaction(axiosMock, {});
         return respPromise.catch(e => {
           expect(e).toEqual(nonAxiosError)

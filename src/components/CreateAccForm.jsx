@@ -29,7 +29,7 @@ export default class CreateAccForm extends Component {
    */
   setResponseMsg = x => {
     const newState = x || "";
-    this.setState({responseMsg: x})
+    this.setState({responseMsg: newState})
   }
 
   resetResponseMsg = () => {

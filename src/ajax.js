@@ -71,13 +71,20 @@ function _ajaxCreateTransaction(axios, { description, date, movements }) {
     throw e
   }
 
+  function parseResponse(resp) {
+    if (!resp || !resp.data) {
+      return resp
+    }
+    return resp.data
+  }
+
   const parsedData = {
     description,
     date,
     movements_specs: movements ? movements.map(parseMovement) : []
   }
 
-  return axios.post(url, parsedData).catch(parseError)
+  return axios.post(url, parsedData).catch(parseError).then(parseResponse)
 }
 
 export const ajaxCreateTransaction = R.curry(_ajaxCreateTransaction);

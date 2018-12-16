@@ -5,6 +5,7 @@ import { mount } from 'enzyme';
 import CreateTransactionForm from '../CreateTransactionForm';
 import MovementInputs from '../MovementInputs';
 import ErrorMessage from '../ErrorMessage';
+import SuccessMessage from '../SuccessMessage';
 
 /**
  * Uses enzyme to mount a CreateTransactionForm
@@ -134,6 +135,14 @@ describe('CreateTransactionForm', () => {
 
     let createTransactionMock;
 
+    function simulateSubmit(f) {
+      return f.instance().handleSubmit({preventDefault: ()=>{}});
+    }
+
+    function getSuccessMsgValue(f) {
+      return f.find(SuccessMessage).props().value
+    }
+
     beforeEach(() => {
       createTransactionMock = sinon.fake.resolves();
       formComponent = mountCreateTransactionForm({createTransactionMock});
@@ -165,6 +174,35 @@ describe('CreateTransactionForm', () => {
       formComponent.find("form").simulate("submit");
 
       expect(formComponent.instance().handleSubmit.calledOnce).toBe(true);
+    })
+
+    it('Parses responseMessage to SuccessMessage', async () => {
+      const responseMsg = {some: "message"};
+      const createTransactionMock = () => Promise.resolve(responseMsg)
+      formComponent = mountCreateTransactionForm({createTransactionMock})
+
+      expect(getSuccessMsgValue(formComponent)).toBe("");
+
+      await simulateSubmit(formComponent)
+      formComponent.update()
+
+      expect(getSuccessMsgValue(formComponent)).toEqual(responseMsg);
+    })
+    
+    it('Resets submitted response msg on resubmition', () => {
+      const responseMsg = {some: "message"};
+      var mockFirstCall = true;
+      function createTransactionMock() {
+        if (mockFirstCall) {
+          mockFirstCall = false;
+          return Promise.resolve(responseMsg);
+        }
+        return Promise.reject()
+      }
+      formComponent = mountCreateTransactionForm({createTransactionMock});
+      simulateSubmit(formComponent)
+      simulateSubmit(formComponent)
+      expect(getSuccessMsgValue(formComponent)).toEqual("");
     })
 
   })

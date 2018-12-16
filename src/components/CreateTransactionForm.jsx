@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { createTitle, createInput } from '../utils';
 import MovementInputs from './MovementInputs';
 import ErrorMessage from './ErrorMessage';
+import SuccessMessage from './SuccessMessage';
 
 /**
  * A component that wraps a form to create a Transaction.
@@ -15,7 +16,8 @@ export default class CreateTransactionForm extends Component {
       description: "",
       date: "",
       movements: [0, 0].map(_ => ({account: "", currency: "", quantity: ""})),
-      errorMessage: ""
+      errorMessage: "",
+      successMessage: ""
     }
   }
 
@@ -31,13 +33,34 @@ export default class CreateTransactionForm extends Component {
     this.setState({...this.state, errorMessage: x})
   }
 
+  resetErrorMessage = () => {
+    this.setErrorMessage("")
+  }
+
+  setSuccessMessage = x => {
+    this.setState({successMessage: x});
+  }
+
+  resetSuccessMessage = () => {
+    this.setSuccessMessage("");
+  }
+
   handleSubmit = (e) => {
     e.preventDefault()
+
+    const self = this;
     const { createTransaction=(() => {}) } = this.props || {};
     const transactionData = R.pick(["description", "date", "movements"], this.state);
-    return createTransaction(transactionData)
-      .then(_ => this.setErrorMessage(""))
-      .catch(e => this.setErrorMessage(e))
+    function onSuccess(data) {
+      self.resetErrorMessage()
+      self.setSuccessMessage(data)
+    }
+    function onFailure(e) {
+      self.resetSuccessMessage()
+      self.setErrorMessage(e)
+    }
+
+    return createTransaction(transactionData).then(onSuccess).catch(onFailure)
   }
 
   render() {
@@ -54,6 +77,7 @@ export default class CreateTransactionForm extends Component {
           <input type="submit" value="Submit" />
         </form>
         <ErrorMessage value={this.state.errorMessage} />
+        <SuccessMessage value={this.state.successMessage} />
       </div>
     )
   }
