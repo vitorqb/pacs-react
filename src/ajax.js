@@ -22,6 +22,16 @@ export function extractDataFromAxiosResponse(response) {
   return response.data
 }
 
+/**
+ * Runs an http request.
+ * @param {Axios} axios - An axios-like function.
+ * @param {string} url - The url for the request.
+ * @param {string} method - A string with the http verb.
+ * @param {Object} requestData - The data to send.
+ * @param {Function} parseResponseData - A function that receives the data of
+ *   the request response and parses it.
+ * @returns Whatever parseResponseData returns.
+ */
 export function makeRequest({
   axios,
   url,
