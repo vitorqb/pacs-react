@@ -1,4 +1,14 @@
-import React from 'react'
+import React from 'react';
+import * as R from 'ramda';
+
+/**
+ * Returns a clone of the object with keys remapped according to keysmapping.
+ */
+export const remapKeys = R.curry(function(keysMapping, obj) {
+  const updateKey = oldKey => keysMapping[oldKey] || oldKey;
+  const updatePair = ([key, value]) => [updateKey(key), value];
+  return R.pipe(R.toPairs, R.map(updatePair), R.fromPairs)(obj)
+})
 
 
 /**
