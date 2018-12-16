@@ -40,9 +40,12 @@ class App extends Component {
   }
 
   render() {
-    const { createAcc = ajaxCreateAcc } = this.props;
-    const { createTransaction = ajaxCreateTransaction(axiosWrapper) } = this.props;
+    const {
+      createAcc = ajaxCreateAcc(axiosWrapper),
+      createTransaction = ajaxCreateTransaction(axiosWrapper)
+    } = this.props || {};
     const { transactions } = this.state;
+
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(createAcc);
     const createTransactionForm = App.renderCreateTransactionForm(createTransaction);
@@ -50,8 +53,8 @@ class App extends Component {
     return (
       <div className="App">
           {transactionTable}
-          {createAccForm}
           {createTransactionForm}
+          {createAccForm}
       </div>
     );
   }
@@ -73,15 +76,13 @@ class App extends Component {
 
   /**
    * Renders the CreateAccForm for the app.
-   * @param {Function} createAcc - A function that receives (Axios, accRawParams)
-   *    and performs the creation of the account.
+   * @param {Function} createAcc - A function that receives account creation
+   *   data and performs the post request to create the account.
    */
   static renderCreateAccForm(createAcc) {
     // We parametrize createAcc with the AxiosWrapper.
-    const parametrizedCreateAcc = R.partial(createAcc, [axiosWrapper]);
-    
     return (
-        <CreateAccForm title="Create Account" createAcc={parametrizedCreateAcc}/>
+        <CreateAccForm title="Create Account" createAcc={createAcc}/>
     );
   }
 
