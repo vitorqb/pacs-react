@@ -48,16 +48,21 @@ export function makeRequest({
     .catch(handleFailure);
 }
 
-export function ajaxGetRecentTransactions(axios) {
-  // (Axios) -> [Transaction]
-  // Get all recent transactions and returns them. Anything that
-  // behaves like Axios is accepted as input.
-  // !!!! FIXME -> Dont hardcore url
-  const url = "/transactions/"
-  const parseResponse = resp => resp.data
-  const parseTransaction = R.evolve({date: moment.utc})
+//
+// Transactions requests
+//
 
-  return axios.get(url).then(parseResponse).then(R.map(parseTransaction))
+export const parseTransactionResponseData = R.evolve({date: moment.utc});
+
+/**
+ * Get all recent transactions.
+ */
+export function ajaxGetRecentTransactions(axios) {
+  return makeRequest({
+    axios,
+    url: "/transactions/",
+    parseResponseData: R.map(parseTransactionResponseData)
+  })
 }
 
 /**

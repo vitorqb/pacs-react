@@ -56,22 +56,23 @@ describe('Test ajax', () => {
       // Returns an Axios mock for get transactions
       const { transactions = [] } = opts || {}
       const respMock = { data: transactions }
-      return { get: sinon.fake.resolves(respMock) }
+      return sinon.fake.resolves(respMock)
     }
 
     function assertCalledWithUrl(axiosMock) {
       // Asserts an axios mock was called with `url`
-      expect(axiosMock.get.calledWith(url)).toBe(true)
+      expect(axiosMock.lastArg.url).toEqual(url);
     }
 
     it('Get empty array', () => {
-      const axiosMock = getAxiosMock()
-      const result = ajaxGetRecentTransactions(axiosMock)
+      const axiosMock = getAxiosMock();
+      const result = ajaxGetRecentTransactions(axiosMock);
 
-      assertCalledWithUrl(axiosMock)
+      expect.assertions(2);
+      assertCalledWithUrl(axiosMock);
       return result.then(x => {
         expect(x).toEqual([])
-      })
+      });
     })
 
     it('Get one long', async () => {
