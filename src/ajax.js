@@ -89,6 +89,7 @@ export const ajaxCreateTransaction = R.curry(function(axios, params) {
     return makeRequest({
       axios,
       url: "/transactions/",
+      method: "POST",
       requestData: prepareCreateTransactionParams(params)
     })
   }
