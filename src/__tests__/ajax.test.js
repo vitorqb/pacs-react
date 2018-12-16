@@ -1,9 +1,53 @@
 import moment from 'moment';
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction } from '../ajax';
-
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG } from '../ajax';
+import * as R from 'ramda';
 
 describe('Test ajax', () => {
+
+  describe('makRequest()', () => {
+    it('Calls axios with config...', () => {
+      const method = "POST";
+      const url = "my/url";
+      const data = {my: "data"};
+      const response = {data: ""}
+      const axiosMock = sinon.fake.resolves(response);
+      makeRequest({axios: axiosMock, method, url});
+      expect(axiosMock.calledWith({url, method, data}))
+    })
+    it('Returns parsed promise on success...', () => {
+      const responseMock = {data: {a: 1, b: 2}};
+      const axiosMock = () => Promise.resolve(responseMock);
+      const parseResponseData = R.prop("b");
+      expect.assertions(1)
+      return makeRequest({
+        axios: axiosMock,
+        url: "a",
+        parseResponseData
+      }).then(function(data) {
+        expect(data).toEqual(2)
+      })
+    })
+    it('Raises parsed error message on failure...', () => {
+      const responseError = {response: {data: "Some error message"}};
+      const axiosMock = () => Promise.reject(responseError);
+      expect.assertions(1)
+      return makeRequest({axios: axiosMock}).catch(errorData => {
+        expect(errorData).toEqual(responseError.response.data)
+      })
+    })
+  })
+
+  describe('extractDataFromAxiosError()', () => {
+    it('Error with response data', () => {
+      const error = {a: 1};
+      expect(extractDataFromAxiosError(error)).toEqual(REQUEST_ERROR_MSG);
+    })
+    it('Error with no response data', () => {
+      const responseError = {response: {data: 123}};
+      expect(extractDataFromAxiosError(responseError)).toEqual(123);
+    })
+  })
 
   describe('Test ajaxGetRecentTransactions', () => {
     const url = "/transactions/";

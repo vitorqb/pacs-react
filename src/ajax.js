@@ -3,6 +3,41 @@ import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
 
+export const REQUEST_ERROR_MSG = "Something went wrong on the http request";
+
+/**
+ * Extracts error data from an axios error.
+ */
+export function extractDataFromAxiosError(error) {
+  if (error && error.response) {
+    return error.response.data
+  }
+  return REQUEST_ERROR_MSG
+}
+
+/**
+ * Extracts relevant data from an axios response.
+ */
+export function extractDataFromAxiosResponse(response) {
+  return response.data
+}
+
+export function makeRequest({
+  axios,
+  url,
+  method = "GET",
+  requestData = {},
+  parseResponseData = R.identity,
+}) {
+  const handleSuccess = R.pipe(extractDataFromAxiosResponse, parseResponseData);
+  function handleFailure(error) {
+    throw extractDataFromAxiosError(error)
+  }
+  return axios({url, method, data: requestData})
+    .then(handleSuccess)
+    .catch(handleFailure);
+}
+
 export function ajaxGetRecentTransactions(axios) {
   // (Axios) -> [Transaction]
   // Get all recent transactions and returns them. Anything that
