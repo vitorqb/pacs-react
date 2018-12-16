@@ -148,7 +148,7 @@ describe('App.test.jsx', () => {
       accForm.find("form").simulate("submit")
 
       expect(createAcc.calledOnce).toBe(true)
-      const args = createAcc.lastCall.args[1]
+      const args = createAcc.lastCall.args[0]
       expect(args).toEqual(rawAccData)
     })
 
