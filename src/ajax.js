@@ -4,24 +4,24 @@ import axios from 'axios';
 import * as R from 'ramda';
 import { remapKeys } from './utils';
 
+//
+// Contants
+// 
 export const REQUEST_ERROR_MSG = "Something went wrong on the http request";
 
+//
+// Axios & Requests
+// 
 /**
  * Extracts error data from an axios error.
  */
-export function extractDataFromAxiosError(error) {
-  if (error && error.response) {
-    return error.response.data
-  }
-  return REQUEST_ERROR_MSG
-}
+export const extractDataFromAxiosError =
+  R.pathOr(REQUEST_ERROR_MSG, ["response", "data"])
 
 /**
  * Extracts relevant data from an axios response.
  */
-export function extractDataFromAxiosResponse(response) {
-  return response.data
-}
+export const extractDataFromAxiosResponse = R.prop("data")
 
 /**
  * Runs an http request.
@@ -52,7 +52,6 @@ export function makeRequest({
 //
 // Transactions requests
 //
-
 export const parseTransactionResponseData = R.evolve({date: moment.utc});
 
 export function parseMovementToRequestData(movement) {
