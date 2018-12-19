@@ -101,7 +101,7 @@ describe('App.test.jsx', () => {
     it('Retrieves accounts when mounted', () => {
       expect.assertions(1);
 
-      const accounts = [AccountFactory.build({accType: "Root"})];
+      const accounts = [AccountFactory.buildRoot()];
       const accountsPromise = Promise.resolve(accounts);
       const getAccounts = () => accountsPromise;
       const app = mountApp({getAccounts});
@@ -163,9 +163,7 @@ describe('App.test.jsx', () => {
     })
 
     it('Shows accounts if parsed', () => {
-      const root = AccountFactory.build({accType: "Root"});
-      const child = AccountFactory.build({parent: root.pk});
-      const accounts = [root, child];
+      const accounts = AccountFactory.buildRootAndChildren(2);
       const accountTree = mount(App.renderAccountTree(accounts));
       const exp = <AccountTree accounts={accounts} />;
       expect(accountTree.equals(exp)).toBe(true);
