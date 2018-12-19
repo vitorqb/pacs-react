@@ -1,16 +1,12 @@
 // Integration tests for pacs-react
-import * as R from 'ramda';
 import React from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import sinon from 'sinon';
 import moment from 'moment';
 import { mount } from 'enzyme';
 import App, { makeLink, makeRoute, makeRouter } from '../App';
 import TransactionTable from '../components/TransactionTable';
-import CreateAccForm from '../components/CreateAccForm';
-import CreateTransactionForm from '../components/CreateTransactionForm';
-import MovementInputs from '../components/MovementInputs';
-import axiosWrapper from '../ajax';
+import AccountTree from '../components/AccountTree';
+import { AccountFactory } from '../testUtils';
 
 /**
   * Uses enzyme to mount App.
@@ -21,13 +17,18 @@ import axiosWrapper from '../ajax';
   *    recent transactions.
   * @param {Function} opts.createAcc - A function called to create an account
   *    (parsed to CreateAccForm).
+  * @param {Function} opts.createTransaction - A function called to create a
+  *    transaction.
+  * @param {Function} opts.getAccounts - A mock function called to get a list
+  *    of all accounts.
   */
 function mountApp(opts) {
   const {
     transactions=[],
     timeout=0,
     createAcc=(() => {}),
-    createTransaction=(() => {})
+    createTransaction=(() => {}),
+    getAccounts=(() => Promise.resolve([]))
   } = opts || {}
 
   // Prepares a function that returns transactions when called
@@ -38,6 +39,7 @@ function mountApp(opts) {
   return mount(
     <App
       getTransactions={getTransactions}
+      getAccounts={getAccounts}
       createAcc={createAcc}
       createTransaction={createTransaction} />
   )
@@ -95,6 +97,27 @@ describe('App.test.jsx', () => {
     })
   })
 
+  describe('Retrieving accounts list...', () => {
+    it('Retrieves accounts when mounted', () => {
+      expect.assertions(1);
+
+      const accounts = [AccountFactory.build({accType: "Root"})];
+      const accountsPromise = Promise.resolve(accounts);
+      const getAccounts = () => accountsPromise;
+      const app = mountApp({getAccounts});
+      const promiseToWaitFor = Promise.all([
+        accountsPromise,
+        app.busy
+      ]);
+
+      return promiseToWaitFor.then(() => {
+        app.update();
+        app.instance().forceUpdate();
+        expect(app.state().accounts).toBe(accounts);
+      })
+    })
+  })
+
   describe('renderTransactionTable', () => {
     it('Still loading', () => {
       const resp = App.renderTransactionTable(null)
@@ -130,5 +153,23 @@ describe('App.test.jsx', () => {
         expect(app.find(`Route[path="${routeData.path}"]`)).toHaveLength(1);
       }
     })
-  })  
+  })
+
+  describe('App.renderAccountTree', () => {
+
+    it('Shows loading if accounts is null', () => {
+      const accountTree = mount(App.renderAccountTree(null));
+      expect(accountTree.equals(<p>Loading...</p>)).toBe(true)
+    })
+
+    it('Shows accounts if parsed', () => {
+      const root = AccountFactory.build({accType: "Root"});
+      const child = AccountFactory.build({parent: root.pk});
+      const accounts = [root, child];
+      const accountTree = mount(App.renderAccountTree(accounts));
+      const exp = <AccountTree accounts={accounts} />;
+      expect(accountTree.equals(exp)).toBe(true);
+    })
+    
+  })
 })

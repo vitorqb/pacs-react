@@ -5,8 +5,8 @@ import './App.css';
 import TransactionTable from "./components/TransactionTable";
 import CreateAccForm from './components/CreateAccForm';
 import CreateTransactionForm from './components/CreateTransactionForm';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction } from "./ajax";
-
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts } from "./ajax";
+import AccountTree from './components/AccountTree';
 
 /**
  * Makes a '<Link>' for a router.
@@ -63,38 +63,48 @@ class App extends Component {
   constructor(props) {
     // Defines the initial state
     super(props);
-    this.state = {
-      isLoaded: false,
-      transactions: null
-    }
+    this.state = {transactions: null};
+  }
+
+  setTransactions = (transactions) => {
+    this.setState({transactions});
+  }
+
+  setAccounts = (accounts) => {
+    this.setState({accounts});
   }
 
   componentDidMount() {
     // Loads transactions and sets state on return
     const { getTransactions = ajaxGetRecentTransactions } = this.props;
-    this.busy = getTransactions(axiosWrapper).then(transactions => {
-      this.setState({
-        isLoaded: true,
-        transactions
-      })
-    })
+    const getTransactionsPromise = getTransactions(axiosWrapper)
+          .then(this.setTransactions);
+
+    // Same for accounts
+    const { getAccounts = ajaxGetAccounts } = this.props;
+    const getAccountsPromise = getAccounts(axiosWrapper)
+          .then(this.setAccounts);
+
+    this.busy = Promise.all([getTransactionsPromise, getAccountsPromise]);
   }
 
   render() {
     const {
       createAcc = ajaxCreateAcc(axiosWrapper),
-      createTransaction = ajaxCreateTransaction(axiosWrapper)
+      createTransaction = ajaxCreateTransaction(axiosWrapper),
     } = this.props || {};
-    const { transactions } = this.state;
+    const { transactions, accounts } = this.state;
 
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(createAcc);
     const createTransactionForm = App.renderCreateTransactionForm(createTransaction);
+    const accountTree = App.renderAccountTree(accounts);
 
     const router = makeRouter(this.getRoutesData({
       transactionTable,
       createAccForm,
-      createTransactionForm
+      createTransactionForm,
+      accountTree,
     }));
 
     return (
@@ -107,7 +117,12 @@ class App extends Component {
   /**
    * Returns the data for the routes of the App.
    */
-  getRoutesData({transactionTable, createAccForm, createTransactionForm}) {
+  getRoutesData({
+    transactionTable,
+    createAccForm,
+    createTransactionForm,
+    accountTree
+  }) {
     return [
       {
         path: "/create-transaction/",
@@ -123,13 +138,18 @@ class App extends Component {
         path: "/create-account/",
         text: "Create Account",
         component: () => createAccForm
+      },
+      {
+        path: "/account-tree/",
+        text: "Account Tree",
+        component: () => accountTree
       }
     ]
   }
 
   static renderTransactionTable(transactions) {
     // Renders the transactionTable or a loading <p> if transactions is null
-    if (transactions) {
+    if (transactions !== null) {
       return (
         <div className="TransactionTableDiv">
           <TransactionTable
@@ -166,6 +186,14 @@ class App extends Component {
         title="Create Transaction"
         createTransaction={createTransaction} />
     )
+  }
+
+  static renderAccountTree(accounts) {
+    if (accounts === null || accounts === undefined) {
+      return <p>Loading...</p>
+    } else {
+      return <AccountTree accounts={accounts} /> 
+    }
   }
 }
 

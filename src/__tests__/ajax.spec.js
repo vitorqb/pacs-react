@@ -1,7 +1,9 @@
 import moment from 'moment';
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, parseMovementToRequestData } from '../ajax';
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, parseMovementToRequestData, ajaxGetAccounts } from '../ajax';
 import * as R from 'ramda';
+import { AccountFactory } from '../testUtils';
+import { remapKeys } from '../utils';
 
 describe('Test ajax', () => {
 
@@ -163,23 +165,43 @@ describe('Test ajax', () => {
     })    
   })
 
-  describe('Test ajaxCreateAcc', () => {
+  describe('Accounts...', () => {
     const url = "/accounts/"
 
-    it('Posts to url with received arguments', () => {
-      const axiosMock = sinon.fake.resolves({data: ""});
-      const params = {a: 1, b: 2};
-      const result = ajaxCreateAcc(axiosMock, params);
-      expect(axiosMock.lastArg.method).toBe("POST");
-      expect(axiosMock.lastArg.url).toBe(url);
+    describe('Test ajaxCreateAcc', () => {
+      it('Posts to url with received arguments', () => {
+        const axiosMock = sinon.fake.resolves({data: ""});
+        const params = {a: 1, b: 2};
+        ajaxCreateAcc(axiosMock, params);
+        expect(axiosMock.lastArg.method).toBe("POST");
+        expect(axiosMock.lastArg.url).toBe(url);
+      })
+
+      it('Corrects accType -> acc_type', () => {
+        const axiosMock = sinon.fake.resolves({data: ""});
+        const params = {accType: 1};
+        ajaxCreateAcc(axiosMock, params);
+        expect(axiosMock.lastArg.data).toEqual({acc_type: 1});
+      })
     })
 
-    it('Corrects accType -> acc_type', () => {
-      const axiosMock = sinon.fake.resolves({data: ""});
-      const params = {accType: 1};
-      const result = ajaxCreateAcc(axiosMock, params);
-      expect(axiosMock.lastArg.data).toEqual({acc_type: 1});
+    describe('ajaxGetAccounts()', () => {
+      it('Gets to url...', () => {
+        const axiosMock = sinon.fake.resolves({data: []});
+        ajaxGetAccounts(axiosMock);
+        expect(axiosMock.lastArg.method).toBe("GET");
+        expect(axiosMock.lastArg.url).toBe(url);
+      })
+      it('Returns promises with the accounts...', () => {
+        expect.assertions(1);
+        const expAccounts = AccountFactory.buildList(2);
+        const rawAccounts = R.map(remapKeys({accType: "acc_type"}), expAccounts);
+        const axiosMock = () => Promise.resolve({data: rawAccounts});
+        return ajaxGetAccounts(axiosMock).then(x => {
+          expect(x).toEqual(expAccounts);
+        });
+      })
     })
+    
   })
-
 })
