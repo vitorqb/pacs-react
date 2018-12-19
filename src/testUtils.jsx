@@ -2,15 +2,59 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Factory } from 'rosie';
 import faker from 'faker';
+import * as R from 'ramda';
 
 faker.seed(123);
 
-export const AccountFactory = new Factory()
-  .attr("pk", faker.random.number)
-  .attr("name", faker.lorem.words)
-  .attr("accType", "Leaf")
-  .attr("parent", faker.random.number)
+/**
+ * A wrapper arround Factory.
+ */
+class AccountFactoryWrapper {
 
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+    this.buildRoot = this.buildRoot.bind(this);
+    this.buildRootAndChildren = this.buildRootAndChildren.bind(this);
+  }
+
+  _accountFactory = new Factory()
+    .attr("pk", faker.random.number)
+    .attr("name", faker.lorem.words)
+    .attr("accType", "Leaf")
+    .attr("parent", faker.random.number)
+
+  build(opts={}) {
+    return this._accountFactory.build(opts);
+  }
+
+  buildList(n, opts={}) {
+    return this._accountFactory.buildList(n, opts);
+  }
+
+  /**
+   * Builds a simple root account.
+   */
+  buildRoot() {
+    return this.build({accType: "Root"})
+  }
+
+  /**
+   * Builds a root plus n children, and returns in an array.
+   * @param {number} n - The number of children.
+   * @param {Object} childOpts - Parsed to this.build for children opts.
+   * @return {Account[]} An array of account, where root is ensured to be in
+   *   the head.
+   */
+  buildRootAndChildren(n=1, childOpts={}) {
+    const root = this.buildRoot();
+    const finalChildOpts = R.mergeAll([childOpts, {parent: root.pk}]);
+    return [root].concat(this.buildList(n, finalChildOpts));
+  }
+}
+
+
+export const AccountFactory = new AccountFactoryWrapper();
 
 /**
  * Asserts that mouting element causes an error to be thrown, and that message
