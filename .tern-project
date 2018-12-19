@@ -1,11 +1,14 @@
 {
-    "plugins":{
-        "modules":{},
-        "es_modules":{},
-        "webpack":{
-            "configPath":"./config/webpack.config.dev.js"
-        }
-    },
-    "libs": [],
-    "ecmaVersion": 6
+  "plugins": {
+    "modules": null,
+    "es_modules": null,
+    "webpack": {
+      "configPath": "./config/webpack.config.dev.js"
+    }
+  },
+  "loadEagerly": [
+    "./src/*"
+  ],
+  "libs": [],
+  "ecmaVersion": 6
 }

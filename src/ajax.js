@@ -49,6 +49,15 @@ export function makeRequest({
     .catch(handleFailure);
 }
 
+// !!!! TODO -> Dont hardcore token (how?)
+// !!!! TODO -> Parse response and errors here according to server API.
+export const axiosWrapper = axios.create({
+  baseURL: 'http://138.68.66.242/',
+  headers: {
+    Authorization: "Token {$,<6$X*~vEdZw;>YN(!64=sKTv!@G*&&Kc)Mgwb.z5hM>>U=T"
+  }
+});
+
 //
 // Transactions requests
 //
@@ -118,12 +127,14 @@ export const ajaxCreateAcc = R.curry(function(axios, rawParams) {
     requestData: prepareCreateAccParams(rawParams)
   })
 })
-                                             
-// !!!! TODO -> Dont hardcore token (how?)
-// !!!! TODO -> Parse response and errors here according to server API.
-export const axiosWrapper = axios.create({
-  baseURL: 'http://138.68.66.242/',
-  headers: {
-    Authorization: "Token {$,<6$X*~vEdZw;>YN(!64=sKTv!@G*&&Kc)Mgwb.z5hM>>U=T"
-  }
-});
+
+/**
+ * Get all accounts.
+ */
+export function ajaxGetAccounts(axios) {
+  return makeRequest({
+    axios,
+    url: "/accounts/",
+    parseResponseData: R.map(remapKeys({acc_type: "accType"}))
+  });
+}
