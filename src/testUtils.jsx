@@ -57,6 +57,12 @@ class AccountFactoryWrapper {
 export const AccountFactory = new AccountFactoryWrapper();
 
 /**
+ * Makes a mock for an axios error.
+ */
+export const makeAxiosErrorPromise = errObj =>
+  Promise.reject({response: {data: errObj}});
+
+/**
  * Asserts that mouting element causes an error to be thrown, and that message
  * contains expectedError.
  * source: https://gist.github.com/gaearon/adf9d5500e11a4e7b2c6f7ebf994fe56

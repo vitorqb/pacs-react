@@ -3,12 +3,17 @@ import React from 'react';
 import { mount } from 'enzyme';
 import CreateAccForm from '../CreateAccForm';
 import SuccessMessage from '../SuccessMessage';
-
+import ErrorMessage from '../ErrorMessage';
+import { makeAxiosErrorPromise } from '../../testUtils';
 
 describe('CreateAccForm', () => {
 
   function mountForm({ title, createAcc }={}) {
     return mount(<CreateAccForm title={title} createAcc={createAcc} />)
+  }
+
+  function submitForm(f) {
+    return f.instance().handleSubmit({preventDefault: ()=>{}})
   }
   
   it('Mounts with title', () => {
@@ -56,9 +61,6 @@ describe('CreateAccForm', () => {
   })
 
   describe('After submit...', () => {
-    function submitForm(f) {
-      return f.instance().handleSubmit({preventDefault: ()=>{}})
-    }
     it('Inits with empty responseMsg', () => {
       expect(mountForm().state().responseMsg).toBe("");
     })
@@ -86,6 +88,33 @@ describe('CreateAccForm', () => {
       form.instance().forceUpdate();
 
       expect(form.find(SuccessMessage).props().value).toEqual("Some message");
+    })
+  })
+
+  describe('Error message...', () => {
+    it('Displays error message from state', () => {
+      const errMsg = "SomeError";
+      const form = mountForm();
+      expect(form.contains(<ErrorMessage value="" />)).toBe(true);
+      form.setState({errMsg});
+      expect(form.contains(<ErrorMessage value={errMsg} />)).toBe(true);
+    })
+    it('Sets error message from createAcc...', () => {
+      expect.assertions(1);
+      const errMsg = "SomeError";
+      const createAcc = () => Promise.reject(errMsg);
+      const form = mountForm({createAcc});
+      return submitForm(form).then(_ => {
+        expect(form.state().errMsg).toEqual(errMsg);
+      });
+    })
+    it('Resets error message after new submit...', () => {
+      expect.assertions(1);
+      const form = mountForm({createAcc: () => Promise.resolve({})});
+      form.setState({errMsg: "Some old error"});
+      return submitForm(form).then(() => {
+        expect(form.state().errMsg).toBe("");
+      })
     })
   })
   
