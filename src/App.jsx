@@ -96,7 +96,10 @@ class App extends Component {
     const { transactions, accounts } = this.state;
 
     const transactionTable = App.renderTransactionTable(transactions);
-    const createAccForm = App.renderCreateAccForm(createAcc);
+    const createAccForm = App.renderCreateAccForm(
+      accounts,
+      createAcc
+    );
     const createTransactionForm = App.renderCreateTransactionForm(
       accounts,
       createTransaction
@@ -167,13 +170,21 @@ class App extends Component {
 
   /**
    * Renders the CreateAccForm for the app.
+   * @param {Account[]} accounts - An array of Accounts from where the user can
+   *   choose, or null if not yet loaded.
    * @param {Function} createAcc - A function that receives account creation
    *   data and performs the post request to create the account.
    */
-  static renderCreateAccForm(createAcc) {
+  static renderCreateAccForm(accounts, createAcc) {
     // We parametrize createAcc with the AxiosWrapper.
+    if (accounts !== [] && !accounts) {
+      return <p>Loading...</p>
+    }    
     return (
-        <CreateAccForm title="Create Account" createAcc={createAcc}/>
+      <CreateAccForm
+        title="Create Account"
+        createAcc={createAcc}
+        accounts={accounts} />
     );
   }
 
@@ -186,7 +197,7 @@ class App extends Component {
    *    the transaction.
    */
   static renderCreateTransactionForm(accounts, createTransaction) {
-    if (accounts != [] && !accounts) {
+    if (accounts !== [] && !accounts) {
       return <p>Loading...</p>
     }
     return (

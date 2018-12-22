@@ -4,12 +4,15 @@ import { mount } from 'enzyme';
 import CreateAccForm from '../CreateAccForm';
 import SuccessMessage from '../SuccessMessage';
 import ErrorMessage from '../ErrorMessage';
-import { makeAxiosErrorPromise } from '../../testUtils';
+import AccountInput from '../AccountInput';
+import { AccountFactory } from '../../testUtils';
 
 describe('CreateAccForm', () => {
 
-  function mountForm({ title, createAcc }={}) {
-    return mount(<CreateAccForm title={title} createAcc={createAcc} />)
+  function mountForm({ title, createAcc, accounts=[] }={}) {
+    return mount(
+      <CreateAccForm title={title} createAcc={createAcc} accounts={accounts} />
+    )
   }
 
   function submitForm(f) {
@@ -25,12 +28,21 @@ describe('CreateAccForm', () => {
     expect(titleSpan.html()).toContain(title);
   })
   it('Mounts with input forms', () => {
-    const inputNames = ["name", "accType", "parent"];
+    const inputNames = ["accType", "name"];
     const form = mountForm();
     for (var i=1; i<inputNames.length; i++) {
       const inputName = inputNames[i];
       expect(form.find({name: inputName})).toHaveLength(1)
     }
+  })
+  it('Mounts with InputAccount', () => {
+    const accounts = AccountFactory.buildList(2);
+
+    const form = mountForm({accounts});
+
+    const accountInput = form.find(AccountInput);
+    expect(accountInput).toHaveLength(1);
+    expect(accountInput.props().accounts).toBe(accounts);
   })
   it('Updates on name input', () => {
     const form = mountForm();
@@ -48,10 +60,10 @@ describe('CreateAccForm', () => {
   })
   it('Updates on parent input', () => {
     const form = mountForm();
-    const value = 2;
-    expect(form.instance().state.name).toBe("")
-    form.find({ name: "parent" }).simulate("change", { target: { value } })
-    expect(form.instance().state.parent).toBe(value)
+    const selectedAcc = AccountFactory.build();
+    expect(form.instance().state.parent).toBe("");
+    form.find(AccountInput).props().onChange({value: selectedAcc});
+    expect(form.instance().state.parent).toBe(selectedAcc.pk);
   })
   it('accCretor is called when submit', () => {
     const createAcc = sinon.fake.resolves();
