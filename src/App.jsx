@@ -97,7 +97,10 @@ class App extends Component {
 
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(createAcc);
-    const createTransactionForm = App.renderCreateTransactionForm(createTransaction);
+    const createTransactionForm = App.renderCreateTransactionForm(
+      accounts,
+      createTransaction
+    );
     const accountTree = App.renderAccountTree(accounts);
 
     const router = makeRouter(this.getRoutesData({
@@ -176,15 +179,21 @@ class App extends Component {
 
   /**
    * Renders the CreateTransactionForm for the app.
+   * @param {Account[]} accounts - An array of accounts from where the user
+   *    can choose.
    * @param {Function} createTransaction - A curried function that maps an
    *    Axios-like and transactionRawParameters and performs creation of
    *    the transaction.
    */
-  static renderCreateTransactionForm(createTransaction) {
+  static renderCreateTransactionForm(accounts, createTransaction) {
+    if (accounts != [] && !accounts) {
+      return <p>Loading...</p>
+    }
     return (
       <CreateTransactionForm
         title="Create Transaction"
-        createTransaction={createTransaction} />
+        createTransaction={createTransaction}
+        accounts={accounts} />
     )
   }
 

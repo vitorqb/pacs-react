@@ -1,6 +1,7 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
 import { createTitle } from '../utils';
+import AccountInput from './AccountInput';
 
 /**
  * Represents a combination of inputs for a Movement.
@@ -31,27 +32,58 @@ export default class MovementInputs extends Component{
   }
 
   /**
-   * A curried function that handle changes for a specific input,
-   * specified by name, that has been changed to a new value.
+   * Extracts a value from an event and inputName.
    */
-  changeHandler = (inputName) => {
-    return (event) => {
-      const newValue = event.target.value;
-      const oldInputValues = this.getInputValues();
-      const newInputValues= R.merge(oldInputValues, R.objOf(inputName, newValue));
-      this.getOnChangeCallback()(newInputValues);
+  extractEventValue(inputName, event) {
+    switch(inputName){
+    case "account":
+      // event == {label: string, value: Account}
+      return event.value.pk;
+    default:
+      const rawValue = event.target.value;
+      return rawValue;
     }
   }
 
+  /**
+   * A curried function that handle changes for a specific input,
+   * specified by name, that has been changed to a new value.
+   */
+  changeHandler = (inputName) => (event) => {
+    const newValue = this.extractEventValue(inputName, event);
+    const oldInputValues = this.getInputValues();
+    const newInputValues = R.merge(oldInputValues, R.objOf(inputName, newValue));
+    this.getOnChangeCallback()(newInputValues);
+  }
+
   render() {
-    const { title } = this.props;
+    const { title, accounts=[] } = this.props;
     const titleSpan = createTitle(title);
+    const makeRow = (label, component) => (
+      <tr><td>{label}</td><td style={{width: "100%"}}>{component}</td></tr>
+    )
+    const accountRow = makeRow(
+      "Account:",
+      <AccountInput
+        accounts={accounts}
+        onChange={this.changeHandler("account")} />
+    );
+    const currencyRow = makeRow(
+      "Currency:",
+      <input name="currency" onChange={this.changeHandler("currency")} />
+    );
+    const quantityRow = makeRow(
+      "Quantity:",
+      <input name="quantity" onChange={this.changeHandler("quantity")}/>
+    );
     return (
       <div>
         {titleSpan}
-        acc: <input name="account" onChange={this.changeHandler("account")}/>
-        cur: <input name="currency" onChange={this.changeHandler("currency")} />
-        qua: <input name="quantity" onChange={this.changeHandler("quantity")}/>
+        <table style={{width: "100%"}}><tbody>
+            {accountRow}
+            {currencyRow}
+            {quantityRow}
+        </tbody></table>
       </div>
     )
   }

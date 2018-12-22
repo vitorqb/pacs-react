@@ -2,20 +2,29 @@ import sinon from 'sinon';
 import * as R from 'ramda';
 import React from 'react';
 import { mount } from 'enzyme';
+import AccountInput from '../AccountInput';
 import CreateTransactionForm from '../CreateTransactionForm';
 import MovementInputs from '../MovementInputs';
 import ErrorMessage from '../ErrorMessage';
 import SuccessMessage from '../SuccessMessage';
+import { AccountFactory } from '../../testUtils';
 
 /**
  * Uses enzyme to mount a CreateTransactionForm
  * @param {string} props.title - The title.
  */
 function mountCreateTransactionForm(
-  { title="", createTransactionMock=(()=>Promise.resolve({})) }={}
+  {
+    title="",
+    createTransactionMock=(()=>Promise.resolve({})),
+    accounts=[],
+  }={}
 ) {
   return mount(
-    <CreateTransactionForm title={title} createTransaction={createTransactionMock} />
+    <CreateTransactionForm
+      title={title}
+      createTransaction={createTransactionMock}
+      accounts={accounts} />
   )
 }
 
@@ -73,18 +82,26 @@ describe('CreateTransactionForm', () => {
       expect(formComponent.find(MovementInputs)).toHaveLength(2);
     })    
 
+    it('Mounted MovementInputs have accounts', () => {
+      const accounts = AccountFactory.buildList(3);
+      const formComponent = mountCreateTransactionForm({accounts});
+      const movementInputsList = formComponent.find(MovementInputs);
+      for (var i=0; i<movementInputsList.length; i++) {
+        const movementInputs = movementInputsList.at(i);
+        expect(movementInputs.props().accounts).toEqual(accounts);
+      }
+    })
   })
 
   describe('Updating...', () => {
 
     it('Updates on change of movement account', () => {
-      const value = 12345;
+      const accounts = AccountFactory.buildList(3);
+      const selectedAcc = accounts[1];
       const movementInputsOne = formComponent.find(MovementInputs).at(0);
-      movementInputsOne.find('input[name="account"]').simulate(
-        "change",
-        { "target": { value } }
-      );
-      expect(formComponent.state().movements[0].account).toBe(value);
+      const accInput = movementInputsOne.find(AccountInput);
+      accInput.props().onChange({label: "", value: selectedAcc});
+      expect(formComponent.state().movements[0].account).toBe(selectedAcc.pk);
     })
 
     it('Updates on change of movement currency', () => {

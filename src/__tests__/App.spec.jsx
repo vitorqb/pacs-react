@@ -7,6 +7,7 @@ import App, { makeLink, makeRoute, makeRouter } from '../App';
 import TransactionTable from '../components/TransactionTable';
 import AccountTree from '../components/AccountTree';
 import { AccountFactory } from '../testUtils';
+import CreateTransactionForm from '../components/CreateTransactionForm';
 
 /**
   * Uses enzyme to mount App.
@@ -169,5 +170,18 @@ describe('App.test.jsx', () => {
       expect(accountTree.equals(exp)).toBe(true);
     })
     
+  })
+
+  describe('App.renderCreateTransactionForm...', () => {
+
+    it('Loading while accounts is null...', () => {
+      const form = mount(App.renderCreateTransactionForm(null, ()=>{}));
+      expect(form.equals(<p>Loading...</p>)).toBe(true);
+    })
+    it('Rendered when accounts is not null....', () => {
+      const accounts = AccountFactory.buildList(3);
+      const form = mount(App.renderCreateTransactionForm(accounts, ()=>{}));
+      expect(form.find(CreateTransactionForm).props().accounts).toEqual(accounts);
+    })
   })
 })
