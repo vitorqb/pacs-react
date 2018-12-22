@@ -3,7 +3,9 @@ import sinon from 'sinon';
 import React from 'react';
 import MovementInputs from "../MovementInputs";
 import { mount } from "enzyme";
-
+import { AccountFactory } from '../../testUtils';
+import AccountInput from '../AccountInput';
+import Select from 'react-select';
 
 describe('MovementInputs', () => {
 
@@ -21,6 +23,15 @@ describe('MovementInputs', () => {
       const inputs = movementInput.find("input");
       const inputsValues = inputs.map(x => x.instance().value);
       expect(inputsValues).toEqual(["", "", ""]);
+    })
+
+    it('Contains an AccountInput with correct accounts...', () => {
+      const accounts = AccountFactory.buildList(3);
+      const movementInput = mount(<MovementInputs accounts={accounts} />);
+      expect(movementInput.find(AccountInput)).toHaveLength(1);
+      expect(movementInput.find(AccountInput).props().accounts).toBe(accounts);
+      expect(movementInput.find(AccountInput).props().selectedAccount)
+        .toBe(undefined);
     })
   })
 
@@ -40,11 +51,18 @@ describe('MovementInputs', () => {
     })
 
     it('Change account calls handler', () => {
-      const value = 12;
-      const accInput = movementInput.find('input[name="account"]');
-      const expectedEmittedState = R.merge(baseState, {account: value})
+      const accounts = AccountFactory.buildList(5);
+      movementInput = mount(
+        <MovementInputs onChange={onChangeHandler} accounts={accounts} />
+      );
+      const selectedAcc = accounts[2];
+      const accInput = movementInput.find(AccountInput);
+      const expectedEmittedState = R.merge(baseState, {account: selectedAcc.pk})
+
       
-      accInput.simulate("change", { target: { value } });
+      accInput.find(Select).props().onChange({
+        value: selectedAcc
+      });
 
       expect(onChangeHandler.calledOnceWith(expectedEmittedState)).toBe(true);
     })

@@ -109,6 +109,7 @@ export default class CreateTransactionForm extends Component {
    */
   renderMovementsInputs() {
     const self = this;
+    const { accounts } = this.props;
 
     /**
      * Renders a single MovementInput from an object containing
@@ -119,6 +120,7 @@ export default class CreateTransactionForm extends Component {
         <MovementInputs
           key={index}
           title={`movements[${index}]`}
+          accounts={accounts}
           account={account}
           quantity={quantity}
           currency={currency}
