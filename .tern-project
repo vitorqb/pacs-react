@@ -7,8 +7,9 @@
     }
   },
   "loadEagerly": [
-    "./src/*"
+    "./src/*",
+    "./.tern-defs/jest"
   ],
-  "libs": [],
+  "libs": ["./.tern-defs/jest.json"],
   "ecmaVersion": 6
 }
