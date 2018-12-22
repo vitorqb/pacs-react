@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { createTitle, createInput } from '../utils';
 import SuccessMessage from './SuccessMessage';
 import ErrorMessage from './ErrorMessage';
+import AccountInput from './AccountInput';
 import * as R from 'ramda';
 
 /** A react component that represents a form to create an account. */
@@ -55,7 +56,9 @@ export default class CreateAccForm extends Component {
   }
 
   handleParentUpdate = (event) => {
-    this.setState({...this.state, parent: event.target.value})
+    // event is {label: ..., value: Account}
+    const account = event.value;
+    this.setState({parent: account.pk})
   }
 
   handleSubmit = (event) => {
@@ -76,7 +79,9 @@ export default class CreateAccForm extends Component {
       <div className="form-div">
         {title}
         <form onSubmit={this.handleSubmit}>
-          {inputs}
+          <table style={{width: "100%"}}><tbody>
+            {inputs}
+          </tbody></table>
           <input type="submit" value="Submit" />
         </form>
         <SuccessMessage value={this.state.responseMsg} />
@@ -90,7 +95,17 @@ export default class CreateAccForm extends Component {
     * @returns - an array of Input tags.
     */
   renderInputs() {
-    const { name, accType, parent } = this.state;
+    const { name, accType } = this.state;
+    function makeTrTag(name, component) {
+      return (
+        <tr key={name}>
+          <td style={{width: "1%"}}>{name}</td>
+          <td>{component}</td>
+        </tr>
+      )
+    }
+
+    // For name and accType
     const inputsData = [
       {
         type: "text",
@@ -104,14 +119,23 @@ export default class CreateAccForm extends Component {
         onChange: this.handleAccTypeUpdate,
         value: accType
       },
-      {
-        type: "number",
-        name: "parent",
-        onChange: this.handleParentUpdate,
-        value: parent
-      }
     ]
-    return inputsData.map(createInput)
+    const inputs = inputsData.map(({type, name, onChange, value}) => makeTrTag(
+      name,
+      <input type={type} name={name} value={value} onChange={onChange} />
+    ))
+
+    // For parent
+    const { accounts=[] } = this.props;
+    const parentInput = makeTrTag(
+      "parent",
+      <AccountInput
+        key={inputsData.length}
+        onChange={this.handleParentUpdate}
+        accounts={accounts} />
+    );
+
+    return [...inputs, parentInput]
   }
 }
 
