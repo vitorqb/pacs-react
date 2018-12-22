@@ -5,8 +5,9 @@ import moment from 'moment';
 import { mount } from 'enzyme';
 import App, { makeLink, makeRoute, makeRouter } from '../App';
 import TransactionTable from '../components/TransactionTable';
+import CurrencyTable from '../components/CurrencyTable';
 import AccountTree from '../components/AccountTree';
-import { AccountFactory } from '../testUtils';
+import { AccountFactory, CurrencyFactory } from '../testUtils';
 import CreateTransactionForm from '../components/CreateTransactionForm';
 import CreateAccForm from '../components/CreateAccForm';
 
@@ -23,6 +24,8 @@ import CreateAccForm from '../components/CreateAccForm';
   *    transaction.
   * @param {Function} opts.getAccounts - A mock function called to get a list
   *    of all accounts.
+  * @param {Function} opts.getCurrencies - A mock function called to get a list
+  *    of all currencies.
   */
 function mountApp(opts) {
   const {
@@ -30,7 +33,8 @@ function mountApp(opts) {
     timeout=0,
     createAcc=(() => {}),
     createTransaction=(() => {}),
-    getAccounts=(() => Promise.resolve([]))
+    getAccounts=(() => Promise.resolve([])),
+    getCurrencies=(() => Promise.resolve([]))
   } = opts || {}
 
   // Prepares a function that returns transactions when called
@@ -42,6 +46,7 @@ function mountApp(opts) {
     <App
       getTransactions={getTransactions}
       getAccounts={getAccounts}
+      getCurrencies={getCurrencies}
       createAcc={createAcc}
       createTransaction={createTransaction} />
   )
@@ -198,4 +203,18 @@ describe('App.test.jsx', () => {
       expect(form.find(CreateAccForm).props().accounts).toEqual(accounts);
     })
   })
+
+  describe('App.renderCurrencyTable...', () => {
+    it('Loading while currencies is null...', () => {
+      const table = mount(App.renderCurrencyTable());
+      expect(table.equals(<p>Loading...</p>)).toBe(true);
+    })
+    it('Rendered when currencies not null...', () => {
+      const currencies = CurrencyFactory.buildList(3);
+      const table = mount(App.renderCurrencyTable(currencies));
+      expect(table.find(CurrencyTable)).toHaveLength(1);
+      expect(table.find(CurrencyTable).props().currencies).toEqual(currencies);
+    })
+  })
+
 })

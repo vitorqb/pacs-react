@@ -138,3 +138,15 @@ export function ajaxGetAccounts(axios) {
     parseResponseData: R.map(remapKeys({acc_type: "accType"}))
   });
 }
+
+
+//
+// Currencies
+//
+
+/**
+ * Get all currencies
+ */
+export function ajaxGetCurrencies (axios) {
+  return makeRequest({axios, url: "/currencies/"})
+};

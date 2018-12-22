@@ -53,8 +53,33 @@ class AccountFactoryWrapper {
   }
 }
 
-
 export const AccountFactory = new AccountFactoryWrapper();
+
+/**
+ * A wrapper around Factory providing fake currencies for test.
+ */
+class CurrencyFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr("pk", faker.random.number)
+    .attr("name", faker.lorem.words)
+    .attr("imutable", faker.boolean)
+
+  build(opts={}) {
+    return this._factory.build(opts);
+  }
+
+  buildList(n, opts={}) {
+    return this._factory.buildList(n, opts);
+  }
+}
+
+export const CurrencyFactory = new CurrencyFactoryWrapper();
 
 /**
  * Makes a mock for an axios error.

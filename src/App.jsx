@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
+import CurrencyTable from './components/CurrencyTable';
 import CreateAccForm from './components/CreateAccForm';
 import CreateTransactionForm from './components/CreateTransactionForm';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies } from "./ajax";
 import AccountTree from './components/AccountTree';
 
 /**
@@ -74,6 +75,10 @@ class App extends Component {
     this.setState({accounts});
   }
 
+  setCurrencies = (currencies) => {
+    this.setState({currencies});
+  }
+
   componentDidMount() {
     // Loads transactions and sets state on return
     const { getTransactions = ajaxGetRecentTransactions } = this.props;
@@ -85,7 +90,16 @@ class App extends Component {
     const getAccountsPromise = getAccounts(axiosWrapper)
           .then(this.setAccounts);
 
-    this.busy = Promise.all([getTransactionsPromise, getAccountsPromise]);
+    // Same for currencies
+    const { getCurrencies = ajaxGetCurrencies } = this.props;
+    const getCurrenciesPromise = getCurrencies(axiosWrapper)
+          .then(this.setCurrencies);
+
+    this.busy = Promise.all([
+      getTransactionsPromise,
+      getAccountsPromise,
+      getCurrenciesPromise
+    ]);
   }
 
   render() {
@@ -93,8 +107,7 @@ class App extends Component {
       createAcc = ajaxCreateAcc(axiosWrapper),
       createTransaction = ajaxCreateTransaction(axiosWrapper),
     } = this.props || {};
-    const { transactions, accounts } = this.state;
-
+    const { transactions, accounts, currencies } = this.state;
     const transactionTable = App.renderTransactionTable(transactions);
     const createAccForm = App.renderCreateAccForm(
       accounts,
@@ -105,12 +118,13 @@ class App extends Component {
       createTransaction
     );
     const accountTree = App.renderAccountTree(accounts);
-
+    const currencyTable = App.renderCurrencyTable(currencies);
     const router = makeRouter(this.getRoutesData({
       transactionTable,
       createAccForm,
       createTransactionForm,
       accountTree,
+      currencyTable
     }));
 
     return (
@@ -127,7 +141,8 @@ class App extends Component {
     transactionTable,
     createAccForm,
     createTransactionForm,
-    accountTree
+    accountTree,
+    currencyTable
   }) {
     return [
       {
@@ -149,7 +164,12 @@ class App extends Component {
         path: "/account-tree/",
         text: "Account Tree",
         component: () => accountTree
-      }
+      },
+      {
+        path: "/currency-table/",
+        text: "Currency Table",
+        component: () => currencyTable
+      },
     ]
   }
 
@@ -214,6 +234,13 @@ class App extends Component {
     } else {
       return <AccountTree accounts={accounts} /> 
     }
+  }
+
+  static renderCurrencyTable(currencies) {
+    if (currencies !== [] && !currencies) {
+      return <p>Loading...</p>
+    }
+    return <CurrencyTable currencies={currencies} title="Currencies" />
   }
 }
 
