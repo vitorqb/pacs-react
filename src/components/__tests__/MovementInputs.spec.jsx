@@ -3,8 +3,9 @@ import sinon from 'sinon';
 import React from 'react';
 import MovementInputs from "../MovementInputs";
 import { mount } from "enzyme";
-import { AccountFactory } from '../../testUtils';
+import { AccountFactory, CurrencyFactory } from '../../testUtils';
 import AccountInput from '../AccountInput';
+import CurrencyInput from '../CurrencyInput';
 import Select from 'react-select';
 
 describe('MovementInputs', () => {
@@ -33,6 +34,16 @@ describe('MovementInputs', () => {
       expect(movementInput.find(AccountInput).props().selectedAccount)
         .toBe(undefined);
     })
+
+    it('Contains an CurrencyInput with correct currencies...', () => {
+      const currencies = CurrencyFactory.buildList(3);
+      const movementInputs = mount(<MovementInputs currencies={currencies} />);
+      const curInput = movementInputs.find(CurrencyInput);
+      expect(curInput).toHaveLength(1);
+      expect(curInput.props().currencies).toBe(currencies);
+      expect(curInput.props().selectedCurrency).toBe(undefined);
+    })
+    
   })
 
   describe('Setting input values fire events', () => {
@@ -68,11 +79,15 @@ describe('MovementInputs', () => {
     })
 
     it('Set currency', () => {
-      const value = 22;
-      const curInput = movementInput.find('input[name="currency"]');
-      const expectedEmittedState = R.merge(baseState, {currency: value});
+      const currencies = CurrencyFactory.buildList(3);
+      const currency = currencies[0];
+      const movementInput = mount(
+        <MovementInputs currencies={currencies} onChange={onChangeHandler} />
+      );
+      const curInput = movementInput.find(CurrencyInput);
+      const expectedEmittedState = R.merge(baseState, {currency: currency.pk});
 
-      curInput.simulate("change", { target: { value } });
+      curInput.props().onChange(currency)
 
       expect(onChangeHandler.calledWith(expectedEmittedState)).toBe(true);
     })

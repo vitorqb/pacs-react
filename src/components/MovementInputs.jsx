@@ -2,6 +2,7 @@ import * as R from 'ramda';
 import React, { Component } from 'react';
 import { createTitle } from '../utils';
 import AccountInput from './AccountInput';
+import CurrencyInput from './CurrencyInput';
 
 /**
  * Represents a combination of inputs for a Movement.
@@ -39,6 +40,9 @@ export default class MovementInputs extends Component{
     case "account":
       // event == {label: string, value: Account}
       return event.value.pk;
+    case "currency":
+      // event == currency
+      return event.pk
     default:
       const rawValue = event.target.value;
       return rawValue;
@@ -57,7 +61,7 @@ export default class MovementInputs extends Component{
   }
 
   render() {
-    const { title, accounts=[] } = this.props;
+    const { title, accounts=[], currencies=[] } = this.props;
     const titleSpan = createTitle(title);
     const makeRow = (label, component) => (
       <tr><td>{label}</td><td style={{width: "100%"}}>{component}</td></tr>
@@ -70,7 +74,9 @@ export default class MovementInputs extends Component{
     );
     const currencyRow = makeRow(
       "Currency:",
-      <input name="currency" onChange={this.changeHandler("currency")} />
+      <CurrencyInput
+        currencies={currencies}
+        onChange={this.changeHandler("currency")} />
     );
     const quantityRow = makeRow(
       "Quantity:",

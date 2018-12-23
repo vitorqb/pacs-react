@@ -1,13 +1,13 @@
 import sinon from 'sinon';
-import * as R from 'ramda';
 import React from 'react';
 import { mount } from 'enzyme';
 import AccountInput from '../AccountInput';
 import CreateTransactionForm from '../CreateTransactionForm';
 import MovementInputs from '../MovementInputs';
+import CurrencyInput from '../CurrencyInput';
 import ErrorMessage from '../ErrorMessage';
 import SuccessMessage from '../SuccessMessage';
-import { AccountFactory } from '../../testUtils';
+import { AccountFactory, CurrencyFactory } from '../../testUtils';
 
 /**
  * Uses enzyme to mount a CreateTransactionForm
@@ -105,11 +105,15 @@ describe('CreateTransactionForm', () => {
     })
 
     it('Updates on change of movement currency', () => {
-      const value = 2;
-      formComponent.find(MovementInputs).at(1).find('input[name="currency"]').simulate(
-        "change",
-        { "target": { value } }
-      );
+      const currencies = CurrencyFactory.buildList(3);
+      const currency = currencies[2];
+      const value = currency.pk;
+      formComponent
+        .find(MovementInputs)
+        .at(1)
+        .find(CurrencyInput)
+        .props()
+        .onChange(currency);
       expect(formComponent.state().movements[1].currency).toBe(value);
       expect(formComponent.state().movements[0].currency).toBe("");
     })

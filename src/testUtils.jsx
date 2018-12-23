@@ -68,7 +68,7 @@ class CurrencyFactoryWrapper {
   _factory = new Factory()
     .attr("pk", faker.random.number)
     .attr("name", faker.lorem.words)
-    .attr("imutable", faker.boolean)
+    .attr("imutable", faker.random.boolean)
 
   build(opts={}) {
     return this._factory.build(opts);
