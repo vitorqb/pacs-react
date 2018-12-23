@@ -61,8 +61,13 @@ export const axiosWrapper = axios.create({
 //
 // Transactions requests
 //
-export const parseTransactionResponseData = R.evolve({date: moment.utc});
+export const parseTransactionResponseData = R.pipe(
+  R.evolve({date: moment.utc}),
+  remapKeys({movements_specs: "movements"})
+);
 
+// !!!! TODO -> Should not be necessary (we should use movement
+// !!!!   in the same format as the backend).
 export function parseMovementToRequestData(movement) {
   const money = R.pick(["currency", "quantity"])(movement);
   return {account: movement.account, money}
