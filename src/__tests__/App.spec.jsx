@@ -181,13 +181,26 @@ describe('App.test.jsx', () => {
   describe('App.renderCreateTransactionForm...', () => {
 
     it('Loading while accounts is null...', () => {
-      const form = mount(App.renderCreateTransactionForm(null, ()=>{}));
+      const form = mount(
+        App.renderCreateTransactionForm(null, [], ()=>{})
+      );
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     })
-    it('Rendered when accounts is not null....', () => {
+    it('Loading while accounts is null...', () => {
+      const form = mount(
+        App.renderCreateTransactionForm([], null, ()=>{})
+      );
+      expect(form.equals(<p>Loading...</p>)).toBe(true);
+    })
+    it('Rendered when accounts and currencies are not null....', () => {
       const accounts = AccountFactory.buildList(3);
-      const form = mount(App.renderCreateTransactionForm(accounts, ()=>{}));
+      const currencies = CurrencyFactory.buildList(2);
+      const form = mount(
+        App.renderCreateTransactionForm(accounts, currencies, ()=>{})
+      );
       expect(form.find(CreateTransactionForm).props().accounts).toEqual(accounts);
+      expect(form.find(CreateTransactionForm).props().currencies)
+        .toEqual(currencies);
     })
   })
 

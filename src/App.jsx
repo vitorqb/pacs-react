@@ -115,6 +115,7 @@ class App extends Component {
     );
     const createTransactionForm = App.renderCreateTransactionForm(
       accounts,
+      currencies,
       createTransaction
     );
     const accountTree = App.renderAccountTree(accounts);
@@ -212,19 +213,22 @@ class App extends Component {
    * Renders the CreateTransactionForm for the app.
    * @param {Account[]} accounts - An array of accounts from where the user
    *    can choose.
+   * @param {Currency[]} currencies - An Array of currencies from where the
+   *    user can choose.
    * @param {Function} createTransaction - A curried function that maps an
    *    Axios-like and transactionRawParameters and performs creation of
    *    the transaction.
    */
-  static renderCreateTransactionForm(accounts, createTransaction) {
-    if (accounts !== [] && !accounts) {
+  static renderCreateTransactionForm(accounts, currencies, createTransaction) {
+    if ((accounts !== [] && !accounts) || (currencies !== [] && !currencies)) {
       return <p>Loading...</p>
     }
     return (
       <CreateTransactionForm
         title="Create Transaction"
         createTransaction={createTransaction}
-        accounts={accounts} />
+        accounts={accounts}
+        currencies={currencies} />
     )
   }
 
