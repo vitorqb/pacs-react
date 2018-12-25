@@ -2,6 +2,41 @@ import React from 'react';
 import * as R from 'ramda';
 
 /**
+  * @typedef Money
+  * @type {object}
+  * @property {number} account
+  * @property {number} quantity
+  */
+
+/**
+ * @typedef Movement
+ * @type {object}
+ * @property {Money} money
+ * @property {number} account
+ */
+
+/**
+ * A specification of how a movement should be.
+ * @typedef {Object} MovementSpec
+ * @property {number} [account]
+ * @property {Money} money
+ */
+
+/**
+ * A specification of how a transaction should be.
+ * @typedef {Object} TransactionSpec
+ * @property {string} [description]
+ * @property {moment} [date]
+ * @property {MovementSpec[]} [movements]
+ */
+
+/**
+ * @function
+ * Maps a Transaction to a TransactionSpec.
+ */
+export const getSpecFromTransaction = R.pick(["description", "date", "movements"]);
+
+/**
  * Returns a clone of the object with keys remapped according to keysmapping.
  */
 export const remapKeys = R.curry(function(keysMapping, obj) {

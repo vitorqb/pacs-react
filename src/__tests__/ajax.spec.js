@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, parseMovementToRequestData, ajaxGetAccounts } from '../ajax';
 import * as R from 'ramda';
 import { AccountFactory, TransactionFactory } from '../testUtils';
-import { remapKeys } from '../utils';
+import { remapKeys, getSpecFromTransaction } from '../utils';
 
 describe('Test ajax', () => {
 
@@ -54,17 +54,6 @@ describe('Test ajax', () => {
   describe('Transactions...', () => {
     const url = "/transactions/";
     
-    describe('parseMovementToRequestData', () => {
-
-      it('base', () => {
-        const movement = {account: 1, currency: 2, quantity: 3};
-        expect(parseMovementToRequestData(movement)).toEqual(
-          {account: 1, money: {currency: 2, quantity: 3}}
-        );
-      })
-
-    })
-    
     describe('Test ajaxGetRecentTransactions', () => {
       
       function getAxiosMock(opts) {
@@ -109,26 +98,17 @@ describe('Test ajax', () => {
       describe('Posting...', () => {
 
         it('Posts to url after parsing arguments', () => {
-          const rawParams = {
-            description: "Some Description",
-            date: "2018-01-01",
-            movements: [
-              {account: 1, currency: 2, quantity: 3},
-              {account: 4, currency: 5, quantity: 6}
-            ]
-          }
-          const parsedParams = {
-            description: rawParams.description,
-            date: rawParams.date,
-            movements_specs: [
-              {account: 1, money: {currency: 2, quantity: 3}},
-              {account: 4, money: {currency: 5, quantity: 6}}
-            ]
+          const transaction = TransactionFactory.build();
+          const transactionSpec = getSpecFromTransaction(transaction);
+          const expectedParams = {
+            description: transactionSpec.description,
+            date: transactionSpec.date.format("YYYY-MM-DD"),
+            movements_specs: transactionSpec.movements
           };
           const axiosMock = sinon.fake.resolves({data: ""});
-          ajaxCreateTransaction(axiosMock)(rawParams);
+          ajaxCreateTransaction(axiosMock)(transactionSpec);
           expect(axiosMock.lastArg.url).toEqual(url);
-          expect(axiosMock.lastArg.data).toEqual(parsedParams)
+          expect(axiosMock.lastArg.data).toEqual(expectedParams)
         })
         it('Parses response data', () => {
           const response = {data: {a: 1, b: 2}}

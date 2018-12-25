@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
-import { createTitle } from '../utils';
+import { createTitle, newGetter } from '../utils';
 import AccountInput from './AccountInput';
 import CurrencyInput from './CurrencyInput';
 
@@ -9,79 +9,64 @@ import CurrencyInput from './CurrencyInput';
  */
 export default class MovementInputs extends Component{
 
-  /**
-   * Returns the callback for onChange, called with the new
-   * state.
-   */
-  getOnChangeCallback() {
-    return this.props.onChange || (() => {});
+  getDefaultMovementSpec() {
+    return {account: "", money: { currency: "", quantity: ""} }
   }
 
-  /**
-   * Returns the default values for inputs.
-   */
-  getInputDefaultValues() {
-    return {account: "", currency: "", quantity: ""}
+  getMovementSpec() {
+    return R.mergeDeepRight(this.getDefaultMovementSpec(), this.props.value || {});
   }
 
-  /**
-   * Returns the values for inputs.
-   */
-  getInputValues() {
-    const updateWithProps = R.mapObjIndexed((x, k) => this.props[k] || x)
-    return updateWithProps(this.getInputDefaultValues())
-  }
-
-  /**
-   * Extracts a value from an event and inputName.
-   */
-  extractEventValue(inputName, event) {
-    switch(inputName){
-    case "account":
-      // event == {label: string, value: Account}
-      return event.value.pk;
-    case "currency":
-      // event == currency
-      return event.pk
-    default:
-      const rawValue = event.target.value;
-      return rawValue;
-    }
-  }
-
-  /**
-   * A curried function that handle changes for a specific input,
-   * specified by name, that has been changed to a new value.
-   */
-  changeHandler = (inputName) => (event) => {
-    const newValue = this.extractEventValue(inputName, event);
-    const oldInputValues = this.getInputValues();
-    const newInputValues = R.merge(oldInputValues, R.objOf(inputName, newValue));
-    this.getOnChangeCallback()(newInputValues);
-  }
+  handleChange = R.curry((lens, parseEvent, eventData) => {
+    const value = parseEvent(eventData);
+    const newMovementSpec = R.set(lens, value, this.getMovementSpec());
+    this.props.onChange(newMovementSpec);
+  })
 
   render() {
     const { title, accounts=[], currencies=[] } = this.props;
+    const movementSpec = this.props.value || {};
+
+    const getAccount = newGetter(R.prop("pk"), accounts);
+    const getCurrency = newGetter(R.prop("pk"), currencies);
+
     const titleSpan = createTitle(title);
+
     const makeRow = (label, component) => (
       <tr><td>{label}</td><td style={{width: "100%"}}>{component}</td></tr>
     )
+
     const accountRow = makeRow(
       "Account:",
       <AccountInput
         accounts={accounts}
-        onChange={this.changeHandler("account")} />
+        onChange={
+          this.handleChange(R.lensProp("account"), R.path(["value", "pk"]))
+        }
+        value={getAccount(movementSpec.account)} />
     );
+
     const currencyRow = makeRow(
       "Currency:",
       <CurrencyInput
         currencies={currencies}
-        onChange={this.changeHandler("currency")} />
+        onChange={
+          this.handleChange(R.lensPath(["money", "currency"]), R.prop("pk"))
+        }
+        value={getCurrency(R.path(["money", "currency"], movementSpec))} />
     );
+
     const quantityRow = makeRow(
       "Quantity:",
-      <input name="quantity" onChange={this.changeHandler("quantity")}/>
+      <input
+        name="quantity"
+        onChange={this.handleChange(
+          R.lensPath(["money", "quantity"]),
+          R.path(["target", "value"])
+        )}
+        value={R.pathOr("", ["money", "quantity"], movementSpec)} />
     );
+
     return (
       <div>
         {titleSpan}

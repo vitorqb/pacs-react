@@ -5,8 +5,9 @@ import './App.css';
 import TransactionTable from "./components/TransactionTable";
 import CurrencyTable from './components/CurrencyTable';
 import CreateAccForm from './components/CreateAccForm';
-import CreateTransactionForm from './components/CreateTransactionForm';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies } from "./ajax";
+import CreateTransactionComponent from './components/CreateTransactionComponent';
+import EditTransactionComponent from './components/EditTransactionComponent';
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter } from './utils';
 
@@ -107,6 +108,8 @@ class App extends Component {
     const {
       createAcc = ajaxCreateAcc(axiosWrapper),
       createTransaction = ajaxCreateTransaction(axiosWrapper),
+      updateTransaction = ajaxUpdateTransaction(axiosWrapper),
+      getTransaction = ajaxGetTransaction(axiosWrapper),
     } = this.props || {};
     const { transactions, accounts, currencies } = this.state;
     const transactionTable = App.renderTransactionTable(
@@ -115,19 +118,27 @@ class App extends Component {
       accounts
     );
     const createAccForm = App.renderCreateAccForm(accounts, createAcc);
-    const createTransactionForm = App.renderCreateTransactionForm(
+    const createTransactionForm = App.renderCreateTransactionComponent(
       accounts,
       currencies,
       createTransaction
     );
+    const editTransactionComponent = App.renderEditTransactionComponent(
+      getTransaction,
+      updateTransaction,
+      accounts,
+      currencies
+    );
     const accountTree = App.renderAccountTree(accounts);
     const currencyTable = App.renderCurrencyTable(currencies);
+    
     const router = makeRouter(this.getRoutesData({
       transactionTable,
       createAccForm,
       createTransactionForm,
       accountTree,
-      currencyTable
+      currencyTable,
+      editTransactionComponent,
     }));
 
     return (
@@ -145,13 +156,19 @@ class App extends Component {
     createAccForm,
     createTransactionForm,
     accountTree,
-    currencyTable
+    currencyTable,
+    editTransactionComponent
   }) {
     return [
       {
         path: "/create-transaction/",
         text: "Create Transaction",
         component: () => createTransactionForm,
+      },
+      {
+        path: "/edit-transaction/",
+        text: "Edit Transaction",
+        component: () => editTransactionComponent,
       },
       {
         path: "/transaction-table/",
@@ -222,22 +239,20 @@ class App extends Component {
   }
 
   /**
-   * Renders the CreateTransactionForm for the app.
+   * Renders the CreateTransactionComponent for the app.
    * @param {Account[]} accounts - An array of accounts from where the user
    *    can choose.
    * @param {Currency[]} currencies - An Array of currencies from where the
    *    user can choose.
-   * @param {Function} createTransaction - A curried function that maps an
-   *    Axios-like and transactionRawParameters and performs creation of
-   *    the transaction.
+   * @param {function} createTransaction - A function that maps an
+   *    TransactionSpec and performs creation of the transaction.
    */
-  static renderCreateTransactionForm(accounts, currencies, createTransaction) {
+  static renderCreateTransactionComponent(accounts, currencies, createTransaction) {
     if ((accounts !== [] && !accounts) || (currencies !== [] && !currencies)) {
       return <p>Loading...</p>
     }
     return (
-      <CreateTransactionForm
-        title="Create Transaction"
+      <CreateTransactionComponent
         createTransaction={createTransaction}
         accounts={accounts}
         currencies={currencies} />
@@ -257,6 +272,24 @@ class App extends Component {
       return <p>Loading...</p>
     }
     return <CurrencyTable currencies={currencies} title="Currencies" />
+  }
+
+  static renderEditTransactionComponent(
+    getTransaction,
+    updateTransaction,
+    accounts,
+    currencies
+  ) {
+    if (accounts == null || currencies == null) {
+      return <p>Loading...</p>
+    }
+    return (
+      <EditTransactionComponent
+        getTransaction={getTransaction}
+        updateTransaction={updateTransaction}
+        accounts={accounts}
+        currencies={currencies} />
+    )
   }
 }
 

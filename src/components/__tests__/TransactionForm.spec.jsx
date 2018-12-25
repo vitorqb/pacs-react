@@ -1,29 +1,40 @@
 import sinon from 'sinon';
 import React from 'react';
 import { mount } from 'enzyme';
-import AccountInput from '../AccountInput';
-import CreateTransactionForm from '../CreateTransactionForm';
+import TransactionForm from '../TransactionForm';
 import MovementInputs from '../MovementInputs';
-import CurrencyInput from '../CurrencyInput';
 import ErrorMessage from '../ErrorMessage';
 import SuccessMessage from '../SuccessMessage';
-import { AccountFactory, CurrencyFactory } from '../../testUtils';
+import { AccountFactory, TransactionFactory } from '../../testUtils';
+import { getSpecFromTransaction } from '../../utils';
+import * as R from 'ramda';
+import moment from 'moment';
 
 /**
- * Uses enzyme to mount a CreateTransactionForm
+ * Uses enzyme to mount a TransactionForm
+ * @param {object} props
+ * @param {TransactionSpec} props.value - The value for the TransactionForm.
  * @param {string} props.title - The title.
+ * @param {function(*): Promise} props.onSubmit - A function that
+ *   performs an action and returns a promise.
+ * @param {function(TransactionSpec): ?} props.onChange - A function that
+ *   is called whenever the user chages the TransactionSpec.
  */
-function mountCreateTransactionForm(
+function mountTransactionForm(
   {
+    value=undefined,
     title="",
-    createTransactionMock=(()=>Promise.resolve({})),
+    onSubmit=(()=>Promise.resolve({})),
+    onChange=(()=>{}),
     accounts=[],
   }={}
 ) {
   return mount(
-    <CreateTransactionForm
+    <TransactionForm
+      value={value}
       title={title}
-      createTransaction={createTransactionMock}
+      onSubmit={onSubmit}
+      onChange={onChange}
       accounts={accounts} />
   )
 }
@@ -36,23 +47,25 @@ function axiosReject(data) {
   return Promise.reject(error)
 }
 
-describe('CreateTransactionForm', () => {
+describe('TransactionForm', () => {
 
   let formComponent;
 
   beforeEach(() => {
-    formComponent = mountCreateTransactionForm();
+    formComponent = mountTransactionForm();
   })
 
   describe('Mounting...', () => {
 
     it('Mounts with title', () => {
       const title = "aloha";
-      const formComponent = mountCreateTransactionForm({title});
+      const formComponent = mountTransactionForm({title});
       expect(formComponent.find("span.titleSpan").first().html()).toContain(title);
     })
 
-    it('Mounts with all inputs and empty strings', () => {
+    it('Mounts with all inputs and empty strings if no value', () => {
+      const value = {};
+      formComponent = mountTransactionForm({value});
       const inputNames = ["description", "date"];
       for (var i=0; i<inputNames.length; i++) {
         const name = inputNames[i];
@@ -62,99 +75,86 @@ describe('CreateTransactionForm', () => {
       }
     })
 
-    it('Mounts with two empty states for movements', () => {
-      const movementsInputsStates = formComponent.state().movements;
-      expect(movementsInputsStates).toEqual([
-        {
-          quantity: "",
-          account: "",
-          currency: ""
-        },
-        {
-          quantity: "",
-          account: "",
-          currency: ""
-        }
-      ])
-    })
+    it('Mounts with two empty states for movements if no value', () => {
+      const transaction = TransactionFactory.build();
+      const value = R.omit(["movements"], getSpecFromTransaction(transaction));
+      
+      formComponent = mountTransactionForm({value});
 
-    it('Mounts with two MovementInputs components', () => {
       expect(formComponent.find(MovementInputs)).toHaveLength(2);
-    })    
+      for (var i=1; i<2; i++) {
+        expect(formComponent.find(MovementInputs).at(i).props().value)
+          .toEqual({});
+      }
+    })
 
     it('Mounted MovementInputs have accounts', () => {
       const accounts = AccountFactory.buildList(3);
-      const formComponent = mountCreateTransactionForm({accounts});
+      const formComponent = mountTransactionForm({accounts});
       const movementInputsList = formComponent.find(MovementInputs);
       for (var i=0; i<movementInputsList.length; i++) {
         const movementInputs = movementInputsList.at(i);
         expect(movementInputs.props().accounts).toEqual(accounts);
       }
     })
+
+    describe('Mounting with value...', () => {
+      const transaction = TransactionFactory.build();
+      const value = getSpecFromTransaction(transaction);
+      const formComponent = mountTransactionForm({value});
+      it('Passes value to name input...', () => {
+        expect(formComponent.find('input[name="description"]').props().value)
+          .toEqual(value.description);
+      })
+      it('Passes date to date input...', () => {
+        expect(formComponent.find('DateInput').props().value)
+          .toEqual(transaction.date);
+      })
+      it('Passes movements to movements inputs...', () => {
+        const movementInputsArray = formComponent.find(MovementInputs);
+        expect(movementInputsArray).toHaveLength(value.movements.length);
+        for (var i=0; i<movementInputsArray.length; i++) {
+          const movementInput = movementInputsArray.at(i);
+          const movementSpec = value.movements[i];
+          expect(movementInput.props().value).toBe(movementSpec);
+        }
+      })
+    })
   })
 
   describe('Updating...', () => {
-
-    it('Updates on change of movement account', () => {
-      const accounts = AccountFactory.buildList(3);
-      const selectedAcc = accounts[1];
-      const movementInputsOne = formComponent.find(MovementInputs).at(0);
-      const accInput = movementInputsOne.find(AccountInput);
-      accInput.props().onChange({label: "", value: selectedAcc});
-      expect(formComponent.state().movements[0].account).toBe(selectedAcc.pk);
+    let onChange;
+    beforeEach(() => {
+      onChange = sinon.fake();
+      formComponent = mountTransactionForm({onChange});
     })
 
-    it('Updates on change of movement currency', () => {
-      const currencies = CurrencyFactory.buildList(3);
-      const currency = currencies[2];
-      const value = currency.pk;
+    it('Calls onChange when MovementInputs changes...', () => {
+      const movementSpec = {account: 1, money: {quantity: 2, currency: 3}};
+      formComponent.find(MovementInputs).at(1).props().onChange(movementSpec);
+      expect(onChange.lastArg.movements[1]).toEqual(movementSpec)
+    })
+
+    it('Calls onChange when description changes...', () => {
+      const newDescription = "hasadslads";
       formComponent
-        .find(MovementInputs)
-        .at(1)
-        .find(CurrencyInput)
+        .find('input[name="description"]')
         .props()
-        .onChange(currency);
-      expect(formComponent.state().movements[1].currency).toBe(value);
-      expect(formComponent.state().movements[0].currency).toBe("");
+        .onChange({target: {value: newDescription}});
+      expect(onChange.lastArg.description).toEqual(newDescription);
     })
 
-    it('Updates state when MovementInputs changeHandler is called', () => {
-      const newState = {account: 1, quantity: 2, currency: 3};
-      formComponent.find(MovementInputs).at(0).instance().getOnChangeCallback()(
-        newState
-      );
-      expect(formComponent.state().movements[0]).toBe(newState);
+    it('Calls onChange when date changes...', () => {
+      const newDate = moment.utc("2022-01-01");
+      formComponent.find('DateInput').props().onChange(newDate);
+      expect(onChange.lastArg.date).toEqual(newDate);
     })
 
-    it('Updates description on change', () => {
-      const value = "My Description";
-      const descriptionInput = formComponent.find('input[name="description"]');
-      expect(descriptionInput.instance().value).toBe("");
-      expect(formComponent.state().description).toBe("");
-
-      descriptionInput.simulate("change", { target: { value } })
-
-      expect(descriptionInput.instance().value).toBe(value);
-      expect(formComponent.state().description).toBe(value);
-    })
-
-    it('Updates date on change', () => {
-      const value = "2018-01-01";
-      const dateInput = formComponent.find('input[name="date"]');
-      expect(dateInput.instance().value).toBe("");
-      expect(formComponent.state().date).toBe("");
-
-      dateInput.simulate("change", { target: { value } })
-
-      expect(dateInput.instance().value).toBe(value);
-      expect(formComponent.state().date).toBe(value);
-    })
-    
   })
 
   describe('Submitting...', () => {
 
-    let createTransactionMock;
+    let onSubmit, value;
 
     function simulateSubmit(f) {
       return f.instance().handleSubmit({preventDefault: ()=>{}});
@@ -165,25 +165,16 @@ describe('CreateTransactionForm', () => {
     }
 
     beforeEach(() => {
-      createTransactionMock = sinon.fake.resolves();
-      formComponent = mountCreateTransactionForm({createTransactionMock});
+      value = getSpecFromTransaction(TransactionFactory.build());
+      onSubmit = sinon.fake.resolves();
+      formComponent = mountTransactionForm({value, onSubmit});
     })
 
-    it('Calls createTransactionMock when submitted', () => {
+    it('Calls onSubmit with transactionSpec when submit.', () => {
       formComponent.find('form').simulate("submit");
-      expect(createTransactionMock.calledOnce).toBe(true);
-    })
-
-    it('Parses transaction data in state to createTransaction', () => {
-      const state = {
-        description: 1,
-        date: "2018-01-01",
-        movements: [{account: 1, currency: 2, quantity: 3}]
-      };
-      formComponent.setState(state);
-      formComponent.find('form').simulate("submit");
-      const calledArg = createTransactionMock.lastCall.args[0];
-      expect(calledArg).toEqual(state);
+      const calledArg = onSubmit.lastCall.args[0];
+      expect(onSubmit.calledOnce).toBe(true);
+      expect(calledArg).toEqual(value);
     })
 
     it('Calls handleSubmit on submit', () => {
@@ -199,8 +190,8 @@ describe('CreateTransactionForm', () => {
 
     it('Parses responseMessage to SuccessMessage', async () => {
       const responseMsg = {some: "message"};
-      const createTransactionMock = () => Promise.resolve(responseMsg)
-      formComponent = mountCreateTransactionForm({createTransactionMock})
+      const onSubmit = () => Promise.resolve(responseMsg)
+      formComponent = mountTransactionForm({onSubmit})
 
       expect(getSuccessMsgValue(formComponent)).toBe("");
 
@@ -209,18 +200,18 @@ describe('CreateTransactionForm', () => {
 
       expect(getSuccessMsgValue(formComponent)).toEqual(responseMsg);
     })
-    
+
     it('Resets submitted response msg on resubmition', () => {
       const responseMsg = {some: "message"};
       var mockFirstCall = true;
-      function createTransactionMock() {
+      function onSubmit() {
         if (mockFirstCall) {
           mockFirstCall = false;
           return Promise.resolve(responseMsg);
         }
         return Promise.reject()
       }
-      formComponent = mountCreateTransactionForm({createTransactionMock});
+      formComponent = mountTransactionForm({onSubmit});
       simulateSubmit(formComponent)
       simulateSubmit(formComponent)
       expect(getSuccessMsgValue(formComponent)).toEqual("");
@@ -230,7 +221,7 @@ describe('CreateTransactionForm', () => {
 
   describe('Erroring...', () => {
 
-    let createTransactionMock;
+    let onSubmit;
 
     function getErrorMessage() {
       return formComponent.find(ErrorMessage)
@@ -246,8 +237,8 @@ describe('CreateTransactionForm', () => {
     }
 
     beforeEach(() => {
-      createTransactionMock = sinon.fake();
-      formComponent = mountCreateTransactionForm({createTransactionMock});
+      onSubmit = sinon.fake();
+      formComponent = mountTransactionForm({onSubmit});
     })
 
     it('Renders with empty ErrorMessage...', () => {
@@ -266,9 +257,9 @@ describe('CreateTransactionForm', () => {
     it('Set error message on request failure...', async () => {
       const errorJson = { account: "This field can not be null!" };
       const failedPromise = Promise.reject(errorJson);
-      createTransactionMock = () => failedPromise;
+      onSubmit = () => failedPromise;
 
-      formComponent = mountCreateTransactionForm({createTransactionMock});
+      formComponent = mountTransactionForm({onSubmit});
       await simulateSubmit()
 
       expect(formComponent.state().errorMessage).toBe(errorJson);
@@ -288,14 +279,14 @@ describe('CreateTransactionForm', () => {
       const erroredPromise = axiosReject({data: "Err"}).catch(e => {
         throw e.response
       });
-      createTransactionMock = () => {
+      onSubmit = () => {
         if (callCount === 0) {
           callCount++;
           return erroredPromise
         }
         return Promise.resolve()
       }
-      formComponent = mountCreateTransactionForm({createTransactionMock});
+      formComponent = mountTransactionForm({onSubmit});
 
       await simulateSubmit();
 
@@ -307,7 +298,7 @@ describe('CreateTransactionForm', () => {
       getErrorMessage().update()
       expect(getErrorMessage().props().value).not.toBeTruthy()
     })
-    
+
   })
-  
+
 })
