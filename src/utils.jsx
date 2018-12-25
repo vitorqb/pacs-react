@@ -36,3 +36,67 @@ export function createInput({ type, name, onChange, value }) {
     </div>
   );
 }
+
+/**
+ * Extracts source or target accounts from an array of movements.
+ * @function
+ * @param {string} type - One of "source" or "target"
+ * @param {Movement[]} movements
+ * @return {number[]}
+ */
+export const getSourceOrTargetAccsPks = R.curry(function(type, movements) {
+  let filterFunction;
+  const getAccountPkAndQuantity = (m => [m.account, m.money.quantity]);
+  const accountPkQuantityPairs = R.map(getAccountPkAndQuantity, movements);
+
+  if (type === "source") {
+    filterFunction = ([_, q]) => q <= 0;
+  } else if (type === "target") {
+    filterFunction = ([_, q]) => q > 0;
+  } else {
+    throw new Error("Invalid type")
+  }
+
+  return R.pipe(R.filter(filterFunction), R.map(R.prop(0)))(accountPkQuantityPairs);  
+})
+
+/**
+ * Extracts from an array of movements the pk of all accounts that are
+ * source (negative quantity).
+ * @param {Movement[]} movements
+ * @return {number[]}
+ */
+export const getSourceAccsPks = getSourceOrTargetAccsPks("source");
+
+/**
+ * Extracts from an array of movements the pk of all accounts that are
+ * targets (positive quantity).
+ * @param {Movement[]} movements
+ * @return {number[]}
+ */
+export const getTargetAccsPks = getSourceOrTargetAccsPks("target");
+
+
+/**
+ * Returns a function that retrieves the first element of an array for which
+ * filter function matches.
+ * @param {Function} extractValue - A function that is applied to each element
+ *   in elements to calculate the value that will be matched.
+ * @param {Object[]} elements - The element that will be selected by the 
+ *   returning function.
+ * @return {Function} A function that accepts `value` and selects the element
+ *   from elements for which extractValue(element) == `value`.
+ */
+export function newGetter(extractValue, elements) {
+  return function(value) {
+    const elementValueMatches = e => extractValue(e) === value;
+    return R.find(elementValueMatches, elements)
+  }
+}
+
+
+/**
+ * Memoizes a function with a single argument.
+ * @function
+ */
+export const memoizeSimple = R.memoizeWith(R.identity)

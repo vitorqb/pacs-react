@@ -8,6 +8,7 @@ import CreateAccForm from './components/CreateAccForm';
 import CreateTransactionForm from './components/CreateTransactionForm';
 import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies } from "./ajax";
 import AccountTree from './components/AccountTree';
+import { newGetter } from './utils';
 
 /**
  * Makes a '<Link>' for a router.
@@ -108,11 +109,12 @@ class App extends Component {
       createTransaction = ajaxCreateTransaction(axiosWrapper),
     } = this.props || {};
     const { transactions, accounts, currencies } = this.state;
-    const transactionTable = App.renderTransactionTable(transactions);
-    const createAccForm = App.renderCreateAccForm(
-      accounts,
-      createAcc
+    const transactionTable = App.renderTransactionTable(
+      transactions,
+      currencies,
+      accounts
     );
+    const createAccForm = App.renderCreateAccForm(accounts, createAcc);
     const createTransactionForm = App.renderCreateTransactionForm(
       accounts,
       currencies,
@@ -174,14 +176,24 @@ class App extends Component {
     ]
   }
 
-  static renderTransactionTable(transactions) {
+  /**
+   * Renders a TransactionTable for the App.
+   * @param {Transaction[]} transactions - An array of transaction.
+   * @param {Currency[]} currencies - An array of currencies.
+   * @param {Account[]} accounts - An array of accounts.
+   */
+  static renderTransactionTable(transactions, currencies, accounts) {
     // Renders the transactionTable or a loading <p> if transactions is null
-    if (transactions !== null) {
+    if ((transactions != null) && (currencies != null) && (accounts != null)) {
+      const getCurrency = newGetter(R.prop("pk"), currencies);
+      const getAccount = newGetter(R.prop("pk"), accounts);
       return (
         <div className="TransactionTableDiv">
           <TransactionTable
             title="Recent Transactions"
-            transactions={transactions} />
+            transactions={transactions}
+            getCurrency={getCurrency}
+            getAccount={getAccount} />
         </div>
       )
     } else {

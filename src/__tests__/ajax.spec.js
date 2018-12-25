@@ -2,7 +2,7 @@ import moment from 'moment';
 import sinon from 'sinon';
 import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, parseMovementToRequestData, ajaxGetAccounts } from '../ajax';
 import * as R from 'ramda';
-import { AccountFactory } from '../testUtils';
+import { AccountFactory, TransactionFactory } from '../testUtils';
 import { remapKeys } from '../utils';
 
 describe('Test ajax', () => {
@@ -90,10 +90,12 @@ describe('Test ajax', () => {
         });
       })
 
-      it('Get one long', async () => {
-        const strDate = "2018-12-12";
-        const rawTransactionsResponse = [{id: 1, description: "A", date: strDate}];
-        const transactions = [{id: 1, description: "A", date: moment.utc(strDate)}];
+      it('Get two long', async () => {
+        const transactions = TransactionFactory.buildList(2);
+        const rawTransactionsResponse = R.pipe(
+          R.map(remapKeys({movements: "movements_specs"})),
+          R.map(R.evolve({date: d => d.format("YYYY-MM-DD")}))
+        )(transactions);
         const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
         const result = await ajaxGetRecentTransactions(axiosMock);
         expect(result).toEqual(transactions)

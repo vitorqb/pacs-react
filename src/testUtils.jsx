@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Factory } from 'rosie';
 import faker from 'faker';
 import * as R from 'ramda';
+import moment from 'moment';
 
 faker.seed(123);
 
@@ -80,6 +81,78 @@ class CurrencyFactoryWrapper {
 }
 
 export const CurrencyFactory = new CurrencyFactoryWrapper();
+
+/**
+ * A wrapper around Factory providing fake movements for test.
+ */
+class MovementFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+    this.buildBalancedPair = this.buildBalancedPair.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr("account", faker.random.number)
+    .attr("money", () => ({
+      quantity: faker.random.number({min: -10000, max: 10000}),
+      currency: faker.random.number({min: 1, max: 100})
+    }))
+
+  build(opts={}) {
+    return this._factory.build(opts);
+  }
+
+  buildList(n, opts={}) {
+    return this._factory.buildList(n, opts);
+  }
+
+  /**
+   * Builds a balanced pair, where currencies are the same, accounts are
+   * different and quantities balance each other.
+   */
+  buildBalancedPair() {
+    const first = this.build();
+    const secondAccount = first.account + faker.random.number({ min: 1, max:10 });
+    const secondMoney = {
+      quantity: -first.money.quantity,
+      currency: first.money.currency
+    };
+    const second = this.build({account: secondAccount, money: secondMoney});
+    return [first, second]
+  }
+}
+
+export const MovementFactory = new MovementFactoryWrapper();
+
+/**
+ * A wrapper around Factory prividing fake transactions for test.
+ */
+class TransactionFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr("pk", faker.random.number)
+    .attr("description", faker.lorem.text)
+    .attr("date", moment.utc("2018-12-23"))
+    .attr("movements", () => MovementFactory.buildList(2))
+
+  build(opts) {
+    return this._factory.build(opts);
+  }
+
+  buildList(n, opts) {
+    return this._factory.buildList(n, opts);
+  }
+  
+}
+
+export const TransactionFactory = new TransactionFactoryWrapper();
 
 /**
  * Makes a mock for an axios error.

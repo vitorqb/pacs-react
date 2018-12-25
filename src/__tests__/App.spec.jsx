@@ -1,13 +1,13 @@
 // Integration tests for pacs-react
 import React from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import moment from 'moment';
+import * as R from 'ramda';
 import { mount } from 'enzyme';
 import App, { makeLink, makeRoute, makeRouter } from '../App';
 import TransactionTable from '../components/TransactionTable';
 import CurrencyTable from '../components/CurrencyTable';
 import AccountTree from '../components/AccountTree';
-import { AccountFactory, CurrencyFactory } from '../testUtils';
+import { AccountFactory, CurrencyFactory, TransactionFactory } from '../testUtils';
 import CreateTransactionForm from '../components/CreateTransactionForm';
 import CreateAccForm from '../components/CreateAccForm';
 
@@ -127,21 +127,40 @@ describe('App.test.jsx', () => {
 
   describe('renderTransactionTable', () => {
     it('Still loading', () => {
-      const resp = App.renderTransactionTable(null)
-      expect(resp).toEqual(<p>Loading...</p>)
+      const resp = App.renderTransactionTable(null, [], [])
+      expect(resp).toEqual(<p>Loading...</p>);
+    })
+    it('Still loading if currencies not loaded', () => {
+      const resp = App.renderTransactionTable([], null, []);
+      expect(resp).toEqual(<p>Loading...</p>);
+    })
+    it('Still loading if accounts not loaded', () => {
+      const resp = App.renderTransactionTable([], [], undefined);
+      expect(resp).toEqual(<p>Loading...</p>);
     })
     it('Finished loading', () => {
-      const transactions = [
-        {pk: 1, description: "hola", date: moment("1993-11-23")}
-      ]
-      const resp = App.renderTransactionTable(transactions)
-      expect(resp).toEqual(
-        <div className="TransactionTableDiv">
-          <TransactionTable
-            title="Recent Transactions"
-            transactions={transactions} />
-        </div>
-      )
+      const transactions = TransactionFactory.buildList(3);
+      const movements = R.flatten(R.map(R.prop("movements"), transactions))
+      const currenciesPks = R.pipe(
+        R.map(R.path(["money", "currency"])),
+        R.uniq
+      )(movements);
+      const currencies = R.map(pk => CurrencyFactory.build({pk}), currenciesPks);
+      const accountsPks = R.map(R.prop("account"), movements);
+      const accounts = R.map(pk => AccountFactory.build({pk}), accountsPks);
+      const resp = mount(App.renderTransactionTable(
+        transactions,
+        currencies,
+        accounts
+      ));
+      const transTable = resp.find(TransactionTable);
+
+      expect(transTable).toHaveLength(1);
+      expect(transTable.props().title).toBe("Recent Transactions")
+      expect(transTable.props().transactions).toEqual(transactions);
+      expect(transTable.props().getCurrency).not.toBe(undefined);
+      expect(transTable.props().getCurrency(currencies[0].pk))
+        .toEqual(currencies[0]);
     })
   })
 
