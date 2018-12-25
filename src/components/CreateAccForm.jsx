@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { createTitle, createInput } from '../utils';
+import { createTitle } from '../utils';
 import SuccessMessage from './SuccessMessage';
 import ErrorMessage from './ErrorMessage';
 import AccountInput from './AccountInput';

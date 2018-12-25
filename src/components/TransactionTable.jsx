@@ -102,7 +102,7 @@ export function extractAccountsRepr(getAccount, movements) {
   function buildAccsRepr(accounts) {
     const namesList = R.map(R.prop("name"), accounts);
     const namesRepr = R.join(", ", namesList);
-    if (accounts.length == 1) {
+    if (accounts.length === 1) {
       return namesRepr
     }
     return "(" + namesRepr + ")"
