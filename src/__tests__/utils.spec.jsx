@@ -1,6 +1,7 @@
 import React from 'react';
-import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter } from '../utils';
-import * as R from 'ramda'
+import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction } from '../utils';
+import * as R from 'ramda';
+import moment from 'moment';
 
 describe('createTitle()', () => {
   it('base', () => {
@@ -56,5 +57,27 @@ describe('newGetter()', () => {
     const getter = newGetter(R.prop("a"), [{a: 1}, {a: 2, b: 3}, {a: 3}]);
     expect(getter(1)).toEqual({a: 1});
     expect(getter(2)).toEqual({a: 2, b: 3});
+  })
+})
+
+describe('getSpecFromTransaction()', () => {
+  const transaction = {
+    pk: 1,
+    description: "hola",
+    movements: [],
+    date: moment.utc("1922-21-22")
+  };
+  const transactionSpec = getSpecFromTransaction(transaction);
+  it('No pk copied', () => {
+    expect(transactionSpec.pk).toBe(undefined);
+  })
+  it('Same description', () => {
+    expect(transactionSpec.description).toBe(transaction.description);
+  })
+  it('Same movements', () => {
+    expect(transactionSpec.movements).toBe(transaction.movements);
+  })
+  it('Same date', () => {
+    expect(transactionSpec.date).toBe(transaction.date);
   })
 })

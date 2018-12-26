@@ -127,6 +127,7 @@ export default class CreateAccForm extends Component {
 
     // For parent
     const { accounts=[] } = this.props;
+    // !!!! TODO -> Parse `value` to AccountInput with {label, value}
     const parentInput = makeTrTag(
       "parent",
       <AccountInput

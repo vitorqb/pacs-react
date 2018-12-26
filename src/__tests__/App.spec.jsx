@@ -8,8 +8,9 @@ import TransactionTable from '../components/TransactionTable';
 import CurrencyTable from '../components/CurrencyTable';
 import AccountTree from '../components/AccountTree';
 import { AccountFactory, CurrencyFactory, TransactionFactory } from '../testUtils';
-import CreateTransactionForm from '../components/CreateTransactionForm';
+import TransactionForm from '../components/TransactionForm';
 import CreateAccForm from '../components/CreateAccForm';
+import EditTransactionComponent from '../components/EditTransactionComponent';
 
 /**
   * Uses enzyme to mount App.
@@ -197,17 +198,17 @@ describe('App.test.jsx', () => {
     
   })
 
-  describe('App.renderCreateTransactionForm...', () => {
+  describe('App.renderCreateTransactionComponent...', () => {
 
     it('Loading while accounts is null...', () => {
       const form = mount(
-        App.renderCreateTransactionForm(null, [], ()=>{})
+        App.renderCreateTransactionComponent(null, [], ()=>{})
       );
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     })
     it('Loading while accounts is null...', () => {
       const form = mount(
-        App.renderCreateTransactionForm([], null, ()=>{})
+        App.renderCreateTransactionComponent([], null, ()=>{})
       );
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     })
@@ -215,10 +216,10 @@ describe('App.test.jsx', () => {
       const accounts = AccountFactory.buildList(3);
       const currencies = CurrencyFactory.buildList(2);
       const form = mount(
-        App.renderCreateTransactionForm(accounts, currencies, ()=>{})
+        App.renderCreateTransactionComponent(accounts, currencies, ()=>{})
       );
-      expect(form.find(CreateTransactionForm).props().accounts).toEqual(accounts);
-      expect(form.find(CreateTransactionForm).props().currencies)
+      expect(form.find(TransactionForm).props().accounts).toEqual(accounts);
+      expect(form.find(TransactionForm).props().currencies)
         .toEqual(currencies);
     })
   })
@@ -246,6 +247,36 @@ describe('App.test.jsx', () => {
       const table = mount(App.renderCurrencyTable(currencies));
       expect(table.find(CurrencyTable)).toHaveLength(1);
       expect(table.find(CurrencyTable).props().currencies).toEqual(currencies);
+    })
+  })
+
+  describe('App.renderEditTransactionComponent', () => {
+    it('Loading while currencies is null...', () => {
+      const component = mount(App.renderEditTransactionComponent(
+        ()=>{},
+        ()=>{},
+        null,
+        []
+      ));
+      expect(component).toMatchElement(<p>Loading...</p>);
+    })
+    it('Loading while accounts is null...', () => {
+      const component = mount(App.renderEditTransactionComponent(
+        ()=>{},
+        ()=>{},
+        [],
+        null
+      ));
+      expect(component).toMatchElement(<p>Loading...</p>);
+    })
+    it('Renders when both not null', () => {
+      const component = mount(App.renderEditTransactionComponent(
+        ()=>{},
+        ()=>{},
+        [],
+        [],
+      ));
+      expect(component).toContainMatchingElement(EditTransactionComponent);
     })
   })
 

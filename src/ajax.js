@@ -66,15 +66,10 @@ export const parseTransactionResponseData = R.pipe(
   remapKeys({movements_specs: "movements"})
 );
 
-// !!!! TODO -> Should not be necessary (we should use movement
-// !!!!   in the same format as the backend).
-export function parseMovementToRequestData(movement) {
-  const money = R.pick(["currency", "quantity"])(movement);
-  return {account: movement.account, money}
-}
-
-export const prepareCreateTransactionParams = R.pipe(
-  R.evolve({movements: R.map(parseMovementToRequestData)}),
+export const transactionSpecToRequestParams = R.pipe(
+  R.evolve({
+    date: x => x.format("YYYY-MM-DD")
+  }),
   remapKeys({movements: "movements_specs"})
 )
 
@@ -90,24 +85,50 @@ export function ajaxGetRecentTransactions(axios) {
 }
 
 /**
+ * @function
+ * Get a single transaction by pk.
+ */
+export const ajaxGetTransaction = R.curry(function(axios, pk) {
+  return makeRequest({
+    axios,
+    url: `/transactions/${pk}/`,
+    parseResponseData: parseTransactionResponseData
+  })
+})
+
+/**
  * A curried function that receives an Axios-like and some data for
  * a transactions and sends a post request to create it.
  * @param {Axios} axios - An axios-like api to use.
- * @param {Object} data - Data for transaction.
- * @param {string} data.description - Description.
- * @param {string} data.date - Date as YYYY-MM-DD.
- * @param {Movement[]} data.movements - An array of movements for this transaction,
- *    in the format {account: int, currency: int, quantity: int}
+ * @param {TransactionSpec} transactionSpec - A specificatino of the 
+ *   transaction to be created.
  */
-export const ajaxCreateTransaction = R.curry(function(axios, params) {
+export const ajaxCreateTransaction = R.curry(function(axios, transactionSpec) {
     return makeRequest({
       axios,
       url: "/transactions/",
       method: "POST",
-      requestData: prepareCreateTransactionParams(params)
+      requestData: transactionSpecToRequestParams(transactionSpec)
     })
   }
-)
+                                            )
+
+/**
+ * A curried function that receives an Axios-like and some data for a
+ * transaction and sends a post request to update it.
+ * @function
+ * @param {Axios} axios
+ * @param {Transaction} transaction - The transaction being updated.
+ * @param {TransactionSpec} data - The new spec for this transaction. 
+ */
+export const ajaxUpdateTransaction = R.curry(function(axios, transaction, data) {
+  return makeRequest({
+    axios,
+    url: `/transactions/${transaction.pk}/`,
+    method: "PUT",
+    requestData: transactionSpecToRequestParams(data)
+  })
+})
 
 
 //

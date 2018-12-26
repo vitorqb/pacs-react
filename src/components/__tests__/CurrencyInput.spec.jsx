@@ -7,28 +7,26 @@ import Select from 'react-select';
 
 describe('CurrencyInput', () => {
 
-  let currencies, selectedCur, onChange, curInput;
+  let currencies, value, onChange, curInput;
 
   beforeEach(() => {
     currencies = CurrencyFactory.buildList(3);
-    selectedCur = currencies[1]
+    value = currencies[1]
     onChange = sinon.fake()
     curInput = mount(
       <CurrencyInput
         currencies={currencies}
-        selectedCur={selectedCur}
+        value={value}
         onChange={onChange} />
     )
   })
 
   it('Sets value to selectedCur', () => {
-    expect(curInput.find(Select).props().value).toBe(selectedCur);
+    expect(curInput.find(Select).props().value).toEqual({value, label: value.name});
   })
   it('Calls onChange with selected currency', () => {
-    curInput.find(Select).props().onChange({
-      label: selectedCur.name, value: selectedCur
-    });
-    expect(onChange.calledWith(selectedCur)).toBe(true);
+    curInput.find(Select).props().onChange({value, label: value.name});
+    expect(onChange.calledWith(value)).toBe(true);
   })
   it('Parses options to Select', () => {
     const expOptions = currencies.map(x => ({value: x, label: x.name}));
