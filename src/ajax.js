@@ -49,12 +49,13 @@ export function makeRequest({
     .catch(handleFailure);
 }
 
-// !!!! TODO -> Dont hardcore token (how?)
-// !!!! TODO -> Parse response and errors here according to server API.
+
+// Use secrets.json to get the token
+const secrets = require('./secrets.json')
 export const axiosWrapper = axios.create({
   baseURL: 'http://138.68.66.242/',
   headers: {
-    Authorization: "Token {$,<6$X*~vEdZw;>YN(!64=sKTv!@G*&&Kc)Mgwb.z5hM>>U=T"
+    Authorization: "Token " + secrets.pacsAuthToken
   }
 });
 
