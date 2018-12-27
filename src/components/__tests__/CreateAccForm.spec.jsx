@@ -44,6 +44,13 @@ describe('CreateAccForm', () => {
     expect(accountInput).toHaveLength(1);
     expect(accountInput.props().accounts).toBe(accounts);
   })
+  it('Updates InputAccount value on selection...', () => {
+    const accounts = AccountFactory.buildList(10);
+    const form = mountForm({accounts});
+    form.find(AccountInput).props().onChange(accounts[3]);
+    form.update()
+    expect(form.find(AccountInput).props().value).toEqual(accounts[3]);
+  })
   it('Updates on name input', () => {
     const form = mountForm();
     const value = "hola";
@@ -62,7 +69,7 @@ describe('CreateAccForm', () => {
     const form = mountForm();
     const selectedAcc = AccountFactory.build();
     expect(form.instance().state.parent).toBe("");
-    form.find(AccountInput).props().onChange({value: selectedAcc});
+    form.find(AccountInput).props().onChange(selectedAcc);
     expect(form.instance().state.parent).toBe(selectedAcc.pk);
   })
   it('accCretor is called when submit', () => {

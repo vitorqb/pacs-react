@@ -14,16 +14,12 @@ describe('AccountInput', () => {
       const options = accounts.map(acc => {
         return {value: acc, label: acc.name}
       });
-      const exp = (
-        <Select
-          options={options}
-          onChange={onChange}
-          value={{value, label: value.name}} />
-      );
       const res = mount(
         <AccountInput accounts={accounts} onChange={onChange} value={value} />
       );
-      expect(res).toContainReact(exp);
+      const select = res.find(Select);
+      expect(select.props().options).toEqual(options);
+      expect(select.props().value).toEqual({value, label: value.name});
     })
     it('renders with the value selected...', () => {
       const accounts = AccountFactory.buildList(3);
@@ -45,7 +41,7 @@ describe('AccountInput', () => {
       );
 
       // Calls onChange handler for underlying 
-      accInput.find(Select).props().onChange(value);
+      accInput.find(Select).props().onChange({label: value.name, value});
 
       expect(onChange.calledWith(value)).toBe(true);
     })

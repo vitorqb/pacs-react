@@ -107,7 +107,7 @@ describe('MovementInputs', () => {
       const accInput = movementInput.find(AccountInput);
       const expectedEmittedState = R.merge(baseState, {account: selectedAcc.pk})
 
-      accInput.find(Select).props().onChange({value: selectedAcc});
+      accInput.props().onChange(selectedAcc);
 
       expect(onChangeHandler.calledOnceWith(expectedEmittedState)).toBe(true);
     })
