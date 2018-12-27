@@ -1,17 +1,23 @@
 import sinon from 'sinon';
 import React from 'react';
 import { mount } from 'enzyme';
-import CreateAccForm from '../CreateAccForm';
+import AccountForm from '../AccountForm';
 import SuccessMessage from '../SuccessMessage';
 import ErrorMessage from '../ErrorMessage';
 import AccountInput from '../AccountInput';
 import { AccountFactory } from '../../testUtils';
 
-describe('CreateAccForm', () => {
+describe('AccountForm', () => {
 
-  function mountForm({ title, createAcc, accounts=[] }={}) {
+  function mountForm({ title, onSubmit, accounts=[], value={} }={}) {
+    const onChange = sinon.fake();
     return mount(
-      <CreateAccForm title={title} createAcc={createAcc} accounts={accounts} />
+      <AccountForm
+        title={title}
+        onSubmit={onSubmit}
+        accounts={accounts}
+        onChange={onChange}
+        value={value} />
     )
   }
 
@@ -44,39 +50,43 @@ describe('CreateAccForm', () => {
     expect(accountInput).toHaveLength(1);
     expect(accountInput.props().accounts).toBe(accounts);
   })
-  it('Updates InputAccount value on selection...', () => {
+  it('Parses parent from value to AccountInput...', () => {
     const accounts = AccountFactory.buildList(10);
-    const form = mountForm({accounts});
-    form.find(AccountInput).props().onChange(accounts[3]);
-    form.update()
-    expect(form.find(AccountInput).props().value).toEqual(accounts[3]);
+    const accountSpec = {parent: accounts[1].pk};
+    const form = mountForm({accounts, value: accountSpec});
+    expect(form.find(AccountInput).props().value).toEqual(accounts[1]);
   })
-  it('Updates on name input', () => {
+  it('Calls onChange on name input', () => {
     const form = mountForm();
     const value = "hola";
-    expect(form.instance().state.name).toBe("")
+    expect(form.instance().getAccountSpec().name).toBe(undefined)
     form.find({ name: "name" }).simulate("change", { target: { value } })
-    expect(form.instance().state.name).toBe(value)
+    expect(form.props().onChange.calledOnce).toBe(true);
+    expect(form.props().onChange.lastCall.args[0].name).toBe(value);
   })
-  it('Updates on accType input', () => {
+  it('Calls onChange on accType input', () => {
     const form = mountForm();
     const value = "aloh";
-    expect(form.instance().state.accType).toBe("")
+    expect(form.instance().getAccountSpec().accType).toBe(undefined)
     form.find({ name: "accType" }).simulate("change", { target: { value } })
-    expect(form.instance().state.accType).toBe(value)
+    expect(form.props().onChange.calledOnce).toBe(true);
+    expect(form.props().onChange.lastCall.args[0].accType).toBe(value);
   })
-  it('Updates on parent input', () => {
+  it('Calls onChange on parent input', () => {
     const form = mountForm();
     const selectedAcc = AccountFactory.build();
-    expect(form.instance().state.parent).toBe("");
+    expect(form.instance().getAccountSpec().parent).toBe(undefined);
     form.find(AccountInput).props().onChange(selectedAcc);
-    expect(form.instance().state.parent).toBe(selectedAcc.pk);
+    expect(form.props().onChange.calledOnce).toBe(true);
+    expect(form.props().onChange.lastCall.args[0].parent)
+      .toBe(selectedAcc.pk);
   })
-  it('accCretor is called when submit', () => {
-    const createAcc = sinon.fake.resolves();
-    const form = mountForm({ createAcc });
-    form.find("form").simulate("submit")
-    expect(createAcc.called).toBe(true)
+  it('onSubmit is called with AccountSpec', () => {
+    const onSubmit = sinon.fake.resolves();
+    const form = mountForm({ onSubmit });
+    form.find("form").simulate("submit");
+    expect(onSubmit.calledOnce).toBe(true);
+    expect(onSubmit.calledWith(form.instance().getAccountSpec())).toBe(true);
   })
 
   describe('After submit...', () => {
@@ -85,15 +95,15 @@ describe('CreateAccForm', () => {
     })
     it('Sets response msg after submit', async () => {
       const responseMsg = { pk: 1, name: "Some Created Acc" };
-      const createAcc = () => Promise.resolve(responseMsg);
-      const form = mountForm({ createAcc });
+      const onSubmit = () => Promise.resolve(responseMsg);
+      const form = mountForm({ onSubmit });
 
       await submitForm(form);
       expect(form.state().responseMsg).toEqual(responseMsg);
     })
     it('Resets response msg on new submit', () => {
-      const createAcc = () => Promise.resolve();
-      const form = mountForm({createAcc});
+      const onSubmit = () => Promise.resolve();
+      const form = mountForm({onSubmit});
       form.setState({responseMsg: "Some object"});
 
       submitForm(form);
@@ -118,18 +128,18 @@ describe('CreateAccForm', () => {
       form.setState({errMsg});
       expect(form.contains(<ErrorMessage value={errMsg} />)).toBe(true);
     })
-    it('Sets error message from createAcc...', () => {
+    it('Sets error message from onSubmit...', () => {
       expect.assertions(1);
       const errMsg = "SomeError";
-      const createAcc = () => Promise.reject(errMsg);
-      const form = mountForm({createAcc});
+      const onSubmit = () => Promise.reject(errMsg);
+      const form = mountForm({onSubmit});
       return submitForm(form).then(_ => {
         expect(form.state().errMsg).toEqual(errMsg);
       });
     })
     it('Resets error message after new submit...', () => {
       expect.assertions(1);
-      const form = mountForm({createAcc: () => Promise.resolve({})});
+      const form = mountForm({onSubmit: () => Promise.resolve({})});
       form.setState({errMsg: "Some old error"});
       return submitForm(form).then(() => {
         expect(form.state().errMsg).toBe("");

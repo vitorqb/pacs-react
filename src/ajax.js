@@ -139,7 +139,7 @@ export const ajaxUpdateTransaction = R.curry(function(axios, transaction, data) 
 /**
  * Prepares the parameters to send a create account request.
  */
-export const prepareCreateAccParams = remapKeys({accType: "acc_type"});
+export const accountSpecToRequestParams = remapKeys({accType: "acc_type"});
 
 /**
   * Sends a post request to create a new account.
@@ -151,7 +151,7 @@ export const ajaxCreateAcc = R.curry(function(axios, rawParams) {
     axios,
     url: "/accounts/",
     method: "POST",
-    requestData: prepareCreateAccParams(rawParams)
+    requestData: accountSpecToRequestParams(rawParams)
   })
 })
 
@@ -166,6 +166,20 @@ export function ajaxGetAccounts(axios) {
   });
 }
 
+/**
+ * Sends a post request to update an account.
+ * @param {Axios} axios
+ * @param {Account} Account - the account to update.
+ * @param {AccountSpec} AccountSpec - the specification for the update.
+ */
+export const ajaxUpdateAccount = R.curry(function(axios, account, accountSpec) {
+  return makeRequest({
+    axios,
+    url: `/accounts/${account.pk}/`,
+    method: "PUT",
+    requestData: accountSpecToRequestParams(accountSpec)
+  })
+})
 
 //
 // Currencies
