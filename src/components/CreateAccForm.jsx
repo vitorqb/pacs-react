@@ -17,6 +17,7 @@ export default class CreateAccForm extends Component {
     */
   constructor(props) {
     super(props);
+    // !!!! TODO -> Store an AccountSpec
     this.state = {
       name: "",
       accType: "",
@@ -55,9 +56,7 @@ export default class CreateAccForm extends Component {
     this.setState({...this.state, accType: event.target.value})
   }
 
-  handleParentUpdate = (event) => {
-    // event is {label: ..., value: Account}
-    const account = event.value;
+  handleParentUpdate = (account) => {
     this.setState({parent: account.pk})
   }
 
@@ -127,13 +126,16 @@ export default class CreateAccForm extends Component {
 
     // For parent
     const { accounts=[] } = this.props;
-    // !!!! TODO -> Parse `value` to AccountInput with {label, value}
+    const value = this.state.parent ?
+          R.find(R.propEq("pk", this.state.parent), accounts) :
+          null;
     const parentInput = makeTrTag(
       "parent",
       <AccountInput
         key={inputsData.length}
         onChange={this.handleParentUpdate}
-        accounts={accounts} />
+        accounts={accounts}
+        value={value} />
     );
 
     return [...inputs, parentInput]

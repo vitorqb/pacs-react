@@ -41,7 +41,7 @@ export default class MovementInputs extends Component{
       <AccountInput
         accounts={accounts}
         onChange={
-          this.handleChange(R.lensProp("account"), R.path(["value", "pk"]))
+          this.handleChange(R.lensProp("account"), R.prop("pk"))
         }
         value={getAccount(movementSpec.account)} />
     );
