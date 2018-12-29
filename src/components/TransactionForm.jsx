@@ -4,7 +4,6 @@ import { createTitle, createInput } from '../utils';
 import MovementInputs from './MovementInputs';
 import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
-import moment from 'moment';
 import DateInput from './DateInput.jsx';
 
 /**

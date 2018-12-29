@@ -1,6 +1,5 @@
-import moment from 'moment';
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, parseMovementToRequestData, ajaxGetAccounts } from '../ajax';
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts } from '../ajax';
 import * as R from 'ramda';
 import { AccountFactory, TransactionFactory } from '../testUtils';
 import { remapKeys, getSpecFromTransaction } from '../utils';
