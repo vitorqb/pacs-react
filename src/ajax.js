@@ -53,7 +53,7 @@ export function makeRequest({
 // Use secrets.json to get the token
 const secrets = require('./secrets.json')
 export const axiosWrapper = axios.create({
-  baseURL: 'http://138.68.66.242/',
+  baseURL: secrets.serverUrl,
   headers: {
     Authorization: "Token " + secrets.pacsAuthToken
   }
