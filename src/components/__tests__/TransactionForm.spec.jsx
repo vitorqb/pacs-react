@@ -25,7 +25,7 @@ function mountTransactionForm(
     value=undefined,
     title="",
     onSubmit=(()=>Promise.resolve({})),
-    onChange=(()=>{}),
+    onChange=sinon.fake(),
     accounts=[],
   }={}
 ) {
@@ -150,6 +150,56 @@ describe('TransactionForm', () => {
       expect(onChange.lastArg.date).toEqual(newDate);
     })
 
+  })
+
+  describe('Adding/Removing movement inputs...', () => {
+    it('Can render three MovementInputs in the DOM.', () => {
+      formComponent = mountTransactionForm({value: {movements: [{}, {}, {}]}});
+      expect(formComponent.find(MovementInputs)).toHaveLength(3);
+    })
+    describe('Adds a new movement.', () => {
+      beforeEach(() => {
+        formComponent = mountTransactionForm();
+        formComponent.find('button[name="add-movement"]').props().onClick({
+          preventDefault: ()=>{}
+        });
+        formComponent.update();
+      })
+      it('Calls onChange with new MovementInputs.', () => {
+        expect(formComponent.props().onChange.calledOnce).toBe(true);
+        const expNewState = R.set(
+          R.lensPath(["movements", 2]),
+          {},
+          formComponent.instance().getValue()
+        );
+        expect(formComponent.props().onChange.lastCall.args)
+          .toEqual([expNewState]);
+      })
+      it('Calls onChange when changing added movement input.', () => {
+        const movementSpec = {quantity: 12};
+        formComponent = mountTransactionForm({value: {movements: [{}, {}, {}]}});
+        const expNewTransactionSpec = {movements: [{}, {}, movementSpec]};
+        formComponent.find(MovementInputs).at(2).props().onChange(movementSpec);
+        expect(formComponent.props().onChange.lastCall.args)
+          .toEqual([expNewTransactionSpec]);
+      })
+      it('Can be removed.', () => {
+        formComponent = mountTransactionForm(
+          {value: {movements: [{quantity: 1}, {quantity: 2}, {}]}}
+        );
+        formComponent.find('button[name="remove-movement-2"]').props().onClick({
+          preventDefault: ()=>{}
+        });
+        expect(formComponent.props().onChange.lastCall.args)
+          .toEqual([{movements: [{quantity: 1}, {quantity: 2}]}]);
+      })
+      it('Removal button dont exist for two first movements.', () => {
+        [0,1].forEach(i => {
+          expect(formComponent.find(`button[name="remove-movement-${i}"]`))
+            .toHaveLength(0);
+        })
+      })
+    })
   })
 
   describe('Submitting...', () => {

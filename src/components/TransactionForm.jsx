@@ -45,6 +45,18 @@ export default class TransactionForm extends Component {
     this.props.onChange(R.set(lens, eventValue, this.getValue()));
   })
 
+  handleNewMovementSpec = movementSpec => {
+    const lens = R.lensProp("movements");
+    const value = R.append(movementSpec, this.getValue().movements);
+    this.props.onChange(R.set(lens, value, this.getValue()));
+  };
+
+  handleMovementSpecRemoval = index => {
+    this.props.onChange(
+      R.dissocPath(["movements", index], this.getValue())
+    );
+  }
+
   setErrorMessage = (x) => {
     this.setState({errorMessage: x})
   }
@@ -94,6 +106,8 @@ export default class TransactionForm extends Component {
 
     const movementInputs = this.renderMovementsInputs();
 
+    const addMovementButton = this.renderAddMovementButton();
+
     return (
       <div className="form-div">
         <form onSubmit={this.handleSubmit}>
@@ -101,6 +115,7 @@ export default class TransactionForm extends Component {
           {descriptionInput}
           date: {dateInput}
           {movementInputs}
+          <div>{addMovementButton}</div>
           <input type="submit" value="Submit" />
         </form>
         <ErrorMessage value={this.state.errorMessage} />
@@ -120,17 +135,53 @@ export default class TransactionForm extends Component {
      * Renders a single MovementInput from an MovementSpec
      */
     function renderOne(movementSpec, index){
+      // If index > 1, the movement spec is optional and can be removed.
       return (
-        <MovementInputs
-          key={index}
-          title={`movements[${index}]`}
-          accounts={accounts}
-          currencies={currencies}
-          value={movementSpec}
-          onChange={self.handleUpdate(R.lensPath(["movements", index]), R.identity)}/>
-      )
+        <div key={index}>
+          <MovementInputs
+            key={index}
+            title={`movements[${index}]`}
+            accounts={accounts}
+            currencies={currencies}
+            value={movementSpec}
+            onChange={self.handleUpdate(R.lensPath(["movements", index]), R.identity)}/>
+          {renderRemovalButton(index)}
+        </div>
+      );
+    };
+
+    /**
+     * Renders a remove button for movement inputs with index > 1
+     */
+    function renderRemovalButton(index) {
+      if (index <= 1) {
+        return (<div />);
+      }
+      return (
+        <button
+          name={`remove-movement-${index}`}
+          style={{backgroundColor: "red"}}
+          onClick={e => {
+            e.preventDefault();
+            self.handleMovementSpecRemoval(index)
+          }}>Remove</button>
+      );
     }
 
-    return this.getValue().movements.map(renderOne)
+    return this.getValue().movements.map(renderOne);
+  }
+
+  renderAddMovementButton() {
+    return (
+      <button
+        name="add-movement"
+        style={{backgroundColor: "green"}}
+        onClick={e => {
+          e.preventDefault();
+          this.handleNewMovementSpec({});
+        }}>
+         Add Movement
+      </button>
+    );
   }
 }
