@@ -7,7 +7,6 @@ const movementCurrencyLens = R.lensPath(["money", "currency"]);
 const quantityCurrencyLens = R.lensPath(["money", "quantity"]);
 
 
-// !!!! TODO -> Add header.
 /**
   * A React Component that is a table of transactions
   * @param {string} props.title - The title
