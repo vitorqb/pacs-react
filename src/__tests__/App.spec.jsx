@@ -9,7 +9,7 @@ import CurrencyTable from '../components/CurrencyTable';
 import AccountTree from '../components/AccountTree';
 import { AccountFactory, CurrencyFactory, TransactionFactory } from '../testUtils';
 import TransactionForm from '../components/TransactionForm';
-import CreateAccForm from '../components/CreateAccForm';
+import AccountForm from '../components/AccountForm';
 import EditTransactionComponent from '../components/EditTransactionComponent';
 
 /**
@@ -20,7 +20,7 @@ import EditTransactionComponent from '../components/EditTransactionComponent';
   * @param {number} opts.timeout - A delay for the promise that retrieves the
   *    recent transactions.
   * @param {Function} opts.createAcc - A function called to create an account
-  *    (parsed to CreateAccForm).
+  *    (parsed to AccountForm).
   * @param {Function} opts.createTransaction - A function called to create a
   *    transaction.
   * @param {Function} opts.getAccounts - A mock function called to get a list
@@ -224,16 +224,16 @@ describe('App.test.jsx', () => {
     })
   })
 
-  describe('App.renderCreateAccForm...', () => {
+  describe('App.renderCreateAccountComponent...', () => {
     it('Loading while accounts is null...', () => {
-      const form = mount(App.renderCreateAccForm(null));
+      const form = mount(App.renderCreateAccountComponent(null));
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     })
     it('Rendered when accounts is not null...', () => {
       const accounts = AccountFactory.buildList(2);
-      const form = mount(App.renderCreateAccForm(accounts, ()=>{}));
-      expect(form.find(CreateAccForm)).toHaveLength(1);
-      expect(form.find(CreateAccForm).props().accounts).toEqual(accounts);
+      const form = mount(App.renderCreateAccountComponent(accounts, ()=>{}));
+      expect(form.find(AccountForm)).toHaveLength(1);
+      expect(form.find(AccountForm).props().accounts).toEqual(accounts);
     })
   })
 

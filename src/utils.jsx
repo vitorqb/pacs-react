@@ -31,10 +31,24 @@ import * as R from 'ramda';
  */
 
 /**
+ * A specification of how an account should be.
+ * @typedef {Object} AccountSpec
+ * @property {string} [name]
+ * @property {string} [accType]
+ * @property {number} [parent]
+ */
+
+/**
  * @function
  * Maps a Transaction to a TransactionSpec.
  */
 export const getSpecFromTransaction = R.pick(["description", "date", "movements"]);
+
+/**
+ * @function
+ * Maps an Account into an AccountSpec.
+ */
+export const getSpecFromAccount = R.pick(["name", "accType", "parent"]);
 
 /**
  * Returns a clone of the object with keys remapped according to keysmapping.

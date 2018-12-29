@@ -4,10 +4,11 @@ import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
 import CurrencyTable from './components/CurrencyTable';
-import CreateAccForm from './components/CreateAccForm';
+import CreateAccountComponent from './components/CreateAccountComponent.jsx';
+import EditAccountComponent from './components/EditAccountComponent.jsx';
 import CreateTransactionComponent from './components/CreateTransactionComponent';
 import EditTransactionComponent from './components/EditTransactionComponent';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter } from './utils';
 
@@ -107,6 +108,7 @@ class App extends Component {
   render() {
     const {
       createAcc = ajaxCreateAcc(axiosWrapper),
+      updateAcc = ajaxUpdateAccount(axiosWrapper),
       createTransaction = ajaxCreateTransaction(axiosWrapper),
       updateTransaction = ajaxUpdateTransaction(axiosWrapper),
       getTransaction = ajaxGetTransaction(axiosWrapper),
@@ -117,7 +119,11 @@ class App extends Component {
       currencies,
       accounts
     );
-    const createAccForm = App.renderCreateAccForm(accounts, createAcc);
+    const createAccForm = App.renderCreateAccountComponent(accounts, createAcc);
+    const editAccountComponent = App.renderEditAccountComponent(
+      accounts,
+      updateAcc
+    );
     const createTransactionForm = App.renderCreateTransactionComponent(
       accounts,
       currencies,
@@ -135,6 +141,7 @@ class App extends Component {
     const router = makeRouter(this.getRoutesData({
       transactionTable,
       createAccForm,
+      editAccountComponent,
       createTransactionForm,
       accountTree,
       currencyTable,
@@ -154,6 +161,7 @@ class App extends Component {
   getRoutesData({
     transactionTable,
     createAccForm,
+    editAccountComponent,
     createTransactionForm,
     accountTree,
     currencyTable,
@@ -179,6 +187,11 @@ class App extends Component {
         path: "/create-account/",
         text: "Create Account",
         component: () => createAccForm
+      },
+      {
+        path: "/edit-account/",
+        text: "Edit Account",
+        component: () => editAccountComponent
       },
       {
         path: "/account-tree/",
@@ -219,23 +232,33 @@ class App extends Component {
   }
 
   /**
-   * Renders the CreateAccForm for the app.
+   * Renders the CreateAccountComponent for the app.
    * @param {Account[]} accounts - An array of Accounts from where the user can
    *   choose, or null if not yet loaded.
    * @param {Function} createAcc - A function that receives account creation
    *   data and performs the post request to create the account.
    */
-  static renderCreateAccForm(accounts, createAcc) {
+  static renderCreateAccountComponent(accounts, createAcc) {
     // We parametrize createAcc with the AxiosWrapper.
     if (accounts !== [] && !accounts) {
       return <p>Loading...</p>
     }    
     return (
-      <CreateAccForm
-        title="Create Account"
+      <CreateAccountComponent
         createAcc={createAcc}
         accounts={accounts} />
     );
+  }
+
+  static renderEditAccountComponent(accounts, updateAcc) {
+    if (accounts !== [] && !accounts) {
+      return <p>Loading...</p>
+    }    
+    return (
+      <EditAccountComponent
+        editAccount={updateAcc}
+        accounts={accounts} />
+    )
   }
 
   /**
