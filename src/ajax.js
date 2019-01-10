@@ -181,6 +181,25 @@ export const ajaxUpdateAccount = R.curry(function(axios, account, accountSpec) {
   })
 })
 
+/**
+ * Returns a Journal for an account.
+ * @function
+ * @param {Axios} axios
+ * @param {Account} account
+ */
+export const ajaxGetJournalForAccount = R.curry(function(axios, account) {
+  return makeRequest({
+    axios,
+    url: `/accounts/${account.pk}/journal/`,
+    method: "GET",
+    parseResponseData: R.over(
+      R.lensProp('transactions'),
+      R.map(parseTransactionResponseData),
+    )
+  });
+});
+
+
 //
 // Currencies
 //

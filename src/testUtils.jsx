@@ -142,10 +142,19 @@ class TransactionFactoryWrapper {
     .attr("date", moment.utc("2018-12-23"))
     .attr("movements", () => MovementFactory.buildList(2))
 
+  /**
+   * @param {object} opts
+   * @return {Transaction}
+   */
   build(opts) {
     return this._factory.build(opts);
   }
 
+  /**
+   * @param {number} n
+   * @param {object} opts
+   * @return {Transaction[]}
+   */
   buildList(n, opts) {
     return this._factory.buildList(n, opts);
   }
