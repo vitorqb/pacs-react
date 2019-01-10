@@ -1,10 +1,11 @@
 import React from 'react';
 import * as R from 'ramda';
+import numeral from 'numeral';
 
 /**
   * @typedef Money
   * @type {object}
-  * @property {number} account
+  * @property {number} currency
   * @property {number} quantity
   */
 
@@ -85,6 +86,73 @@ export function createInput({ type, name, onChange, value }) {
     </div>
   );
 }
+
+/**
+ * Returns all Money objects from a list of movements for a given account,
+ * considering all it's descendants.
+ * @function
+ * @param {fn(number) -> Account} getAccount - A function that returns an account
+ *   from it's pk.
+ * @param {fn(Account, Account) -> bool} isDescendant - A function that receives 
+ *   two accounts and returns whether the first is a descendant of the second.
+ * @param {Account} account
+ * @param {Movement[]} movements
+ * @return {Money[]} A list of Money objects.
+ */
+export const extractMoneysForAccount = R.curry(
+  function(getAccount, isDescendant, account, movements) {
+    const isDescendatOfAccount = R.partialRight(isDescendant, [account]);
+    const isAccount = R.propEq('pk', account.pk);
+    const moneyInvolvesAccount = R.pipe(          // Movement ->
+      R.prop('account'),                          // -> number
+      getAccount,                                 // -> Account
+      R.either(isAccount, isDescendatOfAccount),  // -> bool
+    );
+
+    return R.pipe(
+      R.filter(moneyInvolvesAccount),
+      R.map(R.prop('money'))
+    )(movements)
+  }
+)
+
+/**
+ * Makes a nice representation out of a list of moneys.
+ * @function
+ * @param {fn(number): Currency} getCurrency
+ * @param {Money[]} moneys
+ * @returns {string}
+ */
+export const moneysToRepr = R.curry(function(getCurrency, moneys) {
+  const quantityToRepr = m => numeral(m.quantity).format('+0.00');
+  const currencyToRepr = m => getCurrency(m.currency).name;
+  return R.pipe(
+    R.map(m => `${quantityToRepr(m)} ${currencyToRepr(m)}`),
+    R.join("; ")
+  )(moneys);
+})
+
+/**
+ * Considering all accounts in an array, returns True if the first account
+ * is a descendant of the second.
+ * @function
+ * @param {Account[]} accounts
+ * @param {Account} first
+ * @param {Account} second
+ * @returns bool
+ */
+export const isDescendant = R.curry(function(accounts, first, second) {
+  // Is second the parent?
+  if (first.parent === second.pk) {
+    return true
+  } else {
+    // Is any of the sons of second an ancestor?
+    const sonsOfSecond = R.filter(R.propEq('parent', second.pk), accounts);
+    return R.any(isDescendant(accounts, first), sonsOfSecond)
+  }
+})
+
+
 
 /**
  * Extracts source or target accounts from an array of movements.

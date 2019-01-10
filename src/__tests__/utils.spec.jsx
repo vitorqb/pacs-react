@@ -1,5 +1,6 @@
 import React from 'react';
-import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction } from '../utils';
+import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr } from '../utils';
+import { AccountFactory, CurrencyFactory } from '../testUtils.jsx';
 import * as R from 'ramda';
 import moment from 'moment';
 
@@ -79,5 +80,80 @@ describe('getSpecFromTransaction()', () => {
   })
   it('Same date', () => {
     expect(transactionSpec.date).toBe(transaction.date);
+  })
+})
+
+
+describe('extractMoneyForAccount', () => {
+  it('base', () => {
+    const [account, otherAccount] = AccountFactory.buildList(2);
+    const getAccount = newGetter(R.prop('pk'), [account, otherAccount]);
+    const movements = [
+      {account: account.pk, money: {currency: 2, quantity: 3}},
+      {account: otherAccount.pk, money: {currency: 2, quantity: -3}}
+    ];
+    const isDescendant = () => false;
+    expect(extractMoneysForAccount(getAccount, isDescendant, account, movements))
+      .toEqual([movements[0].money]);
+  })
+  it('with hierarchy', () => {
+    const [root, child, other] = AccountFactory.buildList(3);
+    const getAccount = newGetter(R.prop('pk'), [root, child, other]);
+    const movements = [
+      {account: root.pk, money: {currency: 1, quantity: 10}},
+      {account: child.pk, money: {currency: 1, quantity: 20}},
+      {account: other.pk, money: {currency: 2, quantity: 30}}
+    ];
+    const isDescendant = (accOne, accTwo) => {
+      return accOne.pk === child.pk && accTwo.pk === root.pk;
+    };
+    expect(extractMoneysForAccount(getAccount, isDescendant, root, movements))
+      .toEqual([movements[0].money, movements[1].money]);
+  })
+})
+
+
+describe('isDescendant', () => {
+  it('base false', () => {
+    const accounts = AccountFactory.buildList(2);
+    expect(isDescendant(accounts, accounts[0], accounts[1])).toBe(false);
+  })
+  it('base true', () => {
+    const parent = AccountFactory.build();
+    const child = AccountFactory.build({parent: parent.pk});
+    expect(isDescendant([child, parent], child, parent)).toBe(true);
+  })
+  it('son of son', () => {
+    const grandParent = AccountFactory.build();
+    const parent = AccountFactory.build({parent: grandParent.pk});
+    const child = AccountFactory.build({parent: parent.pk});
+    const accounts = [grandParent, parent, child];
+    expect(isDescendant(accounts, child, grandParent)).toBe(true);
+  })
+  it('same account is false', () => {
+    const accounts = AccountFactory.buildList(3);
+    expect(isDescendant(accounts, accounts[0], accounts[0])).toBe(false);
+  })
+})
+
+
+describe('moneysToRepr', () => {
+  it('one money', () => {
+    const money = {currency: 2, quantity: 12.12};
+    const getCurrency = memoizeSimple(CurrencyFactory.build);
+    expect(moneysToRepr(getCurrency, [money])).toEqual(
+      `+12.12 ${getCurrency(2).name}`
+    );
+  })
+  it('two moneys', () => {
+    const currencies = CurrencyFactory.buildList(2);
+    const getCurrency = newGetter(R.prop('pk'), currencies);
+    const moneys = [
+      {currency: currencies[0].pk, quantity: -12.112},
+      {currency: currencies[1].pk, quantity: 22}
+    ];
+    expect(moneysToRepr(getCurrency, moneys)).toEqual(
+      `-12.11 ${currencies[0].name}; +22.00 ${currencies[1].name}`
+    );
   })
 })

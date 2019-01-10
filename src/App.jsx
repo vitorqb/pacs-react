@@ -8,9 +8,11 @@ import CreateAccountComponent from './components/CreateAccountComponent.jsx';
 import EditAccountComponent from './components/EditAccountComponent.jsx';
 import CreateTransactionComponent from './components/CreateTransactionComponent';
 import EditTransactionComponent from './components/EditTransactionComponent';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount } from "./ajax";
+import JournalComponent from './components/JournalComponent.jsx';
+import { defaultColumnMakers } from './components/JournalTable.jsx';
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetJournalForAccount } from "./ajax";
 import AccountTree from './components/AccountTree';
-import { newGetter } from './utils';
+import { newGetter, isDescendant } from './utils';
 
 /**
  * Makes a '<Link>' for a router.
@@ -106,14 +108,21 @@ class App extends Component {
   }
 
   render() {
+
+    // Prepares ajax related functions
     const {
       createAcc = ajaxCreateAcc(axiosWrapper),
       updateAcc = ajaxUpdateAccount(axiosWrapper),
       createTransaction = ajaxCreateTransaction(axiosWrapper),
       updateTransaction = ajaxUpdateTransaction(axiosWrapper),
       getTransaction = ajaxGetTransaction(axiosWrapper),
+      getJournalForAccount = ajaxGetJournalForAccount(axiosWrapper),
     } = this.props || {};
+
+    // Retrieves from the state
     const { transactions, accounts, currencies } = this.state;
+
+    // Render the components
     const transactionTable = App.renderTransactionTable(
       transactions,
       currencies,
@@ -137,7 +146,13 @@ class App extends Component {
     );
     const accountTree = App.renderAccountTree(accounts);
     const currencyTable = App.renderCurrencyTable(currencies);
-    
+    const journalComponent = App.renderJournalComponent(
+      currencies,
+      accounts,
+      getJournalForAccount,
+    );
+
+    // Prepares the router
     const router = makeRouter(this.getRoutesData({
       transactionTable,
       createAccForm,
@@ -146,6 +161,7 @@ class App extends Component {
       accountTree,
       currencyTable,
       editTransactionComponent,
+      journalComponent,
     }));
 
     return (
@@ -165,7 +181,8 @@ class App extends Component {
     createTransactionForm,
     accountTree,
     currencyTable,
-    editTransactionComponent
+    editTransactionComponent,
+    journalComponent
   }) {
     return [
       {
@@ -203,6 +220,11 @@ class App extends Component {
         text: "Currency Table",
         component: () => currencyTable
       },
+      {
+        path: "/account-journal/",
+        text: "Account Journal",
+        component: () => journalComponent
+      }
     ]
   }
 
@@ -312,6 +334,24 @@ class App extends Component {
         updateTransaction={updateTransaction}
         accounts={accounts}
         currencies={currencies} />
+    )
+  }
+
+  static renderJournalComponent(
+    currencies,
+    accounts,
+    getJournalForAccount
+  ) {
+    if (accounts == null || currencies == null) {
+      return <p>Loading...</p>
+    }
+    return (
+      <JournalComponent
+        getAccount={newGetter(R.prop('pk'), accounts)}
+        isDescendant={isDescendant(accounts)}
+        getCurrency={newGetter(R.prop('pk'), currencies)}
+        columnMakers={defaultColumnMakers}
+        getJournalForAccount={getJournalForAccount} />
     )
   }
 }
