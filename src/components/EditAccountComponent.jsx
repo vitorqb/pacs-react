@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AccountForm from './AccountForm.jsx';
 import * as R from 'ramda';
-import AccountPicker from './AccountPicker.jsx';
+import AccountInput from './AccountInput.jsx';
 import { getSpecFromAccount, newGetter } from '../utils.jsx';
 
 /**
@@ -31,7 +31,7 @@ export default class EditAccountComponent extends Component {
     this.setState({accountSpec: x});
   }
 
-  handlePickedAccount = account => {
+  handleInputtedAccount = account => {
     this.setState({account});
     this.setAccountSpec(getSpecFromAccount(account));
   }
@@ -44,8 +44,8 @@ export default class EditAccountComponent extends Component {
 
   render() {
     const accForm = this.renderAccountForm();
-    const accPicker = this.renderAccountPicker();
-    return (<div>{accPicker}{accForm}</div>);
+    const accInput = this.renderAccountInput();
+    return (<div>{accInput}{accForm}</div>);
   }
 
   renderAccountForm = () => {
@@ -61,14 +61,14 @@ export default class EditAccountComponent extends Component {
     )
   }
 
-  renderAccountPicker = () => {
+  renderAccountInput = () => {
     const { accounts } = this.props;
-    const getAccount = newGetter(R.prop("pk"), accounts);
-    const getAccountPromise = (pk) => Promise.resolve(getAccount(pk));
+    const { account } = this.state;
     return (
-      <AccountPicker
-        getAccount={getAccountPromise}
-        onPicked={this.handlePickedAccount} />
+      <AccountInput
+        value={account}
+        accounts={accounts}
+        onChange={this.handleInputtedAccount} />
     )
   }
   

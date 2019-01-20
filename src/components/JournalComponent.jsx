@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import JournalTable from './JournalTable.jsx';
-import AccountPicker from './AccountPicker.jsx';
+import AccountInput from './AccountInput.jsx';
+import { newGetter } from '../utils.jsx';
 import * as R from 'ramda';
 
 export default class JournalComponent extends Component {
 
   /**
    * @param {object} props
-   * @param {fn(number): Account} props.getAccount
+   * @param {List<Account>} props.accounts
    * @param {fn(Account, Account): bool} props.isDescendant - Must return True
    *   if the first account is a descendant of the second.
    * @param {fn(number): Currency} props.getCurrency
@@ -38,10 +39,10 @@ export default class JournalComponent extends Component {
   render() {
     // Renders children
     const journalTable = this.renderJournalTable();
-    const accountPicker = this.renderAccountPicker();
+    const accountInput = this.renderAccountInput();
     return (
       <div>
-        {accountPicker}
+        {accountInput}
         {journalTable}
       </div>
     )
@@ -51,7 +52,8 @@ export default class JournalComponent extends Component {
     if (this.state.journal == null || this.state.journal === undefined) {
       return <div />
     }
-    const {getAccount, isDescendant, getCurrency, columnMakers} = this.props;
+    const {isDescendant, getCurrency, columnMakers} = this.props;
+    const getAccount = newGetter(R.prop('pk'), this.props.accounts);
     const {account, journal} = this.state;
     return (
       <JournalTable
@@ -65,12 +67,14 @@ export default class JournalComponent extends Component {
     )
   }
 
-  renderAccountPicker = () => {
-    const { getAccount } = this.props;
+  renderAccountInput = () => {
+    const { accounts } = this.props;
+    const { account } = this.state;
     return (
-      <AccountPicker
-        getAccount={pk => Promise.resolve(getAccount(pk))}
-        onPicked={this.setAccount}
+      <AccountInput
+        value={account}
+        accounts={accounts}
+        onChange={this.setAccount}
         />
     )
   }
