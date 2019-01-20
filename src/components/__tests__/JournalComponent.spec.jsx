@@ -9,7 +9,7 @@ describe('JournalComponent', () => {
   describe('Mounting with account', () => {
     const opts = {
       account: {},
-      getAccount: () => {},
+      accounts: [],
       isDescendant: () => true,
       getCurrency: () => {},
       journal: {transactions: [], balances: []},
@@ -17,7 +17,7 @@ describe('JournalComponent', () => {
     };
     const journalComponent = mount(
       <JournalComponent
-        getAccount={opts.getAccount}
+        accounts={opts.accounts}
         isDescendant={opts.isDescendant}
         getCurrency={opts.getCurrency}
         columnMakers={opts.columnMakers}
@@ -28,9 +28,6 @@ describe('JournalComponent', () => {
     const findTable = () => journalComponent.find(JournalTable);
     it('Parses account as prop', () => {
       expect(findTable().props().account).toBe(opts.account);
-    })
-    it('Parses getAccount as prop', () => {
-      expect(findTable().props().getAccount).toBe(opts.getAccount);
     })
     it('Parses isDescendant as prop', () => {
       expect(findTable().props().isDescendant).toBe(opts.isDescendant);
@@ -46,10 +43,10 @@ describe('JournalComponent', () => {
     })
   })
   describe('Retrieving account', () => {
-    it('Sets account from AccountPicker onPick', () => {
+    it('Sets account from AccountInput onChange', () => {
       const component = mount(
         <JournalComponent
-          getAccount={()=>{}}
+          accounts={[]}
           isDescendant={()=>false}
           getCurrency={()=>{}}
           columnMakers={[]}
@@ -57,7 +54,7 @@ describe('JournalComponent', () => {
       );
       const account = {};
       expect(component.state().account).toBe(null);
-      component.find('AccountPicker').props().onPicked(account);
+      component.find('AccountInput').props().onChange(account);
       expect(component.state().account).toBe(account);
     })
   })
@@ -65,7 +62,7 @@ describe('JournalComponent', () => {
     it('Does not shows table if no data', () => {
       const component = mount(
         <JournalComponent
-          getAccount={()=>{}}
+          accounts={[]}
           isDescendant={()=>false}
           getCurrency={()=>{}}
           columnMakers={[]} />
@@ -76,7 +73,7 @@ describe('JournalComponent', () => {
       const getJournalForAccount = sinon.fake.resolves({transactions: [], balances: []});
       const component = mount(
         <JournalComponent
-          getAccount={()=>{}}
+          accounts={[]}
           isDescendant={()=>false}
           getCurrency={()=>{}}
           columnMakers={[]}
@@ -92,7 +89,7 @@ describe('JournalComponent', () => {
       const journalPromise = Promise.resolve(journal);
       const component = mount(
         <JournalComponent
-          getAccount={()=>{}}
+          accounts={[]}
           isDescendant={()=>false}
           getCurrency={()=>{}}
           columnMakers={[]}

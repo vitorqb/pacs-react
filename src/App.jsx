@@ -347,7 +347,7 @@ class App extends Component {
     }
     return (
       <JournalComponent
-        getAccount={newGetter(R.prop('pk'), accounts)}
+        accounts={accounts}
         isDescendant={isDescendant(accounts)}
         getCurrency={newGetter(R.prop('pk'), currencies)}
         columnMakers={defaultColumnMakers}

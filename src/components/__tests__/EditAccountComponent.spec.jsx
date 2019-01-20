@@ -37,10 +37,10 @@ describe('EditAccountComponent', () => {
 
     expect(editAccComponent.find('AccountForm')).toHaveLength(1);
   })
-  it('Updates accountSpec on submit for AccountPicker', () => {
+  it('Updates accountSpec on submit for AccountInput', () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[1];
-    editAccComponent.find('AccountPicker').props().onPicked(account);
+    editAccComponent.find('AccountInput').props().onChange(account);
     expect(editAccComponent.instance().getAccountSpec())
       .toEqual(getSpecFromAccount(account));
   })
@@ -48,7 +48,7 @@ describe('EditAccountComponent', () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[0];
     const accountSpec = getSpecFromAccount(account);
-    editAccComponent.find('AccountPicker').props().onPicked(account);
+    editAccComponent.find('AccountInput').props().onChange(account);
     editAccComponent.update();
     editAccComponent.find('AccountForm').props().onSubmit(accountSpec);
     expect(editAccComponent.props().editAccount.calledOnce).toBe(true);
