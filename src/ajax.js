@@ -199,6 +199,45 @@ export const ajaxGetJournalForAccount = R.curry(function(axios, account) {
   });
 });
 
+/**
+ * Runs an ajax query and returns a PaginatedJournalData.
+ * @function
+ * @param {Axios} axios
+ * @param {Account} account
+ * @param {Object} paginationRequestOpts
+ * @param {number} paginationRequestOpts.page
+ * @param {number} paginationRequestOpts.pageSize
+ */
+export const ajaxGetPaginatedJournalDataForAccount = R.curry(
+  function(axios, account, paginationRequestOpts) {
+    return makeRequest({
+      axios,
+      url: makeUrlPaginatedJournalForAccount(account, paginationRequestOpts),
+      method: "GET",
+      parseResponseData: R.pipe(
+        // Adds page and pageSize to the context of the response.
+        R.mergeRight(paginationRequestOpts),
+        parsePaginatedJournalResponse
+      )
+    })
+  }
+)
+
+export const parsePaginatedJournalResponse = R.pipe(
+  R.over(
+    R.lensPath(['journal', 'transactions']),
+    R.map(parseTransactionResponseData)
+  ),
+  remapKeys({journal: "data", count: "itemCount"}),
+  // Adds a pageCount from pageSize and count
+  (x) => R.assoc('pageCount', Math.ceil(x.itemCount / x.pageSize), x)
+)
+
+export function makeUrlPaginatedJournalForAccount(account, paginationRequestOpts) {
+  const { page, pageSize } = paginationRequestOpts;
+  return `/accounts/${account.pk}/journal/` +
+    `?page=${page+1}&page_size=${pageSize}&reverse=1`;
+}
 
 //
 // Currencies

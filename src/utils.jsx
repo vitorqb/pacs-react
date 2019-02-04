@@ -40,6 +40,26 @@ import numeral from 'numeral';
  */
 
 /**
+ * A specification for a journal data
+ * @typedef {Object} JournalData
+ * @property {number} account
+ * @property {Balance} initialBalance
+ * @property {Transaction[]} transactions
+ * @property {Balance[]} balances
+ */
+
+/**
+ * A specification for a paginated journal data
+ * @typedef {Object} PaginatedJournalData
+ * @property {number} itemCount - Total number of items.
+ * @property {number} pageCount - Total number of pages.
+ * @property {string} previous - Link to previous page
+ * @property {string} next - Link to next page
+ * @property {JournalData} data - The data.
+ */
+
+
+/**
  * @function
  * Maps a Transaction to a TransactionSpec.
  */

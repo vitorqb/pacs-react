@@ -10,7 +10,7 @@ import CreateTransactionComponent from './components/CreateTransactionComponent'
 import EditTransactionComponent from './components/EditTransactionComponent';
 import JournalComponent from './components/JournalComponent.jsx';
 import { defaultColumnMakers } from './components/JournalTable.jsx';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetJournalForAccount } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter, isDescendant } from './utils';
 
@@ -116,7 +116,8 @@ class App extends Component {
       createTransaction = ajaxCreateTransaction(axiosWrapper),
       updateTransaction = ajaxUpdateTransaction(axiosWrapper),
       getTransaction = ajaxGetTransaction(axiosWrapper),
-      getJournalForAccount = ajaxGetJournalForAccount(axiosWrapper),
+      getPaginatedJournalDataForAccount =
+        ajaxGetPaginatedJournalDataForAccount(axiosWrapper)
     } = this.props || {};
 
     // Retrieves from the state
@@ -149,7 +150,7 @@ class App extends Component {
     const journalComponent = App.renderJournalComponent(
       currencies,
       accounts,
-      getJournalForAccount,
+      getPaginatedJournalDataForAccount
     );
 
     // Prepares the router
@@ -340,7 +341,7 @@ class App extends Component {
   static renderJournalComponent(
     currencies,
     accounts,
-    getJournalForAccount
+    getPaginatedJournalDataForAccount,
   ) {
     if (accounts == null || currencies == null) {
       return <p>Loading...</p>
@@ -351,7 +352,7 @@ class App extends Component {
         isDescendant={isDescendant(accounts)}
         getCurrency={newGetter(R.prop('pk'), currencies)}
         columnMakers={defaultColumnMakers}
-        getJournalForAccount={getJournalForAccount} />
+        getPaginatedJournalDataForAccount={getPaginatedJournalDataForAccount} />
     )
   }
 }

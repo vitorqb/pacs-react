@@ -1,8 +1,9 @@
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts } from '../ajax';
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount } from '../ajax';
 import * as R from 'ramda';
 import { AccountFactory, TransactionFactory } from '../testUtils';
 import { remapKeys, getSpecFromTransaction } from '../utils';
+import paginatedJournalResponse from './example_responses/paginated_journal';
 
 describe('Test ajax', () => {
 
@@ -184,5 +185,54 @@ describe('Test ajax', () => {
       })
     })
     
+  })
+
+  describe('Journal...', () => {
+    describe('parsePaginatedJournalResponse', () => {
+      const pagingOpts = {page: 1, pageSize: 25};
+      const resp = parsePaginatedJournalResponse(
+        R.mergeRight(paginatedJournalResponse, pagingOpts)
+      );
+
+      it('parsesTransaction', () => {
+        const expTransactions = R.map(
+          parseTransactionResponseData,
+          paginatedJournalResponse.journal.transactions
+        );
+        expect(resp.data.transactions).toEqual(expTransactions);
+      })
+
+      it('Remaps count -> itemCount', () => {
+        expect(resp.itemCount).toEqual(paginatedJournalResponse.count);
+      })
+
+      it('Adds pagecount', () => {
+        const itemCount = paginatedJournalResponse.count;
+        const expPage = Math.ceil(itemCount / pagingOpts.pageSize);
+        expect(resp.pageCount).toEqual(expPage);
+      })
+
+    })
+
+    describe('makeUrlPaginatedJournalForAccount', () => {
+      const account = {pk: 12};
+      const page = 2;
+      const pageSize = 22;
+      const resp = makeUrlPaginatedJournalForAccount(account, { page, pageSize });
+      it('Has account pk', () => {
+        expect(resp).toMatch(/^\/accounts\/12\/.+/);
+      })
+      it('Has page + 1', () => {
+        // Notice we need page + 1 because the ReactTable is 0-indexed and
+        // the server is 1-indexed
+        expect(resp).toMatch(/.+page=3.+/)
+      })
+      it('Has pageSize', () => {
+        expect(resp).toMatch(/.+page_size=22.+/)
+      })
+      it('Has reverse=1', () => {
+        expect(resp).toMatch(/.+reverse=1$/)
+      })
+    })
   })
 })

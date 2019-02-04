@@ -1,0 +1,121 @@
+{
+    "count": 69,
+    "previous": null,
+    "next": "http://127.0.0.1/accounts/4/journal/?page=2&page_size=4",
+    "journal": {
+        "account": 4,
+        "initial_balance": [],
+        "transactions": [
+            {
+                "pk": 1,
+                "description": "SSS",
+                "date": "2018-12-22",
+                "movements_specs": [
+                    {
+                        "account": 13,
+                        "money": {
+                            "quantity": "-1247.34000",
+                            "currency": 2
+                        }
+                    },
+                    {
+                        "account": 4,
+                        "money": {
+                            "quantity": "1247.34000",
+                            "currency": 2
+                        }
+                    }
+                ]
+            },
+            {
+                "pk": 18,
+                "description": "BBB",
+                "date": "2018-12-22",
+                "movements_specs": [
+                    {
+                        "account": 28,
+                        "money": {
+                            "quantity": "-527.87000",
+                            "currency": 2
+                        }
+                    },
+                    {
+                        "account": 4,
+                        "money": {
+                            "quantity": "527.87000",
+                            "currency": 2
+                        }
+                    }
+                ]
+            },
+            {
+                "pk": 5,
+                "description": "APSDSA",
+                "date": "2018-12-23",
+                "movements_specs": [
+                    {
+                        "account": 4,
+                        "money": {
+                            "quantity": "-4.56000",
+                            "currency": 2
+                        }
+                    },
+                    {
+                        "account": 20,
+                        "money": {
+                            "quantity": "4.56000",
+                            "currency": 2
+                        }
+                    }
+                ]
+            },
+            {
+                "pk": 6,
+                "description": "ASKDSLAJ",
+                "date": "2018-12-23",
+                "movements_specs": [
+                    {
+                        "account": 4,
+                        "money": {
+                            "quantity": "-45.00000",
+                            "currency": 2
+                        }
+                    },
+                    {
+                        "account": 19,
+                        "money": {
+                            "quantity": "45.00000",
+                            "currency": 2
+                        }
+                    }
+                ]
+            }
+        ],
+        "balances": [
+            [
+                {
+                    "quantity": "1647.34000",
+                    "currency": 2
+                }
+            ],
+            [
+                {
+                    "quantity": "3175.21000",
+                    "currency": 2
+                }
+            ],
+            [
+                {
+                    "quantity": "3170.65000",
+                    "currency": 2
+                }
+            ],
+            [
+                {
+                    "quantity": "3125.65000",
+                    "currency": 2
+                }
+            ]
+        ]
+    }
+}

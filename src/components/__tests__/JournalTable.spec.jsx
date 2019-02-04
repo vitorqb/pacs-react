@@ -6,19 +6,46 @@ import ReactTable from 'react-table';
 import { newGetter, moneysToRepr } from '../../utils.jsx';
 import { TransactionFactory, CurrencyFactory } from '../../testUtils';
 
-import JournalTable, { ColumnMakers } from '../JournalTable';
+import JournalTable, { ColumnMakers, makeOnFetchDataHandler } from '../JournalTable';
 
+// Example of empty data from server for a journal
+const emptyData = {transactions: [], balances: []};
+const emptyPaginatedData = {
+  itemCount: 0,
+  pageCount: 0,
+  previous: null,
+  next: null,
+  data: emptyData
+};
+
+// Mounts a journal using acceptable defaults.
+function mountJournalTable(
+  { account={},
+    getAccount=sinon.fake(),
+    isDescendant=sinon.fake(),
+    getCurrency=sinon.fake(),
+    paginatedJournalData=emptyPaginatedData,
+    columnMakers=[],
+    onFetchData=sinon.fake() } = {}
+) {
+  return mount(
+    <JournalTable
+      paginatedJournalData={paginatedJournalData}
+      columnMakers={columnMakers}
+      account={account}
+      getAccount={getAccount}
+      isDescendant={isDescendant}
+      getCurrency={getCurrency}
+      onFetchData={onFetchData} />
+  );
+}
 
 describe('JournalTable', () => {
 
   describe('Mounting...', () => {
 
-    const emptyData = {transactions: [], balances: []};
-
     it('Mounts with ReactTable...', () => {
-      const journalTable = mount(
-        <JournalTable data={emptyData} columnMakers={[]} />
-      );
+      const journalTable = mountJournalTable();
       expect(journalTable).toContainMatchingElement(ReactTable)
     })
 
@@ -33,16 +60,7 @@ describe('JournalTable', () => {
       const columnMakers = [sinon.fake.returns({})];
 
       // Mounts
-      const journalTable = mount(
-        <JournalTable
-          account={account}
-          getAccount={getAccount}
-          isDescendant={isDescendant}
-          getCurrency={getCurrency}
-          data={emptyData}
-          columnMakers={columnMakers}
-          />
-      );
+      mountJournalTable({ account, getAccount, isDescendant, getCurrency, columnMakers })
 
       // assert Spy called with a single argument that had all mocks
       expect(columnMakers[0].calledOnce).toBe(true);
@@ -53,21 +71,107 @@ describe('JournalTable', () => {
 
     it('Parses data transformed as row as prop...', () => {
       const data = {balances: ['a', 'b'], transactions: [1, 2]};
+      const paginatedJournalData = {
+        itemCount: 2,
+        pageCount: 1,
+        previous: null,
+        next: null,
+        data
+      };
       const rows = [{balance: 'a', transaction: 1}, {balance: 'b', transaction: 2}];
-      const journalTable = mount(<JournalTable data={data} columnMakers={[]} />);
+      const journalTable = mountJournalTable({paginatedJournalData});
       expect(journalTable.find(ReactTable).props().data).toEqual(rows);
     })
 
     it('Parses result of columnMakers to columns props...', () => {
       const columns = [{Header: "hola"}, {Header: "aloha"}];
       const columnMakers = R.map(R.always, columns);
-      const journalTable = mount(
-        <JournalTable data={emptyData} columnMakers={columnMakers} />
-      );
+      const journalTable = mountJournalTable({ columnMakers });
       const columnsWithPk = columns.map((x, i) => R.assoc('id', `${i}`, x));
       expect(journalTable.find(ReactTable).props().columns).toEqual(columnsWithPk);
     })
 
+    describe('Mouting with paginatedJournalData == null', () => {
+
+      let journalTable
+
+      beforeEach(() => {
+        const paginatedJournalData = null;
+        journalTable = mountJournalTable({ paginatedJournalData });
+      })
+
+      it('Renders ReactTable with empty data for paginatedJournalData == null', () => {
+        expect(journalTable.find(ReactTable).props().data).toEqual([]);
+      })
+
+      it('onFetchData is called after render of journalTable with empty data', () => {
+        expect(journalTable.props().onFetchData.calledOnce).toBe(true);
+        // Default page and pageSize for first data rendering
+        expect(journalTable.props().onFetchData.lastArg).toEqual({
+          page: 0,
+          pageSize: 20
+        });
+      })
+    })    
+  })
+
+  describe('ReactTable server side rendering', () => {
+
+    describe('Passes props to ReactTable', () => {
+
+      let journalTable;
+
+      beforeEach(() => {
+        journalTable = mountJournalTable();
+      })
+
+      it('manual=true', () => {
+        expect(journalTable.find(ReactTable).props().manual).toBe(true);
+      })
+
+      it('sortable=False', () => {
+        expect(journalTable.find(ReactTable).props().sortable).toBe(false);
+      })
+
+      it('filterable=False', () => {
+        expect(journalTable.find(ReactTable).props().filterable).toBe(false);        
+      })
+
+    })
+
+    it('Passes pageCount to ReactTable as pages', () => {
+      const paginatedJournalData = R.assoc('pageCount', 8, emptyPaginatedData)
+      const journalTable = mountJournalTable({ paginatedJournalData });
+      expect(journalTable.find(ReactTable).props().pages)
+        .toBe(paginatedJournalData.pageCount);
+    })
+
+    describe('Registering for onFetchData wrapping ReactTable', () => {
+      it('Emits onFetchData when ReactTable emits onFetchData', () => {
+        const journalTable = mountJournalTable({});
+        // onFetchData is called during the rendering
+        expect(journalTable.props().onFetchData.callCount).toBe(1);
+        // Now calls ReactTable onFetchData
+        journalTable.find(ReactTable).props().onFetchData({});
+        // Which should have called onFetchData
+        expect(journalTable.props().onFetchData.callCount).toBe(2);
+      })
+
+      it('onFetchData is emitted with page', () => {
+        const page = 12;
+        const journalTable = mountJournalTable();
+        journalTable.find(ReactTable).props().onFetchData({ page });
+        expect(journalTable.props().onFetchData.lastArg.page).toEqual(page);
+      })
+
+      it('onFetchData is emitted with pageSize', () => {
+        const pageSize = 25;
+        const journalTable = mountJournalTable();
+        journalTable.find(ReactTable).props().onFetchData({ pageSize });
+        expect(journalTable.props().onFetchData.lastArg.pageSize).toEqual(pageSize);
+      })
+
+    })
   })
 
   describe('ColumnMakers', () => {
@@ -106,7 +210,7 @@ describe('JournalTable', () => {
         inject = {
           extractMoneysForAccount_: sinon.fake(),
           moneysToRepr_: sinon.fake(),
-        };        
+        };
       })
 
       it('calls extractMoneysForAccount_ with correct args', () => {
@@ -145,16 +249,28 @@ describe('JournalTable', () => {
       })
     })
   })
-  it('Sorts by date if date column', () => {
-    const otherColumnMaker = () => ({ Header: "A" });
-    const dateColumnMaker = () => ({ Header: "Date", accessor: "" });
-    const journalTable = mount(
-      <JournalTable
-        data={{transactions: [], balances: []}}
-        columnMakers={[otherColumnMaker, dateColumnMaker]} />
-    );
-    expect(journalTable.find(ReactTable).props().defaultSorted.length).toBe(1)
-    expect(journalTable.find(ReactTable).props().defaultSorted[0].id).toBe('1');
-    expect(journalTable.find(ReactTable).props().defaultSorted[0].desc).toBe(true);
+
+  describe('makeOnFetchDataHandler', () => {
+
+    // An example state from ReactTable
+    const reactTableState = {page: 12, pageSize: 24};
+
+    let callback, handler;
+    beforeEach(() => {
+      // fake callback for the handler
+      callback = sinon.fake();
+      // The handler using the fake callback
+      handler = makeOnFetchDataHandler(callback);
+      // Calls the handler so we can do the assertions.
+      handler(reactTableState);
+    })
+
+    it('Calls the given callback with pages', () => {
+      expect(callback.lastArg.page).toEqual(reactTableState.page)
+    })
+
+    it('Calls the given callback with pageSize', () => {
+      expect(callback.lastArg.pageSize).toEqual(reactTableState.pageSize)
+    })
   })
 })
