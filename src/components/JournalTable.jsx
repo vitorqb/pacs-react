@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createElement } from 'react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 import * as R from 'ramda';
@@ -15,57 +15,71 @@ import { extractMoneysForAccount, moneysToRepr } from '../utils.jsx';
  *   true if the first account is descendant of the second.
  * @param {function(number): Currency)} props.getCurrency - A function that
  *   returns a currency from a pk.
- * @param {object} props.data - The data for the journal (see below).
- * @param {Transaction[]} props.data.transactions - A list of transactions for
- *   the Journal.
- * @param {Balance[]} props.data.balances - A list of balances for the journal.
+ * @param {PaginatedJournalData|null} props.paginatedJournalData - An object
+ *   with the paginated data to be displayed. The `null` value indicates
+ *   that no data has been displayed yet.
  * @param {fn(() -> Column)[]} props.columnMakers - A list of functions that
  *   are called to generate the Column objects passed to ReactTable.
+ * @param {fn(Object -> ?)} props.onFetchData - A function that
+ *   signals the need to fetch new data. It passes the page that was
+ *   requested and the pageSize that should be considered.
  */
 export default function JournalTable(props) {
-  const { account, getAccount, isDescendant, getCurrency, data } = props;
+  const {
+    account,
+    getAccount,
+    isDescendant,
+    getCurrency,
+    paginatedJournalData,
+    onFetchData
+  } = props;
+  const onFetchDataHandler = makeOnFetchDataHandler(onFetchData);
 
-  // Transform data from {Transaction[], Balance[]} -> List<{transaction, balance}>
-  const rows = R.pipe(
-    R.props(['transactions', 'balances']),         // -> [[T], [B]]
-    R.apply(R.zip),                                // -> [[T, B]]
-    R.map(R.zipObj(["transaction", "balance"]))    // -> [{T, B}]
-  )(data);
-
-  // Call functions that prepare columns
+  // Prepare the columns from the functions parsed as props
   const columnMakerOpts = { account, getAccount, isDescendant, getCurrency };
   const columns = R.map(R.applyTo(columnMakerOpts), props.columnMakers);
-
-  // Put an id to columns
   const columnsWithId = R.addIndex(R.map)(
     (c, i) => R.assoc('id', `${i}`, c),
     columns
   );
 
-  // If we have a date header, sorts by it
-  const defaultSorted = getDefaultSorted(columnsWithId);
+  // The options we are gonna use
+  const reactTableOpts = {
+    manual: true,
+    onFetchData: onFetchDataHandler,
+    columns: columnsWithId,
+    sortable: false,
+    filterable: false
+  };
 
-  return (
-    <ReactTable
-      data={rows}
-      columns={columnsWithId}
-      defaultSorted={defaultSorted} />
-  )
+  // If we have no data yet, we need to mount with data = [] and pages = -1
+  // If not, calculate rows and columns
+  if (paginatedJournalData === null) {
+    reactTableOpts.data = []
+    reactTableOpts.pages = -1
+  } else {
+    reactTableOpts.data = R.pipe(
+      R.prop('data'),
+      R.props(['transactions', 'balances']),         // -> [[T], [B]]
+      R.apply(R.zip),                                // -> [[T, B]]
+      R.map(R.zipObj(["transaction", "balance"]))    // -> [{T, B}]
+    )(paginatedJournalData)
+    reactTableOpts.pages = paginatedJournalData.pageCount
+  }
+
+  return createElement(ReactTable, reactTableOpts)
 }
 
 /**
- * Prepares the sorting of the table. If has date sort by it, else does not sort.
+ * Returns a handler for the ReactTable.onFetchData event. The handler
+ * wraps the onFetchData and calls a higher handler with customized data.
  */
-function getDefaultSorted(columnsWithId) {
-  const dateColumn = R.find(
-    R.allPass([R.has('Header'), R.pipe(R.prop('Header'), R.toLower, R.equals('date'))]),
-    columnsWithId
-  );
-  if (dateColumn) {
-    return [{ id: dateColumn.id, desc: true }]
+export function makeOnFetchDataHandler(callback) {
+  return function onFetchDataHandler(reactTableState) {
+    const { page, pageSize } = reactTableState;
+    callback({ page, pageSize });
   }
-  return []
-}
+};
 
 
 // A namespace for all column makers

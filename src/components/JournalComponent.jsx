@@ -4,6 +4,10 @@ import AccountInput from './AccountInput.jsx';
 import { newGetter } from '../utils.jsx';
 import * as R from 'ramda';
 
+/**
+ * Allows the user to pick and account and see it's journal.
+ * Wraps AccountInput and JournalTable.
+ */
 export default class JournalComponent extends Component {
 
   /**
@@ -13,27 +17,31 @@ export default class JournalComponent extends Component {
    *   if the first account is a descendant of the second.
    * @param {fn(number): Currency} props.getCurrency
    * @param {List<fn(object): Column>} props.columnMakers - Check JournalTable.jsx.
-   * @param {fn(Account): Promise<Journal>} props.getJournalForAccount -
-   *   Retrieves a Journal for a given account (in a promise).
+   * @param {fn(Account): Promise<PaginatedJournalData>} props.getPaginatedJournalDataForAccount -
+   *   Retrieves a PaginatedJournalData for an account.
    */
   constructor(props) {
     super(props);
     this.state = {
       account: null,
-      journal: null
+      paginatedJournalData: null
     };
   }
 
   setAccount = account => {
     this.setState({account});
-    return this
-      .props
-      .getJournalForAccount(account)
-      .then(this.setJournal);
   }
 
-  setJournal = journal => {
-    this.setState({journal});
+  setPaginatedJournalData = paginatedJournalData => {
+    this.setState({paginatedJournalData});
+  }
+
+  onFetchDataHandler = (paginationRequestOpts) => {
+    const { account } = this.state;
+    return this
+      .props
+      .getPaginatedJournalDataForAccount(account, paginationRequestOpts)
+      .then(this.setPaginatedJournalData)
   }
 
   render() {
@@ -49,21 +57,22 @@ export default class JournalComponent extends Component {
   }
 
   renderJournalTable = () => {
-    if (this.state.journal == null || this.state.journal === undefined) {
+    if (this.state.account == null) {
       return <div />
     }
     const {isDescendant, getCurrency, columnMakers} = this.props;
     const getAccount = newGetter(R.prop('pk'), this.props.accounts);
-    const {account, journal} = this.state;
+    const {account, paginatedJournalData} = this.state;
     return (
       <JournalTable
+        key={account.name}
         account={account}
         getAccount={getAccount}
         isDescendant={isDescendant}
         getCurrency={getCurrency}
         columnMakers={columnMakers}
-        data={journal}
-        />
+        paginatedJournalData={paginatedJournalData}
+        onFetchData={this.onFetchDataHandler}/>
     )
   }
 
