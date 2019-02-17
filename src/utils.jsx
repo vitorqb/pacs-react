@@ -1,6 +1,15 @@
 import React from 'react';
 import * as R from 'ramda';
 import numeral from 'numeral';
+import moment from 'moment';
+
+
+/**
+ * @typedef Currency
+ * @type {object}
+ * @property {number} pk
+ * @property {string} name
+ */
 
 /**
   * @typedef Money
@@ -8,6 +17,11 @@ import numeral from 'numeral';
   * @property {number} currency
   * @property {number} quantity
   */
+
+/**
+ * @typedef Balance
+ * @type {Money[]}
+ */
 
 /**
  * @typedef Movement
@@ -37,6 +51,14 @@ import numeral from 'numeral';
  * @property {string} [name]
  * @property {string} [accType]
  * @property {number} [parent]
+ */
+
+/**
+ * An account.
+ * @typedef {Object} Account
+ * @property {string} name
+ * @property {string} accType
+ * @property {number} parent
  */
 
 /**
@@ -139,7 +161,7 @@ export const extractMoneysForAccount = R.curry(
 /**
  * Makes a nice representation out of a list of moneys.
  * @function
- * @param {fn(number): Currency} getCurrency
+ * @param {(n: number) => Currency} getCurrency
  * @param {Money[]} moneys
  * @returns {string}
  */
@@ -237,3 +259,44 @@ export function newGetter(extractValue, elements) {
  * @function
  */
 export const memoizeSimple = R.memoizeWith(R.identity)
+
+
+// Misc utils related to month
+export const MonthUtil = {
+  MONTHS: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ],
+  getMonthIndex: m => R.findIndex(R.equals(m.month), MonthUtil.MONTHS),
+  getMonthAsNumber: m => Number(`${m.year}`) * 100 + MonthUtil.getMonthIndex(m) + 1,
+  monthToPeriod: (m) => {
+    const monthStr = `${MonthUtil.getMonthAsNumber(m)}`;
+    const date = moment(monthStr + "01");
+    return [
+      date.startOf("month").format("YYYY-MM-DD"),
+      date.endOf("month").format("YYYY-MM-DD"),
+    ];
+  },
+  toLabel: (m) => `${m.month}/${m.year}`,
+  monthsBetween: (start, end) => {
+    const { getMonthAsNumber } = MonthUtil;
+    var out = [start];
+    var current = start;
+    while (getMonthAsNumber(current) < getMonthAsNumber(end)) {
+      const date = moment(`${getMonthAsNumber(current)}01`).add(1,'month');
+      current = {month: date.format("MMMM"), year: Number(date.format("YYYY"))};
+      out = [...out, current];
+    }
+    return out;
+  }
+};
