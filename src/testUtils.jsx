@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createElement, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Factory } from 'rosie';
 import faker from 'faker';

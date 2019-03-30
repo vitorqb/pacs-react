@@ -2,7 +2,7 @@
 import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
-import { remapKeys } from './utils';
+import { remapKeys, MonthUtil } from './utils';
 
 //
 // Contants
@@ -110,9 +110,8 @@ export const ajaxCreateTransaction = R.curry(function(axios, transactionSpec) {
       url: "/transactions/",
       method: "POST",
       requestData: transactionSpecToRequestParams(transactionSpec)
-    })
-  }
-                                            )
+    });
+});
 
 /**
  * A curried function that receives an Axios-like and some data for a
@@ -249,3 +248,40 @@ export function makeUrlPaginatedJournalForAccount(account, paginationRequestOpts
 export function ajaxGetCurrencies (axios) {
   return makeRequest({axios, url: "/currencies/"})
 };
+
+//
+// Reports
+//
+/**
+ * Get the balance evolution report data for a set of accounts and months.
+ * @function
+ * @param {Axios} axios
+ * @param {Account[]} accounts
+ * @param {Month[]} months
+ */
+export const ajaxGetAccountBalanceEvolutionData = R.curry(
+  function(axios, accounts, months) {
+    return makeRequest({
+      axios,
+      url: "/reports/balance-evolution/",
+      method: "POST",
+      requestData: {
+        accounts: R.map(R.prop("pk"), accounts),
+        periods: R.pipe(
+          R.apply(MonthUtil.monthsBetween),
+          R.map(MonthUtil.monthToPeriod),
+        )(months)
+      },
+      // Add months to the response so everything is easier
+      parseResponseData: parseAccountBalanceEvolutionResponse(months)
+    });
+  }
+);
+
+export const parseAccountBalanceEvolutionResponse = months => R.pipe(
+  R.evolve({ data: R.map(R.pipe(
+    remapKeys({initial_balance: 'initialBalance'}),
+    remapKeys({balance_evolution: 'balanceEvolution'})
+  ))}),
+  R.assoc('months', months),
+);

@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import React, { Component } from 'react';
+import React, { Component, createElement } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
 import TransactionTable from "./components/TransactionTable";
@@ -9,8 +9,9 @@ import EditAccountComponent from './components/EditAccountComponent.jsx';
 import CreateTransactionComponent from './components/CreateTransactionComponent';
 import EditTransactionComponent from './components/EditTransactionComponent';
 import JournalComponent from './components/JournalComponent.jsx';
+import AccountBalanceEvolutionComponent from './components/AccountBalanceEvolutionComponent';
 import { defaultColumnMakers } from './components/JournalTable.jsx';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount, ajaxGetAccountBalanceEvolutionData } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter, isDescendant } from './utils';
 
@@ -56,11 +57,6 @@ export function makeRouter(routerData) {
 
 class App extends Component {
   // The main application
-  // Props here are used only for testing purposes, and their defaults
-  // are the production defaults.
-  // Props:
-  //   getTransactions: A function that returns a promise of transactions
-  //                    on .get().
 
   // allows external acces to the promise used in componentDidMount,
   // so we can test it.
@@ -117,7 +113,9 @@ class App extends Component {
       updateTransaction = ajaxUpdateTransaction(axiosWrapper),
       getTransaction = ajaxGetTransaction(axiosWrapper),
       getPaginatedJournalDataForAccount =
-        ajaxGetPaginatedJournalDataForAccount(axiosWrapper)
+        ajaxGetPaginatedJournalDataForAccount(axiosWrapper),
+      getAccountBalanceEvolutionData =
+        ajaxGetAccountBalanceEvolutionData(axiosWrapper),
     } = this.props || {};
 
     // Retrieves from the state
@@ -152,6 +150,13 @@ class App extends Component {
       accounts,
       getPaginatedJournalDataForAccount
     );
+    const accountBalanceEvolutionComponent = (
+      App.renderAccountBalanceEvolutionComponent(
+        getAccountBalanceEvolutionData,
+        accounts,
+        currencies,
+      )
+    );
 
     // Prepares the router
     const router = makeRouter(this.getRoutesData({
@@ -163,6 +168,7 @@ class App extends Component {
       currencyTable,
       editTransactionComponent,
       journalComponent,
+      accountBalanceEvolutionComponent,
     }));
 
     return (
@@ -183,7 +189,8 @@ class App extends Component {
     accountTree,
     currencyTable,
     editTransactionComponent,
-    journalComponent
+    journalComponent,
+    accountBalanceEvolutionComponent,
   }) {
     return [
       {
@@ -225,8 +232,13 @@ class App extends Component {
         path: "/account-journal/",
         text: "Account Journal",
         component: () => journalComponent
+      },
+      {
+        path: "/account-balance-evolution-report/",
+        text: "Account Balance Evolution Report",
+        component: () => accountBalanceEvolutionComponent,
       }
-    ]
+    ];
   }
 
   /**
@@ -354,6 +366,24 @@ class App extends Component {
         columnMakers={defaultColumnMakers}
         getPaginatedJournalDataForAccount={getPaginatedJournalDataForAccount} />
     )
+  }
+
+  static renderAccountBalanceEvolutionComponent(
+    getAccountBalanceEvolutionData,
+    accounts,
+    currencies
+  ) {
+    if (R.isNil(accounts) || R.isNil(currencies)) {
+      return <p>Loading...</p>;
+    }
+    return createElement(
+      AccountBalanceEvolutionComponent,
+      {
+        accounts,
+        getCurrency: newGetter(R.prop("pk"), currencies),
+        getAccountBalanceEvolutionData,
+      }
+    );
   }
 }
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import AccountForm from './AccountForm.jsx';
 import * as R from 'ramda';
 import AccountInput from './AccountInput.jsx';
-import { getSpecFromAccount, newGetter } from '../utils.jsx';
+import { getSpecFromAccount } from '../utils.jsx';
 
 /**
  * A component to edit an account.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr } from '../utils';
+import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil } from '../utils';
 import { AccountFactory, CurrencyFactory } from '../testUtils.jsx';
 import * as R from 'ramda';
 import moment from 'moment';
@@ -157,3 +157,51 @@ describe('moneysToRepr', () => {
     );
   })
 })
+
+
+describe('MonthUtil', () => {
+  describe('getMonthIndex', () => {
+    it('base', () => {
+      expect(MonthUtil.getMonthIndex({month: "February", year: 2018})).toEqual(1);
+    });
+    it('out of range', () => {
+      expect(MonthUtil.getMonthIndex({month: "Not a month", year: 2018})).toEqual(-1);
+    });
+  });
+
+  describe('getMonthAsNumber', () => {
+    it('one-long month index', () => {
+      expect(MonthUtil.getMonthAsNumber({month: "May", year: 2019})).toEqual(201905);
+    });
+    it('two-long', () => {
+      expect(MonthUtil.getMonthAsNumber({month: "December", year: 2019}))
+        .toEqual(201912);
+    });
+  });
+
+  describe('monthToperiod', () => {
+    it('base', () => {
+      expect(MonthUtil.monthToPeriod({month: "January", year: 2018})).toEqual(
+        ["2018-01-01", "2018-01-31"]
+      );
+      expect(MonthUtil.monthToPeriod({month: "February", year: 2018})).toEqual(
+        ["2018-02-01", "2018-02-28"]
+      );
+    });
+  });
+  describe('monthsBetween', () => {
+    it('base', () => {
+      const months = [
+        {month: "November", year: 2018},
+        {month: "February", year: 2019}
+      ];
+      const exp = [
+        months[0],
+        {month: "December", year: 2018},
+        {month: "January", year: 2019},
+        months[1]
+      ];
+      expect(MonthUtil.monthsBetween(...months)).toEqual(exp);
+    });
+  });
+});

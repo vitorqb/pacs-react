@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount } from '../ajax';
+import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount, parseAccountBalanceEvolutionResponse } from '../ajax';
 import * as R from 'ramda';
 import { AccountFactory, TransactionFactory } from '../testUtils';
 import { remapKeys, getSpecFromTransaction } from '../utils';
@@ -236,3 +236,29 @@ describe('Test ajax', () => {
     })
   })
 })
+
+describe('ajaxGetAccountBalanceEvolutionData', () => {
+  const getData = () => ({
+    periods: [1, 2, 3],
+    data: [
+      {initial_balance: 4, balance_evolution: 5},
+      {initial_balance: 6, balance_evolution: 7}
+    ]
+  });
+  describe('parseAccountBalanceEvolutionResponse', () => {
+    it('Inserts months to data', () => {
+      const data = getData();
+      const months = [{month: "May", year: 2000}, {month: "February", year: 2001}];
+      const resp = parseAccountBalanceEvolutionResponse(months)(data);
+      expect(resp.months).toEqual(months);
+    });
+    it('Renames initial_balance and balance_evolution', () => {
+      const data = getData();
+      const resp = parseAccountBalanceEvolutionResponse([])(data);
+      expect(resp.data).toEqual([
+          {initialBalance: 4, balanceEvolution: 5},
+          {initialBalance: 6, balanceEvolution: 7},
+      ]);
+    });
+  });
+});

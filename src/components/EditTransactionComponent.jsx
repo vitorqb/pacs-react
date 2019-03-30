@@ -84,7 +84,7 @@ export default class EditTransactionComponent extends Component {
   }
 
   renderCreateTransactionComponent() {
-    const { transaction, transactionSpec } = this.state;
+    const { transactionSpec } = this.state;
     const { accounts, currencies } = this.props;
 
     if (transactionSpec === null || transactionSpec === undefined) {
