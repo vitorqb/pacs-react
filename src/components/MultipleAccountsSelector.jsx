@@ -24,10 +24,19 @@ export default function MultipleAccountsSelector(props={}) {
     onSelectedAccountsChange(R.append(null, selectedAccounts));
   }
 
+  const handleAccountInputChange = R.curry((i, newValue) => {
+    // Passes the selected account up
+    onSelectedAccountsChange(R.update(i, newValue, selectedAccounts));
+  });
+
   const accountInputs = R.addIndex(R.map)(
     (acc, i) => (
       <WithDeleteButton key={i} onDelete={() => handleDelete(i)}>
-        <_AccountInput data-acc-input accounts={accounts} value={acc} />
+        <_AccountInput
+          data-acc-input
+          accounts={accounts}
+          value={acc}
+          onChange={handleAccountInputChange(i)} />
       </WithDeleteButton>
     ),
     selectedAccounts

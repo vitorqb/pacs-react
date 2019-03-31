@@ -32,6 +32,26 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   return mount(createElement(AccountBalanceEvolutionComponent, props));
 }
 
+function findAccBalEvolTable(comp) {
+  return comp.find("AccountBalanceEvolutionTable");
+}
+
+function findMonthPicker(comp, i) {
+  const found = comp.find("MonthPicker");
+  return R.isNil(i) ? found : found.at(i);
+}
+
+function findMultipleAccSelect(comp) {
+  return comp.find('MultipleAccountsSelector');
+}
+
+function pickMonth(comp, month) {
+  comp.props().onPicked(month);
+}
+
+function selectAccounts(comp, accs) {
+  findMultipleAccSelect(comp).props().onSelectedAccountsChange(accs);
+}
 
 describe('AccountBalanceEvolutionComponent', () => {
   describe('Integration', () => {
@@ -56,16 +76,14 @@ describe('AccountBalanceEvolutionComponent', () => {
         getAccountBalanceEvolutionData,
       });
       // It sees no table there
-      expect(component.find("AccountBalanceEvolutionTable")).toHaveLength(0);
+      expect(findAccBalEvolTable(component)).toHaveLength(0);
 
       // The user selects the start and end months
-      component.find("MonthPicker").at(0).props().onPicked(data.months[0]);
-      component.find("MonthPicker").at(1).props().onPicked(data.months[1]);
+      pickMonth(findMonthPicker(component, 0), data.months[0]);
+      pickMonth(findMonthPicker(component, 1), data.months[1]);
 
       // And two accounts to use
-      [0, 1].forEach(function(i) {
-          component.find("AccountInput").at(i).props().onChange(accounts[i]);
-      });
+      selectAccounts(component, accounts);
 
       // And submits
       const submitPromise = component.instance().handleSubmit();
@@ -77,16 +95,15 @@ describe('AccountBalanceEvolutionComponent', () => {
         component.instance().forceUpdate();
         
         // It sees the new table there
-        const table = component.find("AccountBalanceEvolutionTable");
-        expect(table).toHaveLength(1);
+        expect(findAccBalEvolTable(component)).toHaveLength(1);
         // And this table has the same data, getCurrency as the component
         [["data", data.data], ["getCurrency", getCurrency]].forEach(
           function([nm, val]) {
-            expect(table).toHaveProp(nm, val);
+            expect(findAccBalEvolTable(component)).toHaveProp(nm, val);
           }
         );
         // And the expected monthLabels
-        expect(table).toHaveProp(
+        expect(findAccBalEvolTable(component)).toHaveProp(
           "monthsLabels",
           ["February/2018", "March/2018", "April/2018"]
         );
@@ -104,14 +121,12 @@ describe('AccountBalanceEvolutionComponent', () => {
       expect(component).toHaveState("pickedMonths", [null, value]);
     });
   });
-  describe('handleAccountInputValueChange', () => {
-    it('base', () => {
-      const component = mountAccountBalanceEvolutionComponent();
-      expect(component).toHaveState("pickedAccounts", [null, null]);
-      const value = component.props().accounts[0];
-      component.instance().handleAccountInputValueChange(1, value);
-      expect(component).toHaveState("pickedAccounts", [null, value]);
-    });
+  it('handlePickedAccountsChange', () => {
+    const accounts = AccountFactory.buildList(1);
+    const component = mountAccountBalanceEvolutionComponent();
+    expect(component).toHaveState("pickedAccounts", [null, null]);
+    component.instance().handlePickedAccountsChange(accounts);
+    expect(component).toHaveState("pickedAccounts", accounts);
   });
   describe('handleSubmit', () => {
     let component, validateMonths, validateAccounts,
@@ -191,6 +206,32 @@ describe('AccountBalanceEvolutionComponent', () => {
       });
     });
   });
+  describe('MultipleAccountSelector', () => {
+    it('Passes accounts prop', () => {
+      const accounts = AccountFactory.buildList(2);
+      const comp = mountAccountBalanceEvolutionComponent({ accounts });
+      expect(findMultipleAccSelect(comp)).toHaveProp('accounts', accounts);
+    });
+    it('Passes selectedAccount', () => {
+      const selectedAccounts = AccountFactory.buildList(1);
+      const comp = mountAccountBalanceEvolutionComponent({});
+      comp.instance().handlePickedAccountsChange(selectedAccounts);
+      comp.update();
+      expect(findMultipleAccSelect(comp)).toHaveProp(
+        'selectedAccounts',
+        selectedAccounts
+      );
+    });
+    it('Calls handlePickedAccountsChange on change', () => {
+      const comp = mountAccountBalanceEvolutionComponent();
+      const newAccounts = AccountFactory.buildList(3);
+      sinon.spy(comp.instance(), 'handlePickedAccountsChange');
+      selectAccounts(comp, newAccounts);
+      expect(comp.instance().handlePickedAccountsChange.args)
+        .toEqual([[newAccounts]]);
+      comp.instance().handlePickedAccountsChange.restore();
+    });
+  });
 });
 
 describe('makeMonthPickers', () => {
@@ -214,31 +255,6 @@ describe('makeMonthPickers', () => {
     ]);
   });
   it('Returns createElement mapped', () => {
-    expect(resp).toEqual([createElement(), createElement()]);
-  });
-});
-
-
-describe('makeAccountInputs', () => {
-  const AccountInput = {};
-  const createElement = sinon.fake();
-  const accounts = AccountFactory.buildList(2);
-  const values = [null, null];
-  const onChangeFuns = [{}, {}];
-  const onChange = i => onChangeFuns[i];
-  const resp = makeAccountInputs(
-    accounts,
-    values,
-    onChange,
-    { createElement, AccountInput }
-  );
-  it('Calls CreateElement to create AccountInput', () => {
-    expect(createElement.args).toEqual([
-      [AccountInput, { key: 0, accounts, value: values[0], onChange: onChangeFuns[0] }],
-      [AccountInput, { key: 1, accounts, value: values[1], onChange: onChangeFuns[1] }],
-    ]);
-  });
-  it('Returns createElements mapped', () => {
     expect(resp).toEqual([createElement(), createElement()]);
   });
 });
