@@ -1,0 +1,44 @@
+import React, { createElement } from 'react';
+import AccountInput from './AccountInput';
+import * as R from 'ramda';
+import { omitIndexes } from '../utils';
+
+/**
+ * Allows the user to select multiple accounts using AccountInput
+ */
+export default function MultipleAccountsSelector(props={}) {
+  const inject = props.inject || {};
+  const _AccountInput = inject.AccountInput || AccountInput;
+
+  const selectedAccounts = props.selectedAccounts;
+  const onSelectedAccountsChange = props.onSelectedAccountsChange;
+  const accounts = props.accounts;
+
+  function handleDelete(i) {
+    // Calls onSelectedAccountsChange with the ith entry deleted.
+    onSelectedAccountsChange(omitIndexes([i], selectedAccounts));
+  }
+
+  const accountInputs = R.addIndex(R.map)(
+    (acc, i) => (
+      <WithDeleteButton key={i} onDelete={() => handleDelete(i)}>
+        <_AccountInput data-acc-input accounts={accounts} value={acc} />
+      </WithDeleteButton>
+    ),
+    selectedAccounts
+  );
+
+  return <div>{accountInputs}</div>;
+}
+
+
+export function WithDeleteButton(props) {
+  const children = props.children;
+  const onDelete = props.onDelete;
+  return (
+    <div>
+      {children}
+      <button data-delete-but onClick={_ => onDelete()}>Delete</button>
+    </div>
+  );
+}

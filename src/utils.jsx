@@ -102,6 +102,18 @@ export const remapKeys = R.curry(function(keysMapping, obj) {
   return R.pipe(R.toPairs, R.map(updatePair), R.fromPairs)(obj)
 })
 
+/**
+ * omit indexes from an array.
+ * source https://github.com/ramda/ramda/wiki/Cookbook#omitindexes
+ */
+export const rejectIndexed = R.addIndex(R.reject);
+export const containsIndex = R.curry(
+  (indexes, val, index) => R.contains(index, indexes)
+);
+export const omitIndexes = R.curry(
+  (indexes, list) => rejectIndexed(containsIndex(indexes), list)
+);
+
 
 /**
   * Creates a span with a title.
