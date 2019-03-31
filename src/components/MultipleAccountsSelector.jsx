@@ -19,6 +19,11 @@ export default function MultipleAccountsSelector(props={}) {
     onSelectedAccountsChange(omitIndexes([i], selectedAccounts));
   }
 
+  function handleAddition() {
+    // Adds calls onChange with null appended to selectedAccounts
+    onSelectedAccountsChange(R.append(null, selectedAccounts));
+  }
+
   const accountInputs = R.addIndex(R.map)(
     (acc, i) => (
       <WithDeleteButton key={i} onDelete={() => handleDelete(i)}>
@@ -28,9 +33,17 @@ export default function MultipleAccountsSelector(props={}) {
     selectedAccounts
   );
 
-  return <div>{accountInputs}</div>;
+  return (
+    <div>
+      {accountInputs}
+      <AddButton onAdd={handleAddition} />
+    </div>
+  );
 }
 
+export function AddButton(props) {
+  return <button data-add-but onClick={(_) => props.onAdd()}>Add</button>;
+}
 
 export function WithDeleteButton(props) {
   const children = props.children;

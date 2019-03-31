@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 import React, { createElement } from 'react';
-import MultipleAccountsSelector, { WithDeleteButton } from '../MultipleAccountsSelector.jsx';
+import MultipleAccountsSelector, { WithDeleteButton, AddButton } from '../MultipleAccountsSelector.jsx';
 import * as R from 'ramda';
 import { AccountFactory } from '../../testUtils.jsx';
 import sinon from 'sinon';
@@ -25,12 +25,21 @@ function findDeleteButtons(comp, i) {
   return R.isNil(i) ? found : found.at(i);
 }
 
+function findAddButtons(comp, i) {
+  const found = comp.find('[data-add-but]');
+  return R.isNil(i) ? found : found.at(i);
+}
+
 function getValue(comp) {
   return comp.props().value;
 }
 
 function clickDeleteButton(comp, i) {
   findDeleteButtons(comp, i).props().onClick();
+}
+
+function clickAddButton(comp, i) {
+  findAddButtons(comp, i).props().onClick();
 }
 
 describe('MultipleAccountsSelector', () => {
@@ -72,6 +81,18 @@ describe('MultipleAccountsSelector', () => {
       omitIndexes([1], selectedAccounts)
     ]]);
   });
+  it('Adding a new AccountInput', () => {
+    const onSelectedAccountsChange = sinon.fake();
+    const selectedAccounts = [null];
+    const comp = mountMultipleAccountsSelector({
+      selectedAccounts,
+      onSelectedAccountsChange
+    });
+
+    clickAddButton(comp);
+
+    expect(onSelectedAccountsChange.args).toEqual([[[null, null]]]);
+  });
 });
 
 
@@ -87,5 +108,15 @@ describe('WithDeleteButton', () => {
     expect(comp.find("#foo").length).toBe(1);
     clickDeleteButton(comp, 0);
     expect(onDelete.args).toEqual([[]]);
+  });
+});
+
+
+describe('AddButton', () => {
+  it('Calls onAdd on button click', () => {
+    const onAdd = sinon.fake();
+    const comp = mount(<AddButton onAdd={onAdd} />);
+    clickAddButton(comp);
+    expect(onAdd.args).toEqual([[]]);
   });
 });
