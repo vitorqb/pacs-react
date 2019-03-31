@@ -2,6 +2,7 @@ import React, { Component, createElement } from 'react';
 import MonthPicker from './MonthPicker';
 import AccountInput from './AccountInput';
 import AccountBalanceEvolutionTable from './AccountBalanceEvolutionTable';
+import MultipleAccountsSelector from './MultipleAccountsSelector';
 import { MonthUtil, newGetter } from '../utils';
 import * as R from 'ramda';
 
@@ -20,9 +21,9 @@ export default class AccountBalanceEvolutionComponent extends Component {
     this.setState(R.assocPath(["pickedMonths", i], newValue));
   })
 
-  handleAccountInputValueChange = R.curry((i, newValue) => {
-    this.setState(R.assocPath(["pickedAccounts", i], newValue));
-  })
+  handlePickedAccountsChange = (x) => {
+    this.setState(R.assoc("pickedAccounts", x));
+  }
 
   setAccountBalanceEvolutionData = (x) => {
     this.setState(R.assoc("data", x));
@@ -57,18 +58,16 @@ export default class AccountBalanceEvolutionComponent extends Component {
     const { accounts, getCurrency } = this.props;
     const getAccount = newGetter(R.prop("pk"), accounts);
     const monthPickers = makeMonthPickers(pickedMonths, this.handlePickedMonth);
-    const accountInputs = makeAccountInputs(
-      accounts,
-      pickedAccounts,
-      this.handleAccountInputValueChange
-    );
     const accountBalanceEvolutionTable = makeAccountBalanceEvolutionTable(
       data, getCurrency, getAccount
     );
     return (
       <div>
         {monthPickers}
-        {accountInputs}
+        <MultipleAccountsSelector
+          accounts={accounts}
+          selectedAccounts={pickedAccounts}
+          onSelectedAccountsChange={(x) => this.handlePickedAccountsChange(x)} />
         <button onClick={this.handleSubmit}>Submit!</button>
         <div>
           {accountBalanceEvolutionTable}
@@ -89,23 +88,6 @@ export function makeMonthPickers(values, onPicked, inject={}) {
     (value, i) => _createElement(
       _MonthPicker,
       { key: i, value, onPicked: onPicked(i) }
-    ),
-    values
-  );
-};
-
-
-/**
- * Returns AccountInput[] for the component.
- */
-export function makeAccountInputs(accounts, values, onChange, inject={}) {
-  const _AccountInput = inject.AccountInput || AccountInput;
-  const _createElement = inject.createElement || createElement;
-
-  return R.addIndex(R.map)(
-    (value, i) => _createElement(
-      _AccountInput,
-      { key: i, accounts, value,  onChange: onChange(i) }
     ),
     values
   );

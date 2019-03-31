@@ -16,8 +16,13 @@ function mountMultipleAccountsSelector(opts) {
   ));
 }
 
-function findAccInputs(comp) {
-  return comp.find('[data-acc-input]');
+function findAccInputs(comp, i) {
+  const found = comp.find('[data-acc-input]');
+  return R.isNil(i) ? found : found.at(i);
+}
+
+function selectAccount(comp, newAcc) {
+  comp.props().onChange(newAcc);
 }
 
 function findDeleteButtons(comp, i) {
@@ -92,6 +97,21 @@ describe('MultipleAccountsSelector', () => {
     clickAddButton(comp);
 
     expect(onSelectedAccountsChange.args).toEqual([[[null, null]]]);
+  });
+  it('Passes changes up from AccountInput', () => {
+    const account = AccountFactory.build();
+    const accounts = [account];
+    const onSelectedAccountsChange = sinon.fake();
+    const selectedAccounts = [null, null];
+    const comp = mountMultipleAccountsSelector({
+      selectedAccounts,
+      onSelectedAccountsChange,
+      accounts
+    });
+
+    selectAccount(findAccInputs(comp, 1), account);
+
+    expect(onSelectedAccountsChange.args).toEqual([[[null, account]]]);
   });
 });
 
