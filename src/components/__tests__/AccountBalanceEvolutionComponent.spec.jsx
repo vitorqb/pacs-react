@@ -1,6 +1,6 @@
-import React, { createElement } from 'react';
+import { createElement } from 'react';
 import { mount } from 'enzyme';
-import AccountBalanceEvolutionComponent, { makeMonthPickers, makeAccountInputs, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS, makeAccountBalanceEvolutionTable } from '../AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS, makeAccountBalanceEvolutionTable } from '../AccountBalanceEvolutionComponent';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
 import { newGetter, MonthUtil } from '../../utils';
 import * as R from 'ramda';
@@ -178,7 +178,7 @@ describe('AccountBalanceEvolutionComponent', () => {
         pickedMonths: [3, 4]
       });
       // Calls handleSubmit
-      const resp = component.instance().handleSubmit(inject);
+      component.instance().handleSubmit(inject);
       // And ensures getAccountBalanceEvolutionData was called with the args
       expect(getAccountBalanceEvolutionData.args).toEqual([
         [[1, 2], [3, 4]]
@@ -260,14 +260,13 @@ describe('makeMonthPickers', () => {
 });
 
 describe('makeAccountBalanceEvolutionTable', () => {
-  let data, months, getCurrency, getAccount, createElement,
+  let data, getCurrency, getAccount, createElement,
       AccountBalanceEvolutionTable, inject;
   beforeEach(() => {
     data = {
       data: [],
       months: [{month: 'april', year: 2019}, {month: 'june', year: 2019}]
     };
-    months = [{month: "May", year: 2000}, {month: "May", year: 2001}];
     getCurrency = sinon.fake();
     getAccount = sinon.fake();
     createElement = sinon.fake();
@@ -279,9 +278,7 @@ describe('makeAccountBalanceEvolutionTable', () => {
     expect(makeAccountBalanceEvolutionTable(undefined)).toEqual(null);
   });
   it('Calls createElement with AccountBalanceEvolutionTable and props', () => {
-    const resp = makeAccountBalanceEvolutionTable(
-      data, getCurrency, getAccount, inject
-    );
+    makeAccountBalanceEvolutionTable(data, getCurrency, getAccount, inject);
     expect(createElement.args).toEqual([
       [
         AccountBalanceEvolutionTable,
@@ -346,5 +343,5 @@ describe('validateAccounts', () => {
   it('empty', () => {
     const accounts = [];
     expect(validateAccounts(accounts)).toBe(ACCOUNT_VALIDATION_ERRORS.EMPTY);
-  })
+  });
 });

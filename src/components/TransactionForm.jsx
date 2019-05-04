@@ -23,7 +23,7 @@ export default class TransactionForm extends Component {
    */
   constructor(props) {
     super(props);
-    this.state = { errorMessage: "", successMessage: "" }
+    this.state = { errorMessage: "", successMessage: "" };
   }
 
   /**
@@ -34,7 +34,7 @@ export default class TransactionForm extends Component {
     const defaultValue = {
       movements: [{}, {}]
     };
-    return R.mergeDeepRight(defaultValue, this.props.value || {})
+    return R.mergeDeepRight(defaultValue, this.props.value || {});
   }
 
   /**
@@ -58,7 +58,7 @@ export default class TransactionForm extends Component {
   }
 
   setErrorMessage = (x) => {
-    this.setState({errorMessage: x})
+    this.setState({errorMessage: x});
   }
 
   setSuccessMessage = x => {
@@ -66,21 +66,21 @@ export default class TransactionForm extends Component {
   }
 
   handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const self = this;
     const { onSubmit=(() => {}) } = this.props;
-    const transactionSpec = this.getValue()
+    const transactionSpec = this.getValue();
     function onSuccess(data) {
-      self.setErrorMessage("")
-      self.setSuccessMessage(data)
+      self.setErrorMessage("");
+      self.setSuccessMessage(data);
     }
     function onFailure(e) {
-      self.setSuccessMessage("")
-      self.setErrorMessage(e)
+      self.setSuccessMessage("");
+      self.setErrorMessage(e);
     }
 
-    return onSubmit(transactionSpec).then(onSuccess).catch(onFailure)
+    return onSubmit(transactionSpec).then(onSuccess).catch(onFailure);
   }
 
   render() {
@@ -121,7 +121,7 @@ export default class TransactionForm extends Component {
         <ErrorMessage value={this.state.errorMessage} />
         <SuccessMessage value={this.state.successMessage} />
       </div>
-    )
+    );
   }
 
   /**
@@ -163,7 +163,7 @@ export default class TransactionForm extends Component {
           style={{backgroundColor: "red"}}
           onClick={e => {
             e.preventDefault();
-            self.handleMovementSpecRemoval(index)
+            self.handleMovementSpecRemoval(index);
           }}>Remove</button>
       );
     }

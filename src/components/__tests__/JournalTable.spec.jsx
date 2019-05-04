@@ -46,8 +46,8 @@ describe('JournalTable', () => {
 
     it('Mounts with ReactTable...', () => {
       const journalTable = mountJournalTable();
-      expect(journalTable).toContainMatchingElement(ReactTable)
-    })
+      expect(journalTable).toContainMatchingElement(ReactTable);
+    });
 
     it('Calls columnMakers with account, getAccount, isDescendant, getCurrency', () => {
       // Mock objects
@@ -60,14 +60,14 @@ describe('JournalTable', () => {
       const columnMakers = [sinon.fake.returns({})];
 
       // Mounts
-      mountJournalTable({ account, getAccount, isDescendant, getCurrency, columnMakers })
+      mountJournalTable({ account, getAccount, isDescendant, getCurrency, columnMakers });
 
       // assert Spy called with a single argument that had all mocks
       expect(columnMakers[0].calledOnce).toBe(true);
       expect(columnMakers[0].lastCall.args[0]).toEqual(
         {account, getAccount, isDescendant, getCurrency}
       );
-    })
+    });
 
     it('Parses data transformed as row as prop...', () => {
       const data = {balances: ['a', 'b'], transactions: [1, 2]};
@@ -81,7 +81,7 @@ describe('JournalTable', () => {
       const rows = [{balance: 'a', transaction: 1}, {balance: 'b', transaction: 2}];
       const journalTable = mountJournalTable({paginatedJournalData});
       expect(journalTable.find(ReactTable).props().data).toEqual(rows);
-    })
+    });
 
     it('Parses result of columnMakers to columns props...', () => {
       const columns = [{Header: "hola"}, {Header: "aloha"}];
@@ -89,20 +89,20 @@ describe('JournalTable', () => {
       const journalTable = mountJournalTable({ columnMakers });
       const columnsWithPk = columns.map((x, i) => R.assoc('id', `${i}`, x));
       expect(journalTable.find(ReactTable).props().columns).toEqual(columnsWithPk);
-    })
+    });
 
     describe('Mouting with paginatedJournalData == null', () => {
 
-      let journalTable
+      let journalTable;
 
       beforeEach(() => {
         const paginatedJournalData = null;
         journalTable = mountJournalTable({ paginatedJournalData });
-      })
+      });
 
       it('Renders ReactTable with empty data for paginatedJournalData == null', () => {
         expect(journalTable.find(ReactTable).props().data).toEqual([]);
-      })
+      });
 
       it('onFetchData is called after render of journalTable with empty data', () => {
         expect(journalTable.props().onFetchData.calledOnce).toBe(true);
@@ -111,9 +111,9 @@ describe('JournalTable', () => {
           page: 0,
           pageSize: 20
         });
-      })
-    })    
-  })
+      });
+    });    
+  });
 
   describe('ReactTable server side rendering', () => {
 
@@ -123,28 +123,28 @@ describe('JournalTable', () => {
 
       beforeEach(() => {
         journalTable = mountJournalTable();
-      })
+      });
 
       it('manual=true', () => {
         expect(journalTable.find(ReactTable).props().manual).toBe(true);
-      })
+      });
 
       it('sortable=False', () => {
         expect(journalTable.find(ReactTable).props().sortable).toBe(false);
-      })
+      });
 
       it('filterable=False', () => {
         expect(journalTable.find(ReactTable).props().filterable).toBe(false);        
-      })
+      });
 
-    })
+    });
 
     it('Passes pageCount to ReactTable as pages', () => {
-      const paginatedJournalData = R.assoc('pageCount', 8, emptyPaginatedData)
+      const paginatedJournalData = R.assoc('pageCount', 8, emptyPaginatedData);
       const journalTable = mountJournalTable({ paginatedJournalData });
       expect(journalTable.find(ReactTable).props().pages)
         .toBe(paginatedJournalData.pageCount);
-    })
+    });
 
     describe('Registering for onFetchData wrapping ReactTable', () => {
       it('Emits onFetchData when ReactTable emits onFetchData', () => {
@@ -155,24 +155,24 @@ describe('JournalTable', () => {
         journalTable.find(ReactTable).props().onFetchData({});
         // Which should have called onFetchData
         expect(journalTable.props().onFetchData.callCount).toBe(2);
-      })
+      });
 
       it('onFetchData is emitted with page', () => {
         const page = 12;
         const journalTable = mountJournalTable();
         journalTable.find(ReactTable).props().onFetchData({ page });
         expect(journalTable.props().onFetchData.lastArg.page).toEqual(page);
-      })
+      });
 
       it('onFetchData is emitted with pageSize', () => {
         const pageSize = 25;
         const journalTable = mountJournalTable();
         journalTable.find(ReactTable).props().onFetchData({ pageSize });
         expect(journalTable.props().onFetchData.lastArg.pageSize).toEqual(pageSize);
-      })
+      });
 
-    })
-  })
+    });
+  });
 
   describe('ColumnMakers', () => {
 
@@ -187,14 +187,14 @@ describe('JournalTable', () => {
 
     it('pk', () => {
       expect(ColumnMakers.pk().accessor(row)).toEqual(transaction.pk);
-    })
+    });
     it('description', () => {
       expect(ColumnMakers.description().accessor(row)).toEqual(transaction.description);
-    })
+    });
     it('date', () => {
       expect(ColumnMakers.date().accessor(row))
         .toEqual(transaction.date.format("YYYY-MM-DD"));
-    })
+    });
     describe('quantity', () => {
       let opts, inject;
 
@@ -211,7 +211,7 @@ describe('JournalTable', () => {
           extractMoneysForAccount_: sinon.fake(),
           moneysToRepr_: sinon.fake(),
         };
-      })
+      });
 
       it('calls extractMoneysForAccount_ with correct args', () => {
         ColumnMakers.quantity(opts, inject).accessor(row);
@@ -223,7 +223,7 @@ describe('JournalTable', () => {
             opts.account,
             transaction.movements
           ]);
-      })
+      });
       it('parses result of extratMoneysForAccount_ to moneysToRepr_', () => {
         ColumnMakers.quantity(opts, inject).accessor(row);
         expect(inject.moneysToRepr_.calledOnce).toBe(true);
@@ -232,12 +232,12 @@ describe('JournalTable', () => {
             opts.getCurrency,
             inject.extractMoneysForAccount_.lastCall.returnValue
           ]);
-      })
+      });
       it('Results of moneysToRepr_ is returned', () => {
         const resp = ColumnMakers.quantity(opts, inject).accessor(row);
         expect(inject.moneysToRepr_.calledOnce).toBe(true);
         expect(resp).toEqual(inject.moneysToRepr_.lastCall.returnValue);
-      })
+      });
       it('balanceAfter', () => {
         const currencies = [
           CurrencyFactory.build({pk: 1}),
@@ -246,9 +246,9 @@ describe('JournalTable', () => {
         const getCurrency = newGetter(R.prop('pk'), currencies);
         const resp = ColumnMakers.balanceAfter({getCurrency}).accessor(row);
         expect(resp).toBe(moneysToRepr(getCurrency, balance));
-      })
-    })
-  })
+      });
+    });
+  });
 
   describe('makeOnFetchDataHandler', () => {
 
@@ -263,14 +263,14 @@ describe('JournalTable', () => {
       handler = makeOnFetchDataHandler(callback);
       // Calls the handler so we can do the assertions.
       handler(reactTableState);
-    })
+    });
 
     it('Calls the given callback with pages', () => {
-      expect(callback.lastArg.page).toEqual(reactTableState.page)
-    })
+      expect(callback.lastArg.page).toEqual(reactTableState.page);
+    });
 
     it('Calls the given callback with pageSize', () => {
-      expect(callback.lastArg.pageSize).toEqual(reactTableState.pageSize)
-    })
-  })
-})
+      expect(callback.lastArg.pageSize).toEqual(reactTableState.pageSize);
+    });
+  });
+});

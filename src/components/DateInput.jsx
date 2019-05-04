@@ -13,8 +13,8 @@ export default class DateInput extends Component {
    *   or `null` if an invalid date was entered.
    */
   constructor(props) {
-    super(props)
-    this.state = {rawValue: props.value ? props.value.format("YYYY-MM-DD") : ""}
+    super(props);
+    this.state = {rawValue: props.value ? props.value.format("YYYY-MM-DD") : ""};
   }
 
   /**
@@ -32,7 +32,7 @@ export default class DateInput extends Component {
    * Handles an text input from the user.
    */
   handleChange = e => {
-    const rawValue = e.target.value
+    const rawValue = e.target.value;
     this.setState({rawValue});
     const date = moment.utc(rawValue, "YYYY-MM-DD", true);
     if (date.isValid()) {
@@ -48,7 +48,7 @@ export default class DateInput extends Component {
         name="date"
         onChange={this.handleChange}
         value={this.state.rawValue} />
-    )
+    );
   }
 
 }

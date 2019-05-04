@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import { createElement } from 'react';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
 import JournalComponent from '../JournalComponent.jsx';
@@ -49,25 +49,25 @@ describe('JournalComponent', () => {
       account: opts.account,
       paginatedJournalData: opts.paginatedJournalData
     });
-    journalComponent.update()
+    journalComponent.update();
     const findTable = () => journalComponent.find(JournalTable);
     it('Parses account as prop', () => {
       expect(findTable().props().account).toBe(opts.account);
-    })
+    });
     it('Parses isDescendant as prop', () => {
       expect(findTable().props().isDescendant).toBe(opts.isDescendant);
-    })
+    });
     it('Parses getCurrency as prop', () => {
       expect(findTable().props().getCurrency).toBe(opts.getCurrency);
-    })
+    });
     it('Parses paginatedJournalData as prop', () => {
       expect(findTable().props().paginatedJournalData)
         .toBe(opts.paginatedJournalData);
-    })
+    });
     it('Parses columnMakers as prop', () => {
       expect(findTable().props().columnMakers).toBe(opts.columnMakers);
-    })
-  })
+    });
+  });
   describe('Retrieving account', () => {
     it('Sets account from AccountInput onChange', () => {
       const component = mountJournalComponent();
@@ -75,13 +75,13 @@ describe('JournalComponent', () => {
       expect(component.state().account).toBe(null);
       component.find('AccountInput').props().onChange(account);
       expect(component.state().account).toBe(account);
-    })
-  })
+    });
+  });
   describe('Fetching data', () => {
     it('Does not shows table if no account', () => {
       const component = mountJournalComponent();
       expect(component.find(JournalTable)).toHaveLength(0);
-    })
+    });
     it('Shows table if account', () => {
       const component = mountJournalComponent();
       component.instance().setAccount(AccountFactory.build());
@@ -89,7 +89,7 @@ describe('JournalComponent', () => {
       expect(component.find(JournalTable)).toHaveLength(1);
       // Table should be rendered with data = null
       expect(component.find(JournalTable).props().paginatedJournalData).toBe(null);
-    })
+    });
     it('Fetches data at onFetchData for JournalTable', () => {
       const paginatedJournalData = {
         itemCount: 2,
@@ -127,7 +127,7 @@ describe('JournalComponent', () => {
             .toEqual(paginationRequestOpts);
           // And the data should have been set
           expect(component.state().paginatedJournalData).toBe(paginatedJournalData);
-        })
-    })
-  })
-})
+        });
+    });
+  });
+});

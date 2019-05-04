@@ -99,8 +99,8 @@ export const getSpecFromAccount = R.pick(["name", "accType", "parent"]);
 export const remapKeys = R.curry(function(keysMapping, obj) {
   const updateKey = oldKey => keysMapping[oldKey] || oldKey;
   const updatePair = ([key, value]) => [updateKey(key), value];
-  return R.pipe(R.toPairs, R.map(updatePair), R.fromPairs)(obj)
-})
+  return R.pipe(R.toPairs, R.map(updatePair), R.fromPairs)(obj);
+});
 
 /**
  * omit indexes from an array.
@@ -120,7 +120,7 @@ export const omitIndexes = R.curry(
   * @param {string} title - The title.
   */
 export function createTitle(title) {
-  return <span className="titleSpan">{title}</span>
+  return <span className="titleSpan">{title}</span>;
 }
 
 
@@ -166,9 +166,9 @@ export const extractMoneysForAccount = R.curry(
     return R.pipe(
       R.filter(moneyInvolvesAccount),
       R.map(R.prop('money'))
-    )(movements)
+    )(movements);
   }
-)
+);
 
 /**
  * Makes a nice representation out of a list of moneys.
@@ -184,7 +184,7 @@ export const moneysToRepr = R.curry(function(getCurrency, moneys) {
     R.map(m => `${quantityToRepr(m)} ${currencyToRepr(m)}`),
     R.join("; ")
   )(moneys);
-})
+});
 
 /**
  * Considering all accounts in an array, returns True if the first account
@@ -198,13 +198,13 @@ export const moneysToRepr = R.curry(function(getCurrency, moneys) {
 export const isDescendant = R.curry(function(accounts, first, second) {
   // Is second the parent?
   if (first.parent === second.pk) {
-    return true
+    return true;
   } else {
     // Is any of the sons of second an ancestor?
     const sonsOfSecond = R.filter(R.propEq('parent', second.pk), accounts);
-    return R.any(isDescendant(accounts, first), sonsOfSecond)
+    return R.any(isDescendant(accounts, first), sonsOfSecond);
   }
-})
+});
 
 
 
@@ -225,11 +225,11 @@ export const getSourceOrTargetAccsPks = R.curry(function(type, movements) {
   } else if (type === "target") {
     filterFunction = ([_, q]) => q > 0;
   } else {
-    throw new Error("Invalid type")
+    throw new Error("Invalid type");
   }
 
   return R.pipe(R.filter(filterFunction), R.map(R.prop(0)))(accountPkQuantityPairs);  
-})
+});
 
 /**
  * Extracts from an array of movements the pk of all accounts that are
@@ -261,8 +261,8 @@ export const getTargetAccsPks = getSourceOrTargetAccsPks("target");
 export function newGetter(extractValue, elements) {
   return function(value) {
     const elementValueMatches = e => extractValue(e) === value;
-    return R.find(elementValueMatches, elements)
-  }
+    return R.find(elementValueMatches, elements);
+  };
 }
 
 
@@ -270,7 +270,7 @@ export function newGetter(extractValue, elements) {
  * Memoizes a function with a single argument.
  * @function
  */
-export const memoizeSimple = R.memoizeWith(R.identity)
+export const memoizeSimple = R.memoizeWith(R.identity);
 
 
 // Misc utils related to month

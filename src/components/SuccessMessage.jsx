@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 export default function({ value }) {
   if (!value) {
-    return <div />
+    return <div />;
   }
   const formattedValue = JSON.stringify(value, undefined, 2);
   return (
@@ -11,5 +11,5 @@ export default function({ value }) {
         {formattedValue}
       </pre>
     </div>
-  )
+  );
 }

@@ -12,7 +12,7 @@ export default class AccountPicker extends Component {
    * @param {fn(Account): ?} onPicked - A function called when an account is chosen.
    */
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {pk: null};
   }
 
@@ -21,7 +21,7 @@ export default class AccountPicker extends Component {
   }
 
   handleSubmit = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     return this
       .props
       .getAccount(this.state.pk)
@@ -37,7 +37,7 @@ export default class AccountPicker extends Component {
           <input type="submit" />
         </form>
       </div>
-    )
+    );
   }
   
 }

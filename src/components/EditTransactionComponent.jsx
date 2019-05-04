@@ -45,11 +45,11 @@ export default class EditTransactionComponent extends Component {
   }
 
   setSuccessMessage = sucMsg => {
-    this.setState({sucMsg})
+    this.setState({sucMsg});
   }
 
   setErrorMessage = errMsg => {
-    this.setState({errMsg})
+    this.setState({errMsg});
   }
 
   handleSubmit = transactionSpec => {
@@ -66,7 +66,7 @@ export default class EditTransactionComponent extends Component {
     
     return updateTransaction(transaction, transactionSpec)
       .then(onSuccessUpdate)
-      .catch(onFailedUpdate)
+      .catch(onFailedUpdate);
   }
 
   render() {
@@ -80,7 +80,7 @@ export default class EditTransactionComponent extends Component {
         <ErrorMessage value={this.state.errMsg} />
         <SuccessMessage value={this.state.sucMsg} />
       </div>
-    )
+    );
   }
 
   renderCreateTransactionComponent() {

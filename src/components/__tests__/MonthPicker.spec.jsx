@@ -1,4 +1,4 @@
-import React, { createElement, Component } from 'react';
+import { createElement, Component } from 'react';
 import { mount } from 'enzyme';
 import MonthPicker, { YearPicker, MonthNamePicker } from '../MonthPicker';
 import sinon from 'sinon';

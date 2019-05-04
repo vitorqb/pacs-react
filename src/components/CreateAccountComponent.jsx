@@ -13,10 +13,10 @@ export default class CreateAccountComponent extends Component {
    * @param {fn(AccountSpec): promise} createAcc
    */
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       accountSpec: {}
-    }
+    };
   }
 
   getAccountSpec = x => {
@@ -39,7 +39,7 @@ export default class CreateAccountComponent extends Component {
           value={this.getAccountSpec()}
           onSubmit={this.handleSubmit} />
       </div>
-    )
+    );
   }
   
 }

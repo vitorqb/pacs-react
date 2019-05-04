@@ -10,9 +10,9 @@ describe('AccountInput', () => {
     it('Renders a Select with options', () => {
       const accounts = AccountFactory.buildList(3);
       const value = accounts[0];
-      const onChange = () => {}
+      const onChange = () => {};
       const options = accounts.map(acc => {
-        return {value: acc, label: acc.name}
+        return {value: acc, label: acc.name};
       });
       const res = mount(
         <AccountInput accounts={accounts} onChange={onChange} value={value} />
@@ -20,7 +20,7 @@ describe('AccountInput', () => {
       const select = res.find(Select);
       expect(select.props().options).toEqual(options);
       expect(select.props().value).toEqual({value, label: value.name});
-    })
+    });
     it('renders with the value selected...', () => {
       const accounts = AccountFactory.buildList(3);
       const value = accounts[1];
@@ -29,8 +29,8 @@ describe('AccountInput', () => {
                              value={value}
                              onChange={()=>{}} />);
       expect(accInput.find(Select).props().value).toEqual({value, label: value.name});
-    })
-  })
+    });
+  });
   describe('onChange handler......', () => {
     it('Calls onChange if input is changed...', () => {
       const accounts = AccountFactory.buildList(2);
@@ -44,6 +44,6 @@ describe('AccountInput', () => {
       accInput.find(Select).props().onChange({label: value.name, value});
 
       expect(onChange.calledWith(value)).toBe(true);
-    })
-  })
-})
+    });
+  });
+});

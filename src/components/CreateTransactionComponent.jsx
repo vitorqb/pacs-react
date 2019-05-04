@@ -18,11 +18,11 @@ export default class CreateTransactionComponent extends Component {
   }
 
   handleTransactionFormChange = transactionSpec => {
-    this.setState({transactionSpec})
+    this.setState({transactionSpec});
   }
 
   handleTransactionFormSubmit = transactionSpec => {
-    return this.props.createTransaction(transactionSpec)
+    return this.props.createTransaction(transactionSpec);
   }
 
   render() {
@@ -34,7 +34,7 @@ export default class CreateTransactionComponent extends Component {
         onChange={this.handleTransactionFormChange}
         onSubmit={this.handleTransactionFormSubmit}
         value={this.state.transactionSpec} />
-    )
+    );
   }
   
 }

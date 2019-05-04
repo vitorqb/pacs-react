@@ -48,13 +48,13 @@ describe('EditTransactionComponent()', () => {
     editTransactionComponent = mountEditTransactionComponent(
       { getTransaction, updateTransaction, accounts, currencies }
     );
-  })
+  });
 
   describe('TransactionPicker child...', () => {
     it('Pass getTransaction function as prop', () => {
       expect(editTransactionComponent.find(TransactionPicker).props().getTransaction)
         .toBe(getTransaction);
-    })
+    });
     it('Parses picked transaction to TransactionForm as value', () => {
       expect.assertions(1);
       return editTransactionComponent
@@ -71,9 +71,9 @@ describe('EditTransactionComponent()', () => {
           const expTransactionSpec = getSpecFromTransaction(transaction);
           expect(editTransactionComponent.find(TransactionForm).props().value)
             .toEqual(expTransactionSpec);
-        })
-    })
-  })
+        });
+    });
+  });
 
   describe('TransactionForm child...', () => {
     it('Pass accounts as prop', () => {
@@ -81,13 +81,13 @@ describe('EditTransactionComponent()', () => {
       editTransactionComponent.update();
       expect(editTransactionComponent.find(TransactionForm).props().accounts)
         .toBe(accounts);
-    })
+    });
     it('Pass currencies as prop', () => {
       editTransactionComponent.instance().setTransaction(transaction);
       editTransactionComponent.update();
       expect(editTransactionComponent.find(TransactionForm).props().currencies)
         .toBe(currencies);
-    })
+    });
     it('Stores transactionSpec on update', () => {
       const transactionSpec = getSpecFromTransaction(TransactionFactory.build());
       editTransactionComponent.instance().setTransaction(transaction);
@@ -101,8 +101,8 @@ describe('EditTransactionComponent()', () => {
         .toEqual(transactionSpec);
       expect(editTransactionComponent.find(TransactionForm).props().value)
         .toEqual(transactionSpec);
-    })
-  })
+    });
+  });
 
   describe('Updating transaction...', () => {
     it('Call updateTransaction with transaction and transactionSpec on submit...', () => {
@@ -114,14 +114,14 @@ describe('EditTransactionComponent()', () => {
         .handleSubmit(transSpec)
         .then(_ => {
           expect(updateTransaction.lastCall.args).toEqual([transaction, transSpec]);
-        })
-    })
+        });
+    });
     it('Shows success message after success submit', async () => {
       await editTransactionComponent.instance().handleSubmit();
       editTransactionComponent.update();
       expect(editTransactionComponent.find(SuccessMessage).props().value)
         .toEqual("Success!");
-    })
+    });
     it('Shows error message after error in submit', async () => {
       updateTransaction = () => Promise.reject("hola");
       editTransactionComponent = mountEditTransactionComponent({
@@ -131,7 +131,7 @@ describe('EditTransactionComponent()', () => {
       editTransactionComponent.update();
       expect(editTransactionComponent.find(ErrorMessage).props().value)
         .toEqual("hola");
-    })
-  })
+    });
+  });
 
-})
+});

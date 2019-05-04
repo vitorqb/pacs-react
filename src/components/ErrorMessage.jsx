@@ -15,9 +15,9 @@ export default class ErrorMessage extends Component {
             {errorMessages}
             </pre>
         </div>
-      )
+      );
     } else {
-      return (<div></div>)
+      return (<div></div>);
     }
   }
 
@@ -25,7 +25,7 @@ export default class ErrorMessage extends Component {
    * Returns TRUE if self.props.value indicates an error.
    */
   hasError = () => {
-    return this.props.value ? true : false
+    return this.props.value ? true : false;
   }
 
   /**

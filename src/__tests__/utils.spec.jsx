@@ -9,17 +9,17 @@ describe('createTitle()', () => {
     const title = "hola";
     const exp = <span className="titleSpan">{title}</span>;
     const res = createTitle(title);
-    expect(exp).toEqual(res)
-  })
-})
+    expect(exp).toEqual(res);
+  });
+});
 
 describe('remapKeys()', () => {
   it('base', () => {
     const obj = {aaa: 1, b: 2, ccc: 3};
     const keysMapping = {aaa: "e", ccc: "c", d: "d"};
-    expect(remapKeys(keysMapping, obj)).toEqual({e: 1, b: 2, c: 3})
-  })
-})
+    expect(remapKeys(keysMapping, obj)).toEqual({e: 1, b: 2, c: 3});
+  });
+});
 
 
 describe('getSourceAccsPks() and getTargetAccsPks()', () => {
@@ -41,25 +41,25 @@ describe('getSourceAccsPks() and getTargetAccsPks()', () => {
     const exp = [2];
     const res = getSourceAccsPks(movements);
     expect(exp).toEqual(res);
-  })
+  });
   it('Target', () => {
     const exp = [1, 3];
     const res = getTargetAccsPks(movements);
     expect(exp).toEqual(res);
-  })
-})
+  });
+});
 
 describe('newGetter()', () => {
   it('Simple', () => {
     const getter = newGetter(R.identity, [1, 2, 3]);
-    [1, 2, 3].forEach(x => expect(getter(x)).toBe(x))
-  })
+    [1, 2, 3].forEach(x => expect(getter(x)).toBe(x));
+  });
   it('Complex extractValue', () => {
     const getter = newGetter(R.prop("a"), [{a: 1}, {a: 2, b: 3}, {a: 3}]);
     expect(getter(1)).toEqual({a: 1});
     expect(getter(2)).toEqual({a: 2, b: 3});
-  })
-})
+  });
+});
 
 describe('getSpecFromTransaction()', () => {
   const transaction = {
@@ -71,17 +71,17 @@ describe('getSpecFromTransaction()', () => {
   const transactionSpec = getSpecFromTransaction(transaction);
   it('No pk copied', () => {
     expect(transactionSpec.pk).toBe(undefined);
-  })
+  });
   it('Same description', () => {
     expect(transactionSpec.description).toBe(transaction.description);
-  })
+  });
   it('Same movements', () => {
     expect(transactionSpec.movements).toBe(transaction.movements);
-  })
+  });
   it('Same date', () => {
     expect(transactionSpec.date).toBe(transaction.date);
-  })
-})
+  });
+});
 
 
 describe('extractMoneyForAccount', () => {
@@ -95,7 +95,7 @@ describe('extractMoneyForAccount', () => {
     const isDescendant = () => false;
     expect(extractMoneysForAccount(getAccount, isDescendant, account, movements))
       .toEqual([movements[0].money]);
-  })
+  });
   it('with hierarchy', () => {
     const [root, child, other] = AccountFactory.buildList(3);
     const getAccount = newGetter(R.prop('pk'), [root, child, other]);
@@ -109,32 +109,32 @@ describe('extractMoneyForAccount', () => {
     };
     expect(extractMoneysForAccount(getAccount, isDescendant, root, movements))
       .toEqual([movements[0].money, movements[1].money]);
-  })
-})
+  });
+});
 
 
 describe('isDescendant', () => {
   it('base false', () => {
     const accounts = AccountFactory.buildList(2);
     expect(isDescendant(accounts, accounts[0], accounts[1])).toBe(false);
-  })
+  });
   it('base true', () => {
     const parent = AccountFactory.build();
     const child = AccountFactory.build({parent: parent.pk});
     expect(isDescendant([child, parent], child, parent)).toBe(true);
-  })
+  });
   it('son of son', () => {
     const grandParent = AccountFactory.build();
     const parent = AccountFactory.build({parent: grandParent.pk});
     const child = AccountFactory.build({parent: parent.pk});
     const accounts = [grandParent, parent, child];
     expect(isDescendant(accounts, child, grandParent)).toBe(true);
-  })
+  });
   it('same account is false', () => {
     const accounts = AccountFactory.buildList(3);
     expect(isDescendant(accounts, accounts[0], accounts[0])).toBe(false);
-  })
-})
+  });
+});
 
 
 describe('moneysToRepr', () => {
@@ -144,7 +144,7 @@ describe('moneysToRepr', () => {
     expect(moneysToRepr(getCurrency, [money])).toEqual(
       `+12.12 ${getCurrency(2).name}`
     );
-  })
+  });
   it('two moneys', () => {
     const currencies = CurrencyFactory.buildList(2);
     const getCurrency = newGetter(R.prop('pk'), currencies);
@@ -155,8 +155,8 @@ describe('moneysToRepr', () => {
     expect(moneysToRepr(getCurrency, moneys)).toEqual(
       `-12.11 ${currencies[0].name}; +22.00 ${currencies[1].name}`
     );
-  })
-})
+  });
+});
 
 
 describe('MonthUtil', () => {

@@ -11,17 +11,17 @@ describe('AccountTree component', () => {
       AccountFactory.build({accType: "Branch"})
     ];
     expectRenderError(<AccountTree accounts={accounts} />, MISSING_ROOT_MSG);
-  })
+  });
   it('Raises error if more than one root...', () => {
     const accounts = [0,0].map(AccountFactory.buildRoot);
     expectRenderError(<AccountTree accounts={accounts} />, MULTIPLE_ROOTS_MSG);
-  })
+  });
   it('Mounts with root only...', () => {
     const accounts = [AccountFactory.buildRoot()];
     const exp = (<div>{makeAccRepr(accounts[0])}</div>);
     const res = mount(<AccountTree accounts={accounts} />);
     expect(res.contains(exp)).toBe(true);
-  })
+  });
   it('Mounts with one family only...', () => {
     const [root, ...leaves] = AccountFactory
           .buildRootAndChildren(2, {accType: "Leaf"});
@@ -30,16 +30,16 @@ describe('AccountTree component', () => {
         <div>{makeAccRepr(leaves[0])}</div>
         <div>{makeAccRepr(leaves[1])}</div>
       </TreeView>
-    )
+    );
     const res = mount(<AccountTree accounts={[root].concat(leaves)} />);
     expect(res.contains(exp)).toBe(true);
-  })
+  });
   it('Mounts with two families...', () => {
     const [root, ...branches] = AccountFactory
           .buildRootAndChildren(2, {accType: "Branch"});
     const leaves = branches.map(parent => {
-      return AccountFactory.build({accType: "Leaf", parent: parent.pk})
-    })
+      return AccountFactory.build({accType: "Leaf", parent: parent.pk});
+    });
     const accounts = [root].concat(branches, leaves);
     const exp = (
       <TreeView key={root.pk} nodeLabel={makeAccRepr(root)} defaultCollapsed={false}>
@@ -61,5 +61,5 @@ describe('AccountTree component', () => {
     );
     const res = mount(<AccountTree accounts={accounts} />);
     expect(res.contains(exp)).toBe(true);
-  })
-})
+  });
+});

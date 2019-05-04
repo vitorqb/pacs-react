@@ -27,7 +27,7 @@ export default function TransactionTable(
           {rows}
       </tbody></table>
     </div>
-  )
+  );
 }
 
 
@@ -38,7 +38,7 @@ function makeHeadersRow() {
   const titles = ["pk", "description", "date", "quantity", "accounts"];
   const toTd = (title => <td key={title}>{title}</td>);
   const tds = R.map(toTd, titles);
-  return <tr>{tds}</tr>
+  return <tr>{tds}</tr>;
 }
 
 
@@ -65,9 +65,9 @@ export const formatTransaction = R.curry(
         <td>{quantityMoved}</td>
         <td>{accountsRepr}</td>
       </tr>
-    )
+    );
   }
-)
+);
 
 /**
  * Given an array of transactions, extracts a string representing the quantity
@@ -81,12 +81,12 @@ export function extractQuantityMoved(getCurrency, movements) {
   const currenciesPks = R.map(R.view(movementCurrencyLens), movements);
   const currenciesPksSet = R.uniq(currenciesPks);
   if (currenciesPksSet.length > 1) {
-    return '(Multiple Currencies)'
+    return '(Multiple Currencies)';
   }
   const currency = getCurrency(currenciesPksSet[0]);
   const quantities = R.map(R.view(quantityCurrencyLens), movements);
-  const totalQuantity = R.sum(R.filter(x => x > 0, quantities))
-  return `${totalQuantity} ${currency.name}`
+  const totalQuantity = R.sum(R.filter(x => x > 0, quantities));
+  return `${totalQuantity} ${currency.name}`;
 }
 
 /**
@@ -102,12 +102,12 @@ export function extractAccountsRepr(getAccount, movements) {
     const namesList = R.map(R.prop("name"), accounts);
     const namesRepr = R.join(", ", namesList);
     if (accounts.length === 1) {
-      return namesRepr
+      return namesRepr;
     }
-    return "(" + namesRepr + ")"
+    return "(" + namesRepr + ")";
   }
 
   const sourceAccs = R.map(getAccount, getSourceAccsPks(movements));
   const targetAccs = R.map(getAccount, getTargetAccsPks(movements));
-  return `${buildAccsRepr(sourceAccs)} -> ${buildAccsRepr(targetAccs)}`
+  return `${buildAccsRepr(sourceAccs)} -> ${buildAccsRepr(targetAccs)}`;
 }

@@ -12,17 +12,17 @@ describe('TransactionPicker', () => {
     it('Renders with title', () => {
       const span = picker.find('span.titleSpan');
       expect(span.html()).toContain(titleStr);
-    })
+    });
     it('Renders input for pk', () => {
       const inp = picker.find('input[name="pk"]');
       expect(inp).toHaveLength(1);
       expect(inp.props().type).toEqual("number");
-    })
+    });
     it('Renders submit button', () => {
       const inp = picker.find("form").find('input[type="submit"]');
       expect(inp).toHaveLength(1);
-    })
-  })
+    });
+  });
 
   describe('Submiting...', () => {
 
@@ -36,7 +36,7 @@ describe('TransactionPicker', () => {
       picker = mount(
         <TransactionPicker getTransaction={getTransaction} onPicked={onPicked} />
       );;
-    })
+    });
 
     it('Calls getTransaction with pk on submit', () => {
       picker
@@ -45,7 +45,7 @@ describe('TransactionPicker', () => {
       picker.find("form").simulate("submit");
       picker.update();
       expect(getTransaction.calledWith(12)).toBe(true);
-    })
+    });
     it('Calls callback onPicked with gotten transaction on submit', async () => {
       picker
         .find('input[type="submit"]')
@@ -55,6 +55,6 @@ describe('TransactionPicker', () => {
       picker.find("form").simulate("submit");
       await transactionPromise.then().then();
       expect(onPicked.calledWith(transaction)).toBe(true);
-    })
-  })
-})
+    });
+  });
+});

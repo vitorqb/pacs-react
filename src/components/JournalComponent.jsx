@@ -41,7 +41,7 @@ export default class JournalComponent extends Component {
     return this
       .props
       .getPaginatedJournalDataForAccount(account, paginationRequestOpts)
-      .then(this.setPaginatedJournalData)
+      .then(this.setPaginatedJournalData);
   }
 
   render() {
@@ -53,12 +53,12 @@ export default class JournalComponent extends Component {
         {accountInput}
         {journalTable}
       </div>
-    )
+    );
   }
 
   renderJournalTable = () => {
     if (this.state.account == null) {
-      return <div />
+      return <div />;
     }
     const {isDescendant, getCurrency, columnMakers} = this.props;
     const getAccount = newGetter(R.prop('pk'), this.props.accounts);
@@ -73,7 +73,7 @@ export default class JournalComponent extends Component {
         columnMakers={columnMakers}
         paginatedJournalData={paginatedJournalData}
         onFetchData={this.onFetchDataHandler}/>
-    )
+    );
   }
 
   renderAccountInput = () => {
@@ -85,6 +85,6 @@ export default class JournalComponent extends Component {
         accounts={accounts}
         onChange={this.setAccount}
         />
-    )
+    );
   }
 };

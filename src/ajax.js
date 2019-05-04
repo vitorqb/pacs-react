@@ -16,12 +16,12 @@ export const REQUEST_ERROR_MSG = "Something went wrong on the http request";
  * Extracts error data from an axios error.
  */
 export const extractDataFromAxiosError =
-  R.pathOr(REQUEST_ERROR_MSG, ["response", "data"])
+  R.pathOr(REQUEST_ERROR_MSG, ["response", "data"]);
 
 /**
  * Extracts relevant data from an axios response.
  */
-export const extractDataFromAxiosResponse = R.prop("data")
+export const extractDataFromAxiosResponse = R.prop("data");
 
 /**
  * Runs an http request.
@@ -42,7 +42,7 @@ export function makeRequest({
 }) {
   const handleSuccess = R.pipe(extractDataFromAxiosResponse, parseResponseData);
   function handleFailure(error) {
-    throw extractDataFromAxiosError(error)
+    throw extractDataFromAxiosError(error);
   }
   return axios({url, method, data: requestData})
     .then(handleSuccess)
@@ -51,7 +51,7 @@ export function makeRequest({
 
 
 // Use secrets.json to get the token
-const secrets = require('./secrets.json')
+const secrets = require('./secrets.json');
 export const axiosWrapper = axios.create({
   baseURL: secrets.serverUrl,
   headers: {
@@ -72,7 +72,7 @@ export const transactionSpecToRequestParams = R.pipe(
     date: x => x.format("YYYY-MM-DD")
   }),
   remapKeys({movements: "movements_specs"})
-)
+);
 
 /**
  * Get all recent transactions.
@@ -82,7 +82,7 @@ export function ajaxGetRecentTransactions(axios) {
     axios,
     url: "/transactions/",
     parseResponseData: R.map(parseTransactionResponseData)
-  })
+  });
 }
 
 /**
@@ -94,8 +94,8 @@ export const ajaxGetTransaction = R.curry(function(axios, pk) {
     axios,
     url: `/transactions/${pk}/`,
     parseResponseData: parseTransactionResponseData
-  })
-})
+  });
+});
 
 /**
  * A curried function that receives an Axios-like and some data for
@@ -127,8 +127,8 @@ export const ajaxUpdateTransaction = R.curry(function(axios, transaction, data) 
     url: `/transactions/${transaction.pk}/`,
     method: "PUT",
     requestData: transactionSpecToRequestParams(data)
-  })
-})
+  });
+});
 
 
 //
@@ -151,8 +151,8 @@ export const ajaxCreateAcc = R.curry(function(axios, rawParams) {
     url: "/accounts/",
     method: "POST",
     requestData: accountSpecToRequestParams(rawParams)
-  })
-})
+  });
+});
 
 /**
  * Get all accounts.
@@ -177,8 +177,8 @@ export const ajaxUpdateAccount = R.curry(function(axios, account, accountSpec) {
     url: `/accounts/${account.pk}/`,
     method: "PUT",
     requestData: accountSpecToRequestParams(accountSpec)
-  })
-})
+  });
+});
 
 /**
  * Returns a Journal for an account.
@@ -218,9 +218,9 @@ export const ajaxGetPaginatedJournalDataForAccount = R.curry(
         R.mergeRight(paginationRequestOpts),
         parsePaginatedJournalResponse
       )
-    })
+    });
   }
-)
+);
 
 export const parsePaginatedJournalResponse = R.pipe(
   R.over(
@@ -230,7 +230,7 @@ export const parsePaginatedJournalResponse = R.pipe(
   remapKeys({journal: "data", count: "itemCount"}),
   // Adds a pageCount from pageSize and count
   (x) => R.assoc('pageCount', Math.ceil(x.itemCount / x.pageSize), x)
-)
+);
 
 export function makeUrlPaginatedJournalForAccount(account, paginationRequestOpts) {
   const { page, pageSize } = paginationRequestOpts;
@@ -246,7 +246,7 @@ export function makeUrlPaginatedJournalForAccount(account, paginationRequestOpts
  * Get all currencies
  */
 export function ajaxGetCurrencies (axios) {
-  return makeRequest({axios, url: "/currencies/"})
+  return makeRequest({axios, url: "/currencies/"});
 };
 
 //

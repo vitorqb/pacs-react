@@ -10,21 +10,21 @@ function mountEditAccComponent(props={}) {
   const { editAccount=sinon.fake.resolves({}) } = props;
   return mount(
     <EditAccountComponent accounts={accounts} editAccount={editAccount} />
-  )
+  );
 }
 
 describe('EditAccountComponent', () => {
   it('Passes accounts and account spec to AccountForm accounts prop', () => {
     const accounts = AccountFactory.buildList(3);
     const accountSpec = getSpecFromAccount(accounts[0]);
-    const editAccComponent = mountEditAccComponent({accounts})
+    const editAccComponent = mountEditAccComponent({accounts});
     editAccComponent.instance().setAccountSpec(accountSpec);
-    editAccComponent.update()
+    editAccComponent.update();
 
     expect(editAccComponent.props().accounts).toBe(accounts);
     expect(editAccComponent.find('AccountForm').props().accounts).toEqual(accounts);
     expect(editAccComponent.find('AccountForm').props().value).toEqual(accountSpec);
-  })
+  });
   it('Do not renders AccountForm if no Account selected', () => {
     const editAccComponent = mountEditAccComponent();
 
@@ -33,17 +33,17 @@ describe('EditAccountComponent', () => {
 
     const account = editAccComponent.props().accounts[1];
     editAccComponent.instance().setAccountSpec(getSpecFromAccount(account));
-    editAccComponent.update()
+    editAccComponent.update();
 
     expect(editAccComponent.find('AccountForm')).toHaveLength(1);
-  })
+  });
   it('Updates accountSpec on submit for AccountInput', () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[1];
     editAccComponent.find('AccountInput').props().onChange(account);
     expect(editAccComponent.instance().getAccountSpec())
       .toEqual(getSpecFromAccount(account));
-  })
+  });
   it('Calls editAcc with acc and accSpec on submit of AccountForm', () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[0];
@@ -54,5 +54,5 @@ describe('EditAccountComponent', () => {
     expect(editAccComponent.props().editAccount.calledOnce).toBe(true);
     expect(editAccComponent.props().editAccount.lastCall.args)
       .toEqual([account, accountSpec]);
-  })
-})
+  });
+});

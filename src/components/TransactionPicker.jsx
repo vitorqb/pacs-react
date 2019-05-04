@@ -24,8 +24,8 @@ export default class TransactionPicker extends Component {
   handleSubmit = (e) => {
     const { pk } = this.state;
     const handleGottenTransaction = (transaction) => {
-      this.props.onPicked(transaction)
-    }    
+      this.props.onPicked(transaction);
+    };    
     e.preventDefault();
     return this.props.getTransaction(pk).then(handleGottenTransaction);
   }
@@ -38,7 +38,7 @@ export default class TransactionPicker extends Component {
         pk:<input name="pk" type="number" onChange={this.handlePkChange} />
         <input type="submit"/>
       </form>
-    )
+    );
   }
 
 }

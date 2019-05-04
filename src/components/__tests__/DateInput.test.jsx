@@ -11,7 +11,7 @@ describe('DateInput', () => {
   beforeEach(() => {
     onChange = sinon.fake();
     dateInput = mount(<DateInput onChange={onChange} />);
-  })
+  });
 
   function simulateRawInput(dateInput, value) {
     dateInput.find('input[name="date"]').props().onChange({target: {value}});
@@ -24,21 +24,21 @@ describe('DateInput', () => {
       const newRawValue = "2018-01-04";
       simulateRawInput(dateInput, newRawValue);
       expect(dateInput.state().rawValue).toBe(newRawValue);
-    })
+    });
 
     it('RawValue chanes => input changes', () => {
       const newRawValue = "1993-11-23";
-      dateInput.setState({rawValue: newRawValue})
-      dateInput.update()
+      dateInput.setState({rawValue: newRawValue});
+      dateInput.update();
       expect(dateInput.find('input[name="date"]').props().value).toBe(newRawValue);
-    })
+    });
 
     it('Value prop => rawValue changes', () => {
       const value = moment.utc("1997-12-23");
-      dateInput = mount(<DateInput onChange={()=>{}} value={value} />)
+      dateInput = mount(<DateInput onChange={()=>{}} value={value} />);
       expect(dateInput.state().rawValue).toBe(value.format("YYYY-MM-DD"));
-    })
-  })
+    });
+  });
 
   describe('Calling onChange callback', () => {
 
@@ -46,7 +46,7 @@ describe('DateInput', () => {
       simulateRawInput(dateInput, "not a valid date");
       expect(onChange.calledOnce).toBe(true);
       expect(onChange.lastCall.args).toEqual([null]);
-    })
+    });
 
     it('Calls with moment object on correct date', () => {
       simulateRawInput(dateInput, "2018-01-01");
@@ -54,8 +54,8 @@ describe('DateInput', () => {
       expect(onChange.lastCall.args).toEqual(
         [moment.utc("2018-01-01", "YYYY-MM-DD", true)]
       );
-    })
+    });
 
-  })
+  });
   
-})
+});
