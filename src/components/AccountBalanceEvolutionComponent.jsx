@@ -1,6 +1,5 @@
 import React, { Component, createElement } from 'react';
 import MonthPicker from './MonthPicker';
-import AccountInput from './AccountInput';
 import AccountBalanceEvolutionTable from './AccountBalanceEvolutionTable';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import { MonthUtil, newGetter } from '../utils';

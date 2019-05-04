@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import React from 'react';
 import AccountInput from './AccountInput';
 import * as R from 'ramda';
 import { omitIndexes } from '../utils';
