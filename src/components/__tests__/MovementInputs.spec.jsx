@@ -7,6 +7,7 @@ import { memoizeSimple } from '../../utils.jsx';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
 import AccountInput from '../AccountInput';
 import CurrencyInput from '../CurrencyInput';
+import { ACC_TYPES } from '../../constants.js';
 
 /**
  * Mounts a MovementInputs for testing.
@@ -40,10 +41,14 @@ describe('MovementInputs', () => {
     });
 
     it('Contains an AccountInput with correct accounts...', () => {
-      const accounts = AccountFactory.buildList(3);
+      // Only leaf accounts should stay
+      const leafAccounts = AccountFactory.buildList(2, {accType: ACC_TYPES.LEAF});
+      const rootAccount = AccountFactory.buildRoot();
+      const branchAccount = AccountFactory.buildBranch();
+      const accounts = R.concat([branchAccount, rootAccount], leafAccounts);
       const movementInput = mount(<MovementInputs accounts={accounts} />);
       expect(movementInput.find(AccountInput)).toHaveLength(1);
-      expect(movementInput.find(AccountInput).props().accounts).toBe(accounts);
+      expect(movementInput.find(AccountInput).props().accounts).toEqual(leafAccounts);
       expect(movementInput.find(AccountInput).props().value).toBe(undefined);
     });
 

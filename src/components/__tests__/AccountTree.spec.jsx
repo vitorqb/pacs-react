@@ -3,12 +3,13 @@ import { mount } from 'enzyme';
 import { AccountFactory, expectRenderError } from '../../testUtils';
 import AccountTree, { MISSING_ROOT_MSG, MULTIPLE_ROOTS_MSG, makeAccRepr } from '../AccountTree';
 import TreeView from 'react-treeview';
+import { ACC_TYPES } from '../../constants.js';
 
 describe('AccountTree component', () => {
   it('Raises error if root is missing...', () => {
     const accounts = [
-      AccountFactory.build({accType: "Leaf"}),
-      AccountFactory.build({accType: "Branch"})
+      AccountFactory.build({accType: ACC_TYPES.LEAF}),
+      AccountFactory.build({accType: ACC_TYPES.BRANCH})
     ];
     expectRenderError(<AccountTree accounts={accounts} />, MISSING_ROOT_MSG);
   });
@@ -24,7 +25,7 @@ describe('AccountTree component', () => {
   });
   it('Mounts with one family only...', () => {
     const [root, ...leaves] = AccountFactory
-          .buildRootAndChildren(2, {accType: "Leaf"});
+          .buildRootAndChildren(2, {accType: ACC_TYPES.LEAF});
     const exp = (
       <TreeView key={root.pk} nodeLabel={makeAccRepr(root)} defaultCollapsed={false}>
         <div>{makeAccRepr(leaves[0])}</div>
@@ -36,9 +37,9 @@ describe('AccountTree component', () => {
   });
   it('Mounts with two families...', () => {
     const [root, ...branches] = AccountFactory
-          .buildRootAndChildren(2, {accType: "Branch"});
+          .buildRootAndChildren(2, {accType: ACC_TYPES.BRANCH});
     const leaves = branches.map(parent => {
-      return AccountFactory.build({accType: "Leaf", parent: parent.pk});
+      return AccountFactory.build({accType: ACC_TYPES.LEAF, parent: parent.pk});
     });
     const accounts = [root].concat(branches, leaves);
     const exp = (

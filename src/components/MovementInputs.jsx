@@ -3,11 +3,17 @@ import React, { Component } from 'react';
 import { createTitle, newGetter } from '../utils';
 import AccountInput from './AccountInput';
 import CurrencyInput from './CurrencyInput';
+import { ACC_TYPES } from '../constants';
 
 /**
  * Represents a combination of inputs for a Movement.
  */
 export default class MovementInputs extends Component{
+
+  /**
+   * Returns a boolean indicating if the account can have movements
+   */
+  accountCanHaveMovement = (account) => account.accType == ACC_TYPES.LEAF;
 
   getDefaultMovementSpec() {
     return {account: "", money: { currency: "", quantity: ""} };
@@ -39,7 +45,7 @@ export default class MovementInputs extends Component{
     const accountRow = makeRow(
       "Account:",
       <AccountInput
-        accounts={accounts}
+        accounts={R.filter(this.accountCanHaveMovement, accounts)}
         onChange={
           this.handleChange(R.lensProp("account"), R.prop("pk"))
         }

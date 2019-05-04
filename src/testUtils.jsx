@@ -4,6 +4,7 @@ import { Factory } from 'rosie';
 import faker from 'faker';
 import * as R from 'ramda';
 import moment from 'moment';
+import { ACC_TYPES } from './constants';
 
 faker.seed(123);
 
@@ -22,7 +23,7 @@ class AccountFactoryWrapper {
   _accountFactory = new Factory()
     .attr("pk", faker.random.number)
     .attr("name", faker.lorem.words)
-    .attr("accType", "Leaf")
+    .attr("accType", ACC_TYPES.LEAF)
     .attr("parent", faker.random.number)
 
   build(opts={}) {
@@ -37,7 +38,14 @@ class AccountFactoryWrapper {
    * Builds a simple root account.
    */
   buildRoot() {
-    return this.build({accType: "Root"});
+    return this.build({accType: ACC_TYPES.ROOT});
+  }
+
+  /**
+   * Builds a simple branch account.
+   */
+  buildBranch() {
+    return this.build({accType: ACC_TYPES.BRANCH});
   }
 
   /**
