@@ -34,6 +34,10 @@ function mountJournalComponent({
   ));
 }
 
+function clickRefreshButton(c) {
+  c.find("#refresh-button").props().onClick();
+}
+
 describe('JournalComponent', () => {
   describe('Mounting with account', () => {
     const opts = {
@@ -78,6 +82,9 @@ describe('JournalComponent', () => {
     });
   });
   describe('Fetching data', () => {
+    let sandbox;
+    beforeEach(() => { sandbox = sinon.createSandbox(); });
+    afterEach(() => { sandbox.restore(); });
     it('Does not shows table if no account', () => {
       const component = mountJournalComponent();
       expect(component.find(JournalTable)).toHaveLength(0);
@@ -89,6 +96,15 @@ describe('JournalComponent', () => {
       expect(component.find(JournalTable)).toHaveLength(1);
       // Table should be rendered with data = null
       expect(component.find(JournalTable).props().paginatedJournalData).toBe(null);
+    });
+    it('Stores paginationRequestOpts at onFetchDataHandler', () => {
+      // onFetchData should call setLastPaginationRequestOpts
+      const component = mountJournalComponent();
+      const setLastPaginationRequestsOpts = (
+        sandbox.stub(component.instance(), "setLastPaginationRequestsOpts")
+      );
+      component.instance().onFetchDataHandler({foo: "bar"});
+      expect(setLastPaginationRequestsOpts.args).toEqual([[{foo: "bar"}]]);
     });
     it('Fetches data at onFetchData for JournalTable', () => {
       const paginatedJournalData = {
@@ -128,6 +144,26 @@ describe('JournalComponent', () => {
           // And the data should have been set
           expect(component.state().paginatedJournalData).toBe(paginatedJournalData);
         });
+    });
+    it('Refresh button click calls onFetchDataHandler', () => {
+      const component = mountJournalComponent();
+      const onFetchDataHandler = (
+        sandbox.stub(component.instance(), "onFetchDataHandler")
+      );
+      // Set's the lastPaginationRequestsOpts so we can check later
+      component.setState({lastPaginationRequestsOpts: {foo: "bar"}});
+      clickRefreshButton(component);
+      expect(onFetchDataHandler.args).toEqual([[{foo: "bar"}]]);
+    });
+    it('Refresh button click before rendering is ignored.', () => {
+      const component = mountJournalComponent();
+      const onFetchDataHandler = (
+        sandbox.stub(component.instance(), "onFetchDataHandler")
+      );
+      expect(component.state().lastPaginationRequestsOpts).toBe(undefined);
+      clickRefreshButton(component);
+      // Should not have been called
+      expect(onFetchDataHandler.args).toEqual([]);
     });
   });
 });
