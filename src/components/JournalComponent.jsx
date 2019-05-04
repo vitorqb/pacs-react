@@ -36,8 +36,13 @@ export default class JournalComponent extends Component {
     this.setState({paginatedJournalData});
   }
 
+  setLastPaginationRequestsOpts = paginatedJournalData => {
+    this.setState(R.assoc("lastPaginationRequestsOpts", paginatedJournalData));
+  }
+  
   onFetchDataHandler = (paginationRequestOpts) => {
     const { account } = this.state;
+    this.setLastPaginationRequestsOpts(paginationRequestOpts);
     return this
       .props
       .getPaginatedJournalDataForAccount(account, paginationRequestOpts)
@@ -48,9 +53,11 @@ export default class JournalComponent extends Component {
     // Renders children
     const journalTable = this.renderJournalTable();
     const accountInput = this.renderAccountInput();
+    const refreshButton = this.renderRefreshButton();
     return (
       <div>
         {accountInput}
+        {refreshButton}
         {journalTable}
       </div>
     );
@@ -85,6 +92,21 @@ export default class JournalComponent extends Component {
         accounts={accounts}
         onChange={this.setAccount}
         />
+    );
+  }
+
+  renderRefreshButton = () => {
+    const onClickHandler = () => {
+      if (this.state.lastPaginationRequestsOpts) {
+        return this.onFetchDataHandler(this.state.lastPaginationRequestsOpts);
+      };
+    };
+    return (
+      <button
+        id="refresh-button"
+        type="submit"
+        onClick={onClickHandler}
+        >Refresh</button>
     );
   }
 };
