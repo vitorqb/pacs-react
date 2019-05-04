@@ -12,44 +12,44 @@ describe('Test ajax', () => {
       const method = "POST";
       const url = "my/url";
       const data = {my: "data"};
-      const response = {data: ""}
+      const response = {data: ""};
       const axiosMock = sinon.fake.resolves(response);
       makeRequest({axios: axiosMock, method, url});
-      expect(axiosMock.calledWith({url, method, data}))
-    })
+      expect(axiosMock.calledWith({url, method, data}));
+    });
     it('Returns parsed promise on success...', () => {
       const responseMock = {data: {a: 1, b: 2}};
       const axiosMock = () => Promise.resolve(responseMock);
       const parseResponseData = R.prop("b");
-      expect.assertions(1)
+      expect.assertions(1);
       return makeRequest({
         axios: axiosMock,
         url: "a",
         parseResponseData
       }).then(function(data) {
-        expect(data).toEqual(2)
-      })
-    })
+        expect(data).toEqual(2);
+      });
+    });
     it('Raises parsed error message on failure...', () => {
       const responseError = {response: {data: "Some error message"}};
       const axiosMock = () => Promise.reject(responseError);
-      expect.assertions(1)
+      expect.assertions(1);
       return makeRequest({axios: axiosMock}).catch(errorData => {
-        expect(errorData).toEqual(responseError.response.data)
-      })
-    })
-  })
+        expect(errorData).toEqual(responseError.response.data);
+      });
+    });
+  });
 
   describe('extractDataFromAxiosError()', () => {
     it('Error with response data', () => {
       const error = {a: 1};
       expect(extractDataFromAxiosError(error)).toEqual(REQUEST_ERROR_MSG);
-    })
+    });
     it('Error with no response data', () => {
       const responseError = {response: {data: 123}};
       expect(extractDataFromAxiosError(responseError)).toEqual(123);
-    })
-  })
+    });
+  });
 
   describe('Transactions...', () => {
     const url = "/transactions/";
@@ -58,9 +58,9 @@ describe('Test ajax', () => {
       
       function getAxiosMock(opts) {
         // Returns an Axios mock for get transactions
-        const { transactions = [] } = opts || {}
-        const respMock = { data: transactions }
-        return sinon.fake.resolves(respMock)
+        const { transactions = [] } = opts || {};
+        const respMock = { data: transactions };
+        return sinon.fake.resolves(respMock);
       }
 
       function assertCalledWithUrl(axiosMock) {
@@ -75,9 +75,9 @@ describe('Test ajax', () => {
         expect.assertions(2);
         assertCalledWithUrl(axiosMock);
         return result.then(x => {
-          expect(x).toEqual([])
+          expect(x).toEqual([]);
         });
-      })
+      });
 
       it('Get two long', async () => {
         const transactions = TransactionFactory.buildList(2);
@@ -87,11 +87,11 @@ describe('Test ajax', () => {
         )(transactions);
         const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
         const result = await ajaxGetRecentTransactions(axiosMock);
-        expect(result).toEqual(transactions)
-        assertCalledWithUrl(axiosMock)
-      })
+        expect(result).toEqual(transactions);
+        assertCalledWithUrl(axiosMock);
+      });
 
-    })
+    });
 
     describe('Test ajaxCreateTransaction', () => {
 
@@ -108,47 +108,47 @@ describe('Test ajax', () => {
           const axiosMock = sinon.fake.resolves({data: ""});
           ajaxCreateTransaction(axiosMock)(transactionSpec);
           expect(axiosMock.lastArg.url).toEqual(url);
-          expect(axiosMock.lastArg.data).toEqual(expectedParams)
-        })
+          expect(axiosMock.lastArg.data).toEqual(expectedParams);
+        });
         it('Parses response data', () => {
-          const response = {data: {a: 1, b: 2}}
+          const response = {data: {a: 1, b: 2}};
           const axiosMock = () => Promise.resolve(response);
           const responsePromise = ajaxCreateTransaction(axiosMock, {});
           expect.assertions(1);
-          return responsePromise.then(x => expect(x).toEqual(response.data))
-        })
-      })
+          return responsePromise.then(x => expect(x).toEqual(response.data));
+        });
+      });
 
       describe('Erroring...', () => {
         it('Rethrows the error with its response data.', () => {
           const axiosError = {response: {data: "Some error!"}};
           const rejectedPromise = Promise.reject(axiosError);
-          const axiosMock = () => rejectedPromise
+          const axiosMock = () => rejectedPromise;
 
-          const respPromise = ajaxCreateTransaction(axiosMock, {})
+          const respPromise = ajaxCreateTransaction(axiosMock, {});
           expect.assertions(1);
           return respPromise.catch(e => {
-            expect(e).toEqual(axiosError.response.data)
-          })
-        })
+            expect(e).toEqual(axiosError.response.data);
+          });
+        });
         it('Throws error with default msg if unkown response data.', () => {
           const nonAxiosError = {message: "Some raw message!"};
           const rejectedPromise = Promise.reject(nonAxiosError);
           const axiosMock = () => rejectedPromise;
 
           const respPromise = ajaxCreateTransaction(axiosMock, {});
-          expect.assertions(1)
+          expect.assertions(1);
           return respPromise.catch(e => {
-            expect(e).toEqual(REQUEST_ERROR_MSG)
+            expect(e).toEqual(REQUEST_ERROR_MSG);
           });
-        })
-      })
+        });
+      });
 
-    })    
-  })
+    });    
+  });
 
   describe('Accounts...', () => {
-    const url = "/accounts/"
+    const url = "/accounts/";
 
     describe('Test ajaxCreateAcc', () => {
       it('Posts to url with received arguments', () => {
@@ -157,15 +157,15 @@ describe('Test ajax', () => {
         ajaxCreateAcc(axiosMock, params);
         expect(axiosMock.lastArg.method).toBe("POST");
         expect(axiosMock.lastArg.url).toBe(url);
-      })
+      });
 
       it('Corrects accType -> acc_type', () => {
         const axiosMock = sinon.fake.resolves({data: ""});
         const params = {accType: 1};
         ajaxCreateAcc(axiosMock, params);
         expect(axiosMock.lastArg.data).toEqual({acc_type: 1});
-      })
-    })
+      });
+    });
 
     describe('ajaxGetAccounts()', () => {
       it('Gets to url...', () => {
@@ -173,7 +173,7 @@ describe('Test ajax', () => {
         ajaxGetAccounts(axiosMock);
         expect(axiosMock.lastArg.method).toBe("GET");
         expect(axiosMock.lastArg.url).toBe(url);
-      })
+      });
       it('Returns promises with the accounts...', () => {
         expect.assertions(1);
         const expAccounts = AccountFactory.buildList(2);
@@ -182,10 +182,10 @@ describe('Test ajax', () => {
         return ajaxGetAccounts(axiosMock).then(x => {
           expect(x).toEqual(expAccounts);
         });
-      })
-    })
+      });
+    });
     
-  })
+  });
 
   describe('Journal...', () => {
     describe('parsePaginatedJournalResponse', () => {
@@ -200,19 +200,19 @@ describe('Test ajax', () => {
           paginatedJournalResponse.journal.transactions
         );
         expect(resp.data.transactions).toEqual(expTransactions);
-      })
+      });
 
       it('Remaps count -> itemCount', () => {
         expect(resp.itemCount).toEqual(paginatedJournalResponse.count);
-      })
+      });
 
       it('Adds pagecount', () => {
         const itemCount = paginatedJournalResponse.count;
         const expPage = Math.ceil(itemCount / pagingOpts.pageSize);
         expect(resp.pageCount).toEqual(expPage);
-      })
+      });
 
-    })
+    });
 
     describe('makeUrlPaginatedJournalForAccount', () => {
       const account = {pk: 12};
@@ -221,21 +221,21 @@ describe('Test ajax', () => {
       const resp = makeUrlPaginatedJournalForAccount(account, { page, pageSize });
       it('Has account pk', () => {
         expect(resp).toMatch(/^\/accounts\/12\/.+/);
-      })
+      });
       it('Has page + 1', () => {
         // Notice we need page + 1 because the ReactTable is 0-indexed and
         // the server is 1-indexed
-        expect(resp).toMatch(/.+page=3.+/)
-      })
+        expect(resp).toMatch(/.+page=3.+/);
+      });
       it('Has pageSize', () => {
-        expect(resp).toMatch(/.+page_size=22.+/)
-      })
+        expect(resp).toMatch(/.+page_size=22.+/);
+      });
       it('Has reverse=1', () => {
-        expect(resp).toMatch(/.+reverse=1$/)
-      })
-    })
-  })
-})
+        expect(resp).toMatch(/.+reverse=1$/);
+      });
+    });
+  });
+});
 
 describe('ajaxGetAccountBalanceEvolutionData', () => {
   const getData = () => ({

@@ -16,7 +16,7 @@ export default class EditAccountComponent extends Component {
    *   that performs the update of the account.
    */
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       account: null,
       accountSpec: null
@@ -39,7 +39,7 @@ export default class EditAccountComponent extends Component {
   handleSubmit = _ => {
     const account = this.state.account;
     const accountSpec = this.getAccountSpec();
-    return this.props.editAccount(account, accountSpec)
+    return this.props.editAccount(account, accountSpec);
   }
 
   render() {
@@ -50,7 +50,7 @@ export default class EditAccountComponent extends Component {
 
   renderAccountForm = () => {
     if (this.getAccountSpec() == null) {
-      return <div />
+      return <div />;
     }
     return (
       <AccountForm
@@ -58,7 +58,7 @@ export default class EditAccountComponent extends Component {
         onChange={this.setAccountSpec}
         value={this.getAccountSpec()}
         onSubmit={this.handleSubmit} />
-    )
+    );
   }
 
   renderAccountInput = () => {
@@ -69,7 +69,7 @@ export default class EditAccountComponent extends Component {
         value={account}
         accounts={accounts}
         onChange={this.handleInputtedAccount} />
-    )
+    );
   }
   
 };

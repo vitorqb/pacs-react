@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import TreeView from 'react-treeview';
 require('react-treeview/react-treeview.css');
 
-export const MISSING_ROOT_MSG = "Missing root account."
+export const MISSING_ROOT_MSG = "Missing root account.";
 export const MULTIPLE_ROOTS_MSG = "Multiple root accounts.";
 
 /**
@@ -16,7 +16,7 @@ export default function AccountTree({ accounts }) {
   const root = findRootAcc(accounts);
   const tree = getTree(root, accounts);
   const treeView = makeTreeView(tree, accounts);
-  return treeView
+  return treeView;
 }
 
 
@@ -30,7 +30,7 @@ function findRootAcc(accounts) {
   } else if (root.length > 1) {
     throw new Error(MULTIPLE_ROOTS_MSG);
   }
-  return root[0]
+  return root[0];
 }
 
 /**
@@ -41,7 +41,7 @@ function findRootAcc(accounts) {
 function getTree(parent, accounts) {
   const children = getChildren(parent, accounts);
   const childrenNodes = children.map(c => getTree(c, accounts));
-  return {acc: parent, children: childrenNodes}
+  return {acc: parent, children: childrenNodes};
 }
 
 /**
@@ -56,9 +56,9 @@ function makeTreeView({acc, children}) {
       <TreeView key={acc.pk} nodeLabel={accRepr} defaultCollapsed={false}>
         {childrenDomElements}
       </TreeView>
-    )
+    );
   } else {
-    return <div key={acc.name}>{accRepr}</div>
+    return <div key={acc.name}>{accRepr}</div>;
   }
 }
 
@@ -73,4 +73,4 @@ function getChildren(parent, accounts) {
 /**
  * Makes a string representation of an account.
  */
-export const makeAccRepr = a => `(${a.pk}) ${a.name} [${a.accType[0]}]`
+export const makeAccRepr = a => `(${a.pk}) ${a.name} [${a.accType[0]}]`;

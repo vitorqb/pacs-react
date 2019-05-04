@@ -10,7 +10,7 @@ import CurrencyInput from './CurrencyInput';
 export default class MovementInputs extends Component{
 
   getDefaultMovementSpec() {
-    return {account: "", money: { currency: "", quantity: ""} }
+    return {account: "", money: { currency: "", quantity: ""} };
   }
 
   getMovementSpec() {
@@ -34,7 +34,7 @@ export default class MovementInputs extends Component{
 
     const makeRow = (label, component) => (
       <tr><td>{label}</td><td style={{width: "100%"}}>{component}</td></tr>
-    )
+    );
 
     const accountRow = makeRow(
       "Account:",
@@ -76,6 +76,6 @@ export default class MovementInputs extends Component{
             {quantityRow}
         </tbody></table>
       </div>
-    )
+    );
   }
 };

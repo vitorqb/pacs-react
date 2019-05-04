@@ -13,7 +13,7 @@ export default function CurrencyTable({title="", currencies=[]}) {
       {createTitle(title)}
       <table><tbody>{rows}</tbody></table>
     </div>
-  )
+  );
 }
 
 /**
@@ -26,4 +26,4 @@ export const makeCurrencyTr =
       <td>{cur.name}</td>
       <td>{cur.imutable ? "Imutable" : ""}</td>
     </tr>
-  )
+  );

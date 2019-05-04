@@ -9,12 +9,12 @@ describe('SuccessMessage', () => {
       const exp = <pre id="json">{JSON.stringify(value, undefined, 2)}</pre>;
       const successMessage = mount(<SuccessMessage value={value} />);
       expect(successMessage.contains(exp)).toBe(true);
-    })
+    });
     it('Displays empty div if value is falsy', () => {
       const value = ""; 
       const successMessage = mount(<SuccessMessage value={value} />);
       expect(successMessage.find("pre")).toHaveLength(0);
       expect(successMessage.contains(<div></div>)).toBe(true);
-    })
-  })
-})
+    });
+  });
+});

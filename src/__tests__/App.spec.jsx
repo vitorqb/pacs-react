@@ -36,12 +36,12 @@ function mountApp(opts) {
     createTransaction=(() => {}),
     getAccounts=(() => Promise.resolve([])),
     getCurrencies=(() => Promise.resolve([]))
-  } = opts || {}
+  } = opts || {};
 
   // Prepares a function that returns transactions when called
   const getTransactions = () => new Promise(resolve => {
-    setTimeout(() => resolve(transactions), timeout)
-  })
+    setTimeout(() => resolve(transactions), timeout);
+  });
 
   return mount(
     <App
@@ -50,7 +50,7 @@ function mountApp(opts) {
       getCurrencies={getCurrencies}
       createAcc={createAcc}
       createTransaction={createTransaction} />
-  )
+  );
 }
 
 
@@ -60,13 +60,13 @@ describe('App.test.jsx', () => {
     it('base', () => {
       const path = "/some/path";
       const text = "Some Text";
-      const routeData = {path, text}
+      const routeData = {path, text};
 
-      const exp = (<li key={path}><Link to={path}>{text}</Link></li>)
+      const exp = (<li key={path}><Link to={path}>{text}</Link></li>);
 
-      expect(makeLink(routeData)).toEqual(exp)
-    })
-  })
+      expect(makeLink(routeData)).toEqual(exp);
+    });
+  });
 
   describe('makeRoute()', () => {
     it('base', () => {
@@ -76,8 +76,8 @@ describe('App.test.jsx', () => {
       const exp = (<Route key={path} path={path} component={component} />);
 
       expect(makeRoute({path, component})).toEqual(exp);
-    })
-  })
+    });
+  });
 
   describe('makeRouter()', () => {
     it('base', () => {
@@ -102,8 +102,8 @@ describe('App.test.jsx', () => {
       const router = mount(makeRouter([data]));
       expect(router.find(Route).equals(route)).toBe(true);
       expect(router.html()).toEqual(exp.html());
-    })
-  })
+    });
+  });
 
   describe('Retrieving accounts list...', () => {
     it('Retrieves accounts when mounted', () => {
@@ -122,26 +122,26 @@ describe('App.test.jsx', () => {
         app.update();
         app.instance().forceUpdate();
         expect(app.state().accounts).toBe(accounts);
-      })
-    })
-  })
+      });
+    });
+  });
 
   describe('renderTransactionTable', () => {
     it('Still loading', () => {
-      const resp = App.renderTransactionTable(null, [], [])
+      const resp = App.renderTransactionTable(null, [], []);
       expect(resp).toEqual(<p>Loading...</p>);
-    })
+    });
     it('Still loading if currencies not loaded', () => {
       const resp = App.renderTransactionTable([], null, []);
       expect(resp).toEqual(<p>Loading...</p>);
-    })
+    });
     it('Still loading if accounts not loaded', () => {
       const resp = App.renderTransactionTable([], [], undefined);
       expect(resp).toEqual(<p>Loading...</p>);
-    })
+    });
     it('Finished loading', () => {
       const transactions = TransactionFactory.buildList(3);
-      const movements = R.flatten(R.map(R.prop("movements"), transactions))
+      const movements = R.flatten(R.map(R.prop("movements"), transactions));
       const currenciesPks = R.pipe(
         R.map(R.path(["money", "currency"])),
         R.uniq
@@ -157,20 +157,20 @@ describe('App.test.jsx', () => {
       const transTable = resp.find(TransactionTable);
 
       expect(transTable).toHaveLength(1);
-      expect(transTable.props().title).toBe("Recent Transactions")
+      expect(transTable.props().title).toBe("Recent Transactions");
       expect(transTable.props().transactions).toEqual(transactions);
       expect(transTable.props().getCurrency).not.toBe(undefined);
       expect(transTable.props().getCurrency(currencies[0].pk))
         .toEqual(currencies[0]);
-    })
-  })
+    });
+  });
 
   describe('Entire App rendering', () => {
 
     it('Mounts with a Router object', () => {
       const app = mountApp();
       expect(app.find(Router)).toHaveLength(1);
-    })
+    });
 
     it('Router has all entires for app.getRoutesData()', () => {
       const app = mountApp();
@@ -179,24 +179,24 @@ describe('App.test.jsx', () => {
         expect(app.find(`Link[to="${routeData.path}"]`)).toHaveLength(1);
         expect(app.find(`Route[path="${routeData.path}"]`)).toHaveLength(1);
       }
-    })
-  })
+    });
+  });
 
   describe('App.renderAccountTree', () => {
 
     it('Shows loading if accounts is null', () => {
       const accountTree = mount(App.renderAccountTree(null));
-      expect(accountTree.equals(<p>Loading...</p>)).toBe(true)
-    })
+      expect(accountTree.equals(<p>Loading...</p>)).toBe(true);
+    });
 
     it('Shows accounts if parsed', () => {
       const accounts = AccountFactory.buildRootAndChildren(2);
       const accountTree = mount(App.renderAccountTree(accounts));
       const exp = <AccountTree accounts={accounts} />;
       expect(accountTree.equals(exp)).toBe(true);
-    })
+    });
     
-  })
+  });
 
   describe('App.renderCreateTransactionComponent...', () => {
 
@@ -205,13 +205,13 @@ describe('App.test.jsx', () => {
         App.renderCreateTransactionComponent(null, [], ()=>{})
       );
       expect(form.equals(<p>Loading...</p>)).toBe(true);
-    })
+    });
     it('Loading while accounts is null...', () => {
       const form = mount(
         App.renderCreateTransactionComponent([], null, ()=>{})
       );
       expect(form.equals(<p>Loading...</p>)).toBe(true);
-    })
+    });
     it('Rendered when accounts and currencies are not null....', () => {
       const accounts = AccountFactory.buildList(3);
       const currencies = CurrencyFactory.buildList(2);
@@ -221,34 +221,34 @@ describe('App.test.jsx', () => {
       expect(form.find(TransactionForm).props().accounts).toEqual(accounts);
       expect(form.find(TransactionForm).props().currencies)
         .toEqual(currencies);
-    })
-  })
+    });
+  });
 
   describe('App.renderCreateAccountComponent...', () => {
     it('Loading while accounts is null...', () => {
       const form = mount(App.renderCreateAccountComponent(null));
       expect(form.equals(<p>Loading...</p>)).toBe(true);
-    })
+    });
     it('Rendered when accounts is not null...', () => {
       const accounts = AccountFactory.buildList(2);
       const form = mount(App.renderCreateAccountComponent(accounts, ()=>{}));
       expect(form.find(AccountForm)).toHaveLength(1);
       expect(form.find(AccountForm).props().accounts).toEqual(accounts);
-    })
-  })
+    });
+  });
 
   describe('App.renderCurrencyTable...', () => {
     it('Loading while currencies is null...', () => {
       const table = mount(App.renderCurrencyTable());
       expect(table.equals(<p>Loading...</p>)).toBe(true);
-    })
+    });
     it('Rendered when currencies not null...', () => {
       const currencies = CurrencyFactory.buildList(3);
       const table = mount(App.renderCurrencyTable(currencies));
       expect(table.find(CurrencyTable)).toHaveLength(1);
       expect(table.find(CurrencyTable).props().currencies).toEqual(currencies);
-    })
-  })
+    });
+  });
 
   describe('App.renderEditTransactionComponent', () => {
     it('Loading while currencies is null...', () => {
@@ -259,7 +259,7 @@ describe('App.test.jsx', () => {
         []
       ));
       expect(component).toMatchElement(<p>Loading...</p>);
-    })
+    });
     it('Loading while accounts is null...', () => {
       const component = mount(App.renderEditTransactionComponent(
         ()=>{},
@@ -268,7 +268,7 @@ describe('App.test.jsx', () => {
         null
       ));
       expect(component).toMatchElement(<p>Loading...</p>);
-    })
+    });
     it('Renders when both not null', () => {
       const component = mount(App.renderEditTransactionComponent(
         ()=>{},
@@ -277,7 +277,7 @@ describe('App.test.jsx', () => {
         [],
       ));
       expect(component).toContainMatchingElement(EditTransactionComponent);
-    })
-  })
+    });
+  });
 
-})
+});

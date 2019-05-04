@@ -15,7 +15,7 @@ function mountCreateTransactionComponent(opts) {
       accounts={accounts}
       currencies={currencies}
       createTransaction={createTransaction} />
-  )
+  );
 }
 
 describe('CreateTransactionComponent', () => {
@@ -25,21 +25,21 @@ describe('CreateTransactionComponent', () => {
     beforeEach(() => {
       currencies = CurrencyFactory.buildList(3);
       accounts = AccountFactory.buildList(2);
-      component = mountCreateTransactionComponent({accounts, currencies})      
-    })
+      component = mountCreateTransactionComponent({accounts, currencies});      
+    });
     it('Passes accounts to TransactionForm', () => {
       expect(component.find(TransactionForm).props().accounts).toBe(accounts);
-    })
+    });
     it('Passes currencies to TransactionForm', () => {
       expect(component.find(TransactionForm).props().currencies).toBe(currencies);
-    })
+    });
     it('Updates transactionSpec on TransactionForm change', () => {
       const transactionSpec = getSpecFromTransaction(TransactionFactory.build());
       component.find(TransactionForm).props().onChange(transactionSpec);
       component.update();
       expect(component.state().transactionSpec).toBe(transactionSpec);
-    })
-  })
+    });
+  });
 
   describe('Submitting...', () => {
     it('Calls createTransaction when form is submitted', () => {
@@ -47,12 +47,12 @@ describe('CreateTransactionComponent', () => {
       const createTransaction = sinon.fake.resolves({});
       const component = mountCreateTransactionComponent({createTransaction});
 
-      component.find(TransactionForm).props().onSubmit(transactionSpec)
-      component.update()
+      component.find(TransactionForm).props().onSubmit(transactionSpec);
+      component.update();
 
       expect(createTransaction.calledOnce).toBe(true);
       expect(createTransaction.lastCall.args).toEqual([transactionSpec]);
-    })
-  })
+    });
+  });
 
-})
+});

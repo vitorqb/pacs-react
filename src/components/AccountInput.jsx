@@ -20,5 +20,5 @@ export default function AccountInput({ accounts, value, onChange }) {
       options={options}
       onChange={handleChange}
       value={selectedOption} />
-  )
+  );
 }

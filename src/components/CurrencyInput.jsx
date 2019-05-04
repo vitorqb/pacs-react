@@ -19,5 +19,5 @@ export default function CurrencyInput({ currencies, value, onChange }) {
       options={options}
       onChange={onChangeHandler}
       value={selectedOption} />
-  )
+  );
 }

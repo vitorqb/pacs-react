@@ -36,7 +36,7 @@ function mountTransactionForm(
       onSubmit={onSubmit}
       onChange={onChange}
       accounts={accounts} />
-  )
+  );
 }
 
 /**
@@ -44,7 +44,7 @@ function mountTransactionForm(
  */
 function axiosReject(data) {
   const error = { response: { data } };
-  return Promise.reject(error)
+  return Promise.reject(error);
 }
 
 describe('TransactionForm', () => {
@@ -53,7 +53,7 @@ describe('TransactionForm', () => {
 
   beforeEach(() => {
     formComponent = mountTransactionForm();
-  })
+  });
 
   describe('Mounting...', () => {
 
@@ -61,7 +61,7 @@ describe('TransactionForm', () => {
       const title = "aloha";
       const formComponent = mountTransactionForm({title});
       expect(formComponent.find("span.titleSpan").first().html()).toContain(title);
-    })
+    });
 
     it('Mounts with all inputs and empty strings if no value', () => {
       const value = {};
@@ -73,7 +73,7 @@ describe('TransactionForm', () => {
         expect(input).toHaveLength(1);
         expect(input.instance().value).toBe("");
       }
-    })
+    });
 
     it('Mounts with two empty states for movements if no value', () => {
       const transaction = TransactionFactory.build();
@@ -86,7 +86,7 @@ describe('TransactionForm', () => {
         expect(formComponent.find(MovementInputs).at(i).props().value)
           .toEqual({});
       }
-    })
+    });
 
     it('Mounted MovementInputs have accounts', () => {
       const accounts = AccountFactory.buildList(3);
@@ -96,7 +96,7 @@ describe('TransactionForm', () => {
         const movementInputs = movementInputsList.at(i);
         expect(movementInputs.props().accounts).toEqual(accounts);
       }
-    })
+    });
 
     describe('Mounting with value...', () => {
       const transaction = TransactionFactory.build();
@@ -105,11 +105,11 @@ describe('TransactionForm', () => {
       it('Passes value to name input...', () => {
         expect(formComponent.find('input[name="description"]').props().value)
           .toEqual(value.description);
-      })
+      });
       it('Passes date to date input...', () => {
         expect(formComponent.find('DateInput').props().value)
           .toEqual(transaction.date);
-      })
+      });
       it('Passes movements to movements inputs...', () => {
         const movementInputsArray = formComponent.find(MovementInputs);
         expect(movementInputsArray).toHaveLength(value.movements.length);
@@ -118,22 +118,22 @@ describe('TransactionForm', () => {
           const movementSpec = value.movements[i];
           expect(movementInput.props().value).toBe(movementSpec);
         }
-      })
-    })
-  })
+      });
+    });
+  });
 
   describe('Updating...', () => {
     let onChange;
     beforeEach(() => {
       onChange = sinon.fake();
       formComponent = mountTransactionForm({onChange});
-    })
+    });
 
     it('Calls onChange when MovementInputs changes...', () => {
       const movementSpec = {account: 1, money: {quantity: 2, currency: 3}};
       formComponent.find(MovementInputs).at(1).props().onChange(movementSpec);
-      expect(onChange.lastArg.movements[1]).toEqual(movementSpec)
-    })
+      expect(onChange.lastArg.movements[1]).toEqual(movementSpec);
+    });
 
     it('Calls onChange when description changes...', () => {
       const newDescription = "hasadslads";
@@ -142,21 +142,21 @@ describe('TransactionForm', () => {
         .props()
         .onChange({target: {value: newDescription}});
       expect(onChange.lastArg.description).toEqual(newDescription);
-    })
+    });
 
     it('Calls onChange when date changes...', () => {
       const newDate = moment.utc("2022-01-01");
       formComponent.find('DateInput').props().onChange(newDate);
       expect(onChange.lastArg.date).toEqual(newDate);
-    })
+    });
 
-  })
+  });
 
   describe('Adding/Removing movement inputs...', () => {
     it('Can render three MovementInputs in the DOM.', () => {
       formComponent = mountTransactionForm({value: {movements: [{}, {}, {}]}});
       expect(formComponent.find(MovementInputs)).toHaveLength(3);
-    })
+    });
     describe('Adds a new movement.', () => {
       beforeEach(() => {
         formComponent = mountTransactionForm();
@@ -164,7 +164,7 @@ describe('TransactionForm', () => {
           preventDefault: ()=>{}
         });
         formComponent.update();
-      })
+      });
       it('Calls onChange with new MovementInputs.', () => {
         expect(formComponent.props().onChange.calledOnce).toBe(true);
         const expNewState = R.set(
@@ -174,7 +174,7 @@ describe('TransactionForm', () => {
         );
         expect(formComponent.props().onChange.lastCall.args)
           .toEqual([expNewState]);
-      })
+      });
       it('Calls onChange when changing added movement input.', () => {
         const movementSpec = {quantity: 12};
         formComponent = mountTransactionForm({value: {movements: [{}, {}, {}]}});
@@ -182,7 +182,7 @@ describe('TransactionForm', () => {
         formComponent.find(MovementInputs).at(2).props().onChange(movementSpec);
         expect(formComponent.props().onChange.lastCall.args)
           .toEqual([expNewTransactionSpec]);
-      })
+      });
       it('Can be removed.', () => {
         formComponent = mountTransactionForm(
           {value: {movements: [{quantity: 1}, {quantity: 2}, {}]}}
@@ -192,15 +192,15 @@ describe('TransactionForm', () => {
         });
         expect(formComponent.props().onChange.lastCall.args)
           .toEqual([{movements: [{quantity: 1}, {quantity: 2}]}]);
-      })
+      });
       it('Removal button dont exist for two first movements.', () => {
         [0,1].forEach(i => {
           expect(formComponent.find(`button[name="remove-movement-${i}"]`))
             .toHaveLength(0);
-        })
-      })
-    })
-  })
+        });
+      });
+    });
+  });
 
   describe('Submitting...', () => {
 
@@ -211,21 +211,21 @@ describe('TransactionForm', () => {
     }
 
     function getSuccessMsgValue(f) {
-      return f.find(SuccessMessage).props().value
+      return f.find(SuccessMessage).props().value;
     }
 
     beforeEach(() => {
       value = getSpecFromTransaction(TransactionFactory.build());
       onSubmit = sinon.fake.resolves();
       formComponent = mountTransactionForm({value, onSubmit});
-    })
+    });
 
     it('Calls onSubmit with transactionSpec when submit.', () => {
       formComponent.find('form').simulate("submit");
       const calledArg = onSubmit.lastCall.args[0];
       expect(onSubmit.calledOnce).toBe(true);
       expect(calledArg).toEqual(value);
-    })
+    });
 
     it('Calls handleSubmit on submit', () => {
       expect(formComponent.instance().handleSubmit).toBeTruthy();
@@ -236,20 +236,20 @@ describe('TransactionForm', () => {
       formComponent.find("form").simulate("submit");
 
       expect(formComponent.instance().handleSubmit.calledOnce).toBe(true);
-    })
+    });
 
     it('Parses responseMessage to SuccessMessage', async () => {
       const responseMsg = {some: "message"};
-      const onSubmit = () => Promise.resolve(responseMsg)
-      formComponent = mountTransactionForm({onSubmit})
+      const onSubmit = () => Promise.resolve(responseMsg);
+      formComponent = mountTransactionForm({onSubmit});
 
       expect(getSuccessMsgValue(formComponent)).toBe("");
 
-      await simulateSubmit(formComponent)
-      formComponent.update()
+      await simulateSubmit(formComponent);
+      formComponent.update();
 
       expect(getSuccessMsgValue(formComponent)).toEqual(responseMsg);
-    })
+    });
 
     it('Resets submitted response msg on resubmition', () => {
       const responseMsg = {some: "message"};
@@ -259,26 +259,26 @@ describe('TransactionForm', () => {
           mockFirstCall = false;
           return Promise.resolve(responseMsg);
         }
-        return Promise.reject()
+        return Promise.reject();
       }
       formComponent = mountTransactionForm({onSubmit});
-      simulateSubmit(formComponent)
-      simulateSubmit(formComponent)
+      simulateSubmit(formComponent);
+      simulateSubmit(formComponent);
       expect(getSuccessMsgValue(formComponent)).toEqual("");
-    })
+    });
 
-  })
+  });
 
   describe('Erroring...', () => {
 
     let onSubmit;
 
     function getErrorMessage() {
-      return formComponent.find(ErrorMessage)
+      return formComponent.find(ErrorMessage);
     }
 
     function getErrorMessage_div() {
-      return getErrorMessage().find("div")
+      return getErrorMessage().find("div");
     }
 
     function simulateSubmit() {
@@ -289,12 +289,12 @@ describe('TransactionForm', () => {
     beforeEach(() => {
       onSubmit = sinon.fake();
       formComponent = mountTransactionForm({onSubmit});
-    })
+    });
 
     it('Renders with empty ErrorMessage...', () => {
       expect(getErrorMessage()).toHaveLength(1);
       expect(getErrorMessage().instance().hasError()).toBe(false);
-    })
+    });
 
     it('Passes error message to ErrorMessage children...', () => {
       expect(getErrorMessage().props().value).toBeFalsy();
@@ -302,7 +302,7 @@ describe('TransactionForm', () => {
       formComponent.setState({errorMessage: errorJson});
       formComponent.render();
       expect(getErrorMessage().props().value).toBe(errorJson);
-    })
+    });
 
     it('Set error message on request failure...', async () => {
       const errorJson = { account: "This field can not be null!" };
@@ -310,45 +310,45 @@ describe('TransactionForm', () => {
       onSubmit = () => failedPromise;
 
       formComponent = mountTransactionForm({onSubmit});
-      await simulateSubmit()
+      await simulateSubmit();
 
       expect(formComponent.state().errorMessage).toBe(errorJson);
 
-      getErrorMessage().update()
+      getErrorMessage().update();
       expect(getErrorMessage().instance().hasError()).toBe(true);
       expect(getErrorMessage().props().value).toBe(errorJson);
-    })
+    });
 
     it('Displays error message from state...', () => {
       formComponent.setState({ errorMessage: "My Error" });
       expect(getErrorMessage_div().html()).toContain("My Error");
-    })
+    });
 
     it('Resets error message on new submit...', async () => {
       var callCount = 0;
       const erroredPromise = axiosReject({data: "Err"}).catch(e => {
-        throw e.response
+        throw e.response;
       });
       onSubmit = () => {
         if (callCount === 0) {
           callCount++;
-          return erroredPromise
+          return erroredPromise;
         }
-        return Promise.resolve()
-      }
+        return Promise.resolve();
+      };
       formComponent = mountTransactionForm({onSubmit});
 
       await simulateSubmit();
 
-      getErrorMessage().update()
-      expect(getErrorMessage().props().value).toBeTruthy()
+      getErrorMessage().update();
+      expect(getErrorMessage().props().value).toBeTruthy();
 
       await simulateSubmit();
 
-      getErrorMessage().update()
-      expect(getErrorMessage().props().value).not.toBeTruthy()
-    })
+      getErrorMessage().update();
+      expect(getErrorMessage().props().value).not.toBeTruthy();
+    });
 
-  })
+  });
 
-})
+});

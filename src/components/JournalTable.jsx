@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css'
+import 'react-table/react-table.css';
 import * as R from 'ramda';
 
 import { extractMoneysForAccount, moneysToRepr } from '../utils.jsx';
@@ -55,19 +55,19 @@ export default function JournalTable(props) {
   // If we have no data yet, we need to mount with data = [] and pages = -1
   // If not, calculate rows and columns
   if (paginatedJournalData === null) {
-    reactTableOpts.data = []
-    reactTableOpts.pages = -1
+    reactTableOpts.data = [];
+    reactTableOpts.pages = -1;
   } else {
     reactTableOpts.data = R.pipe(
       R.prop('data'),
       R.props(['transactions', 'balances']),         // -> [[T], [B]]
       R.apply(R.zip),                                // -> [[T, B]]
       R.map(R.zipObj(["transaction", "balance"]))    // -> [{T, B}]
-    )(paginatedJournalData)
-    reactTableOpts.pages = paginatedJournalData.pageCount
+    )(paginatedJournalData);
+    reactTableOpts.pages = paginatedJournalData.pageCount;
   }
 
-  return createElement(ReactTable, reactTableOpts)
+  return createElement(ReactTable, reactTableOpts);
 }
 
 /**
@@ -78,7 +78,7 @@ export function makeOnFetchDataHandler(callback) {
   return function onFetchDataHandler(reactTableState) {
     const { page, pageSize } = reactTableState;
     callback({ page, pageSize });
-  }
+  };
 };
 
 
@@ -88,13 +88,13 @@ export const ColumnMakers = {
     return {
       Header: 'Pk',
       accessor: R.path(["transaction", "pk"])
-    }
+    };
   },
   description() {
     return {
       Header: 'Description',
       accessor: R.path(["transaction", "description"])
-    }
+    };
   },
   date() {
     return {
@@ -103,7 +103,7 @@ export const ColumnMakers = {
         R.path(["transaction", "date"]),
         x => x.format("YYYY-MM-DD")
       )
-    }
+    };
   },
   quantity(opts, inject={}) {
     // Dep Inject or default
@@ -122,7 +122,7 @@ export const ColumnMakers = {
         R.partial(extractMoneysForAccount_, [getAccount, isDescendant, account]),
         R.partial(moneysToRepr_, [getCurrency])
       )
-    }
+    };
   },
   balanceAfter(opts) {
     const { getCurrency } = opts;
@@ -132,9 +132,9 @@ export const ColumnMakers = {
         R.path(['balance']),
         moneysToRepr(getCurrency)
       )
-    }
+    };
   }
-}
+};
 
 export const defaultColumnMakers = R.props(
   ['pk', 'description', 'date', 'quantity', 'balanceAfter'],

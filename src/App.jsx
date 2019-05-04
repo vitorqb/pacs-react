@@ -1,4 +1,4 @@
-import * as R from 'ramda'
+import * as R from 'ramda';
 import React, { Component, createElement } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
@@ -22,7 +22,7 @@ import { newGetter, isDescendant } from './utils';
  * @param {string} linkData.text - The text to display in the link.
  */
 export function makeLink({path, text}) {
-  return <li key={path}><Link to={path}>{text}</Link></li>
+  return <li key={path}><Link to={path}>{text}</Link></li>;
 }
 
 /**
@@ -33,7 +33,7 @@ export function makeLink({path, text}) {
  *   component to render for this route.
  */
 export function makeRoute({path, component}) {
-  return (<Route key={path} path={path} component={component} />)
+  return (<Route key={path} path={path} component={component} />);
 }
 
 /**
@@ -52,7 +52,7 @@ export function makeRouter(routerData) {
         {routes}
       </div>
     </Router>
-  )
+  );
 }
 
 class App extends Component {
@@ -260,9 +260,9 @@ class App extends Component {
             getCurrency={getCurrency}
             getAccount={getAccount} />
         </div>
-      )
+      );
     } else {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }
   }
 
@@ -276,7 +276,7 @@ class App extends Component {
   static renderCreateAccountComponent(accounts, createAcc) {
     // We parametrize createAcc with the AxiosWrapper.
     if (accounts !== [] && !accounts) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }    
     return (
       <CreateAccountComponent
@@ -287,13 +287,13 @@ class App extends Component {
 
   static renderEditAccountComponent(accounts, updateAcc) {
     if (accounts !== [] && !accounts) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }    
     return (
       <EditAccountComponent
         editAccount={updateAcc}
         accounts={accounts} />
-    )
+    );
   }
 
   /**
@@ -307,29 +307,29 @@ class App extends Component {
    */
   static renderCreateTransactionComponent(accounts, currencies, createTransaction) {
     if ((accounts !== [] && !accounts) || (currencies !== [] && !currencies)) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }
     return (
       <CreateTransactionComponent
         createTransaction={createTransaction}
         accounts={accounts}
         currencies={currencies} />
-    )
+    );
   }
 
   static renderAccountTree(accounts) {
     if (accounts === null || accounts === undefined) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     } else {
-      return <AccountTree accounts={accounts} /> 
+      return <AccountTree accounts={accounts} />; 
     }
   }
 
   static renderCurrencyTable(currencies) {
     if (currencies !== [] && !currencies) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }
-    return <CurrencyTable currencies={currencies} title="Currencies" />
+    return <CurrencyTable currencies={currencies} title="Currencies" />;
   }
 
   static renderEditTransactionComponent(
@@ -339,7 +339,7 @@ class App extends Component {
     currencies
   ) {
     if (accounts == null || currencies == null) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }
     return (
       <EditTransactionComponent
@@ -347,7 +347,7 @@ class App extends Component {
         updateTransaction={updateTransaction}
         accounts={accounts}
         currencies={currencies} />
-    )
+    );
   }
 
   static renderJournalComponent(
@@ -356,7 +356,7 @@ class App extends Component {
     getPaginatedJournalDataForAccount,
   ) {
     if (accounts == null || currencies == null) {
-      return <p>Loading...</p>
+      return <p>Loading...</p>;
     }
     return (
       <JournalComponent
@@ -365,7 +365,7 @@ class App extends Component {
         getCurrency={newGetter(R.prop('pk'), currencies)}
         columnMakers={defaultColumnMakers}
         getPaginatedJournalDataForAccount={getPaginatedJournalDataForAccount} />
-    )
+    );
   }
 
   static renderAccountBalanceEvolutionComponent(

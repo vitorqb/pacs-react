@@ -1,4 +1,4 @@
-import React, { createElement, Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Factory } from 'rosie';
 import faker from 'faker';
@@ -37,7 +37,7 @@ class AccountFactoryWrapper {
    * Builds a simple root account.
    */
   buildRoot() {
-    return this.build({accType: "Root"})
+    return this.build({accType: "Root"});
   }
 
   /**
@@ -120,7 +120,7 @@ class MovementFactoryWrapper {
       currency: first.money.currency
     };
     const second = this.build({account: secondAccount, money: secondMoney});
-    return [first, second]
+    return [first, second];
   }
 }
 

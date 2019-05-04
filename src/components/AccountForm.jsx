@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { createTitle } from '../utils';
 import SuccessMessage from './SuccessMessage';
 import ErrorMessage from './ErrorMessage';
@@ -25,7 +25,7 @@ export default class AccountForm extends Component {
     this.state = {
       responseMsg: "",
       errMsg: ""
-    }
+    };
   }
 
   /**
@@ -41,7 +41,7 @@ export default class AccountForm extends Component {
    * the account creation succeeds.
    */
   setResponseMsg = x => {
-    this.setState({responseMsg: x || ""})
+    this.setState({responseMsg: x || ""});
   }
 
   setErrMsg = x => {
@@ -55,12 +55,12 @@ export default class AccountForm extends Component {
   })
 
   handleSubmit = (event) => {
-    event.preventDefault()
-    this.setResponseMsg("")
-    this.setErrMsg("")
+    event.preventDefault();
+    this.setResponseMsg("");
+    this.setErrMsg("");
     return this.props.onSubmit(this.getAccountSpec())
       .then(this.setResponseMsg)
-      .catch(this.setErrMsg)
+      .catch(this.setErrMsg);
   }
 
   render() {
@@ -101,7 +101,7 @@ export default class AccountForm extends Component {
         <SuccessMessage value={this.state.responseMsg} />
         <ErrorMessage value={this.state.errMsg} />
       </div>
-    )
+    );
   }
 
   makeParentInput = () => {
@@ -121,7 +121,7 @@ export default class AccountForm extends Component {
     return this.makeTrTag(
       name,
       <input type={type} name={name} value={value || ""} onChange={onChange} />
-    )
+    );
   }
 
   makeTrTag = (name, component) => {
@@ -130,6 +130,6 @@ export default class AccountForm extends Component {
         <td style={{width: "1%"}}>{name}</td>
         <td>{component}</td>
       </tr>
-    )
+    );
   }
 }

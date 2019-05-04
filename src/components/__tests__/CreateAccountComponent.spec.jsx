@@ -10,7 +10,7 @@ function mountCreateAccountComponent(opts) {
     <CreateAccountComponent
       accounts={AccountFactory.buildList(3)}
       createAcc={sinon.fake.resolves()} />
-  )
+  );
 }
 
 describe('CreateAccountComponent', () => {
@@ -20,13 +20,13 @@ describe('CreateAccountComponent', () => {
     createAccComponent.instance().setAccountSpec(accountSpec);
     createAccComponent.update();
     expect(createAccComponent.find('AccountForm').props().value).toEqual(accountSpec);
-  })
+  });
   it('Updates state with AccountForm onChange', () => {
     const createAccComponent = mountCreateAccountComponent();
     const accountSpec = getSpecFromAccount(AccountFactory.build());
     createAccComponent.find('AccountForm').props().onChange(accountSpec);
     expect(createAccComponent.state().accountSpec).toEqual(accountSpec);
-  })
+  });
   it('Calls createAccount with spec with AccountForm onSubmit', () => {
     expect.assertions(2);
     const createAccComponent = mountCreateAccountComponent();
@@ -41,10 +41,10 @@ describe('CreateAccountComponent', () => {
         expect(createAccComponent.props().createAcc.lastCall.args)
           .toEqual([accountSpec]);        
       });
-  })
+  });
   it('Passes accounts to AccountForm', () => {
     const createAccComponent = mountCreateAccountComponent();
     expect(createAccComponent.find('AccountForm').props().accounts)
       .toBe(createAccComponent.props().accounts);
-  })
-})
+  });
+});

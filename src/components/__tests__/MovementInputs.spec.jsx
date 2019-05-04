@@ -7,7 +7,6 @@ import { memoizeSimple } from '../../utils.jsx';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
 import AccountInput from '../AccountInput';
 import CurrencyInput from '../CurrencyInput';
-import Select from 'react-select';
 
 /**
  * Mounts a MovementInputs for testing.
@@ -19,7 +18,7 @@ import Select from 'react-select';
 function mountMovementInputs({value={}, accounts=[], currencies=[]}={}) {
   return mount(
     <MovementInputs value={value} accounts={accounts} currencies={currencies} />
-  )
+  );
 }
 
 describe('MovementInputs', () => {
@@ -31,14 +30,14 @@ describe('MovementInputs', () => {
       const movementInput = mount(<MovementInputs title={title}/>);
       expect(movementInput.find("span.titleSpan").html())
         .toContain(title);
-    })
+    });
 
     it('Mounts with all values equal to empty string', () => {
       const movementInput = mount(<MovementInputs />);
       const inputs = movementInput.find("input");
       const inputsValues = inputs.map(x => x.instance().value);
       expect(inputsValues).toEqual(["", "", ""]);
-    })
+    });
 
     it('Contains an AccountInput with correct accounts...', () => {
       const accounts = AccountFactory.buildList(3);
@@ -46,7 +45,7 @@ describe('MovementInputs', () => {
       expect(movementInput.find(AccountInput)).toHaveLength(1);
       expect(movementInput.find(AccountInput).props().accounts).toBe(accounts);
       expect(movementInput.find(AccountInput).props().value).toBe(undefined);
-    })
+    });
 
     it('Contains an CurrencyInput with correct currencies...', () => {
       const currencies = CurrencyFactory.buildList(3);
@@ -55,14 +54,14 @@ describe('MovementInputs', () => {
       expect(curInput).toHaveLength(1);
       expect(curInput.props().currencies).toBe(currencies);
       expect(curInput.props().selectedCurrency).toBe(undefined);
-    })
+    });
 
     it('Maps quantity in value to quantity input value', () => {
       const value = {money: {quantity: 1}};
       const movementInputs = mountMovementInputs({value});
       expect(movementInputs.find('input[name="quantity"]').props().value)
         .toBe(value.money.quantity);
-    })
+    });
 
     it('Maps account in value to account input value', () => {
       const getAccount = memoizeSimple(pk => AccountFactory.build({pk}));
@@ -70,7 +69,7 @@ describe('MovementInputs', () => {
       const accounts = [getAccount(2)];
       const movementInputs = mountMovementInputs({value, accounts});
       expect(movementInputs.find(AccountInput).props().value).toBe(getAccount(2));
-    })
+    });
 
     it('Maps currency in value to currency input value', () => {
       const getCurrency = memoizeSimple(pk => CurrencyFactory.build({pk}));
@@ -78,8 +77,8 @@ describe('MovementInputs', () => {
       const currencies = [getCurrency(33)];
       const movementInputs = mountMovementInputs({value, currencies});
       expect(movementInputs.find(CurrencyInput).props().value).toBe(getCurrency(33));
-    })
-  })
+    });
+  });
 
   describe('Setting input values fire events', () => {
 
@@ -94,9 +93,9 @@ describe('MovementInputs', () => {
     };
 
     beforeEach(() => {
-      onChangeHandler = sinon.fake()
+      onChangeHandler = sinon.fake();
       movementInput = mount(<MovementInputs onChange={onChangeHandler}/>);
-    })
+    });
 
     it('Change account calls handler', () => {
       const accounts = AccountFactory.buildList(5);
@@ -105,12 +104,12 @@ describe('MovementInputs', () => {
       );
       const selectedAcc = accounts[2];
       const accInput = movementInput.find(AccountInput);
-      const expectedEmittedState = R.merge(baseState, {account: selectedAcc.pk})
+      const expectedEmittedState = R.merge(baseState, {account: selectedAcc.pk});
 
       accInput.props().onChange(selectedAcc);
 
       expect(onChangeHandler.calledOnceWith(expectedEmittedState)).toBe(true);
-    })
+    });
 
     it('Set currency', () => {
       const currencies = CurrencyFactory.buildList(3);
@@ -124,10 +123,10 @@ describe('MovementInputs', () => {
         {money: {currency: currency.pk}}
       );
 
-      curInput.props().onChange(currency)
+      curInput.props().onChange(currency);
 
       expect(onChangeHandler.calledWith(expectedEmittedState)).toBe(true);
-    })
+    });
 
     it('Set quantity', () => {
       const value = 2;
@@ -140,7 +139,7 @@ describe('MovementInputs', () => {
       quantityInput.simulate("change", { target: { value } });
 
       expect(onChangeHandler.calledWith(expectedEmittedState)).toBe(true);
-    })
+    });
 
-  })
-})
+  });
+});
