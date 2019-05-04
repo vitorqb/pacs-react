@@ -50,15 +50,11 @@ export default class JournalComponent extends Component {
   }
 
   render() {
-    // Renders children
-    const journalTable = this.renderJournalTable();
-    const accountInput = this.renderAccountInput();
-    const refreshButton = this.renderRefreshButton();
     return (
       <div>
-        {accountInput}
-        {refreshButton}
-        {journalTable}
+        {this.renderAccountInput()}
+        {this.renderRefreshButton()}
+        {this.renderJournalTable()}
       </div>
     );
   }
@@ -102,11 +98,7 @@ export default class JournalComponent extends Component {
       };
     };
     return (
-      <button
-        id="refresh-button"
-        type="submit"
-        onClick={onClickHandler}
-        >Refresh</button>
+      <button id="refresh-button" onClick={onClickHandler}>Refresh</button>
     );
   }
 };
