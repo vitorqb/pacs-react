@@ -1,6 +1,6 @@
 import React from 'react';
 import * as R from 'ramda';
-import { Balance, Currency, Account, moneysToRepr } from '../utils';
+import { moneysToRepr } from '../utils';
 
 /**
  * @typedef AccountBalanceEvolutionData
