@@ -226,12 +226,12 @@ describe('App.test.jsx', () => {
 
   describe('App.renderCreateAccountComponent...', () => {
     it('Loading while accounts is null...', () => {
-      const form = mount(App.renderCreateAccountComponent(null));
+      const form = mount(new App().renderCreateAccountComponent(null));
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     });
     it('Rendered when accounts is not null...', () => {
       const accounts = AccountFactory.buildList(2);
-      const form = mount(App.renderCreateAccountComponent(accounts, ()=>{}));
+      const form = mount(new App().renderCreateAccountComponent(accounts, ()=>{}));
       expect(form.find(AccountForm)).toHaveLength(1);
       expect(form.find(AccountForm).props().accounts).toEqual(accounts);
     });
