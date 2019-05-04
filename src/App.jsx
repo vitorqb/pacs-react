@@ -80,6 +80,11 @@ class App extends Component {
     this.setState({currencies});
   }
 
+  ajaxGetAccounts = () => {
+    const { getAccounts = ajaxGetAccounts } = this.props;
+    return getAccounts(axiosWrapper).then(this.setAccounts);
+  }
+
   componentDidMount() {
     // Loads transactions and sets state on return
     const { getTransactions = ajaxGetRecentTransactions } = this.props;
@@ -87,9 +92,7 @@ class App extends Component {
           .then(this.setTransactions);
 
     // Same for accounts
-    const { getAccounts = ajaxGetAccounts } = this.props;
-    const getAccountsPromise = getAccounts(axiosWrapper)
-          .then(this.setAccounts);
+    const getAccountsPromise = this.ajaxGetAccounts();
 
     // Same for currencies
     const { getCurrencies = ajaxGetCurrencies } = this.props;
@@ -127,7 +130,7 @@ class App extends Component {
       currencies,
       accounts
     );
-    const createAccForm = App.renderCreateAccountComponent(accounts, createAcc);
+    const createAccForm = this.renderCreateAccountComponent(accounts, createAcc);
     const editAccountComponent = App.renderEditAccountComponent(
       accounts,
       updateAcc
@@ -273,14 +276,22 @@ class App extends Component {
    * @param {Function} createAcc - A function that receives account creation
    *   data and performs the post request to create the account.
    */
-  static renderCreateAccountComponent(accounts, createAcc) {
-    // We parametrize createAcc with the AxiosWrapper.
+  renderCreateAccountComponent(accounts, createAcc) {
     if (accounts !== [] && !accounts) {
       return <p>Loading...</p>;
-    }    
+    }
+
+    // After creating an account, we also want to refresh this.accounts
+    const createAccAndRefreshState = (accRawParams) => {
+      return createAcc(accRawParams).then((response) => {
+        this.ajaxGetAccounts();
+        return response;
+      });
+    };
+
     return (
       <CreateAccountComponent
-        createAcc={createAcc}
+        createAcc={createAccAndRefreshState}
         accounts={accounts} />
     );
   }
