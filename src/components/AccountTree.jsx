@@ -1,6 +1,7 @@
 import React from 'react';
 import * as R from 'ramda';
 import TreeView from 'react-treeview';
+import { ACC_TYPES } from '../constants';
 require('react-treeview/react-treeview.css');
 
 export const MISSING_ROOT_MSG = "Missing root account.";
@@ -24,7 +25,7 @@ export default function AccountTree({ accounts }) {
  * Given an array of accounts, finds the root account.
  */
 function findRootAcc(accounts) {
-  const root = R.filter(R.propEq("accType", "Root"), accounts);
+  const root = R.filter(R.propEq("accType", ACC_TYPES.ROOT), accounts);
   if (root.length === 0) {
     throw new Error(MISSING_ROOT_MSG);
   } else if (root.length > 1) {
