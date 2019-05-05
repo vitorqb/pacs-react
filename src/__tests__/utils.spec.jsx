@@ -64,6 +64,7 @@ describe('newGetter()', () => {
 describe('getSpecFromTransaction()', () => {
   const transaction = {
     pk: 1,
+    reference: "bye",
     description: "hola",
     movements: [],
     date: moment.utc("1922-21-22")
@@ -80,6 +81,9 @@ describe('getSpecFromTransaction()', () => {
   });
   it('Same date', () => {
     expect(transactionSpec.date).toBe(transaction.date);
+  });
+  it('Same reference', () => {
+    expect(transactionSpec.reference).toBe(transaction.reference);
   });
 });
 

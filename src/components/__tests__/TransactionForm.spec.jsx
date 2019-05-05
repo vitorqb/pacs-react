@@ -39,6 +39,12 @@ function mountTransactionForm(
   );
 }
 
+// Helper functions for manipulating the component
+function findReferenceInput(c) { return c.find('input[name="reference"]'); }
+function simulateReferenceChange(c, value) {
+  return findReferenceInput(c).props().onChange({target: {value: value}});
+}
+
 /**
  * Creates a stub for an axios promise that is rejected with an http error.
  */
@@ -66,7 +72,7 @@ describe('TransactionForm', () => {
     it('Mounts with all inputs and empty strings if no value', () => {
       const value = {};
       formComponent = mountTransactionForm({value});
-      const inputNames = ["description", "date"];
+      const inputNames = ["description", "date", "reference"];
       for (var i=0; i<inputNames.length; i++) {
         const name = inputNames[i];
         const input = formComponent.find(`input[name="${name}"]`);
@@ -119,6 +125,10 @@ describe('TransactionForm', () => {
           expect(movementInput.props().value).toBe(movementSpec);
         }
       });
+      it('Passes reference to reference input', () => {
+        expect(findReferenceInput(formComponent).props().value)
+          .toEqual(transaction.reference);
+      });
     });
   });
 
@@ -150,6 +160,12 @@ describe('TransactionForm', () => {
       expect(onChange.lastArg.date).toEqual(newDate);
     });
 
+    it('Calls onChange when reference changes...', () => {
+      const newRef = "foo bar baz";
+      simulateReferenceChange(formComponent, newRef);
+      expect(onChange.callCount).toEqual(1);
+      expect(onChange.lastArg.reference).toEqual(newRef);
+    });
   });
 
   describe('Adding/Removing movement inputs...', () => {

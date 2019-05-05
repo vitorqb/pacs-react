@@ -104,24 +104,36 @@ export default class TransactionForm extends Component {
         onChange={this.handleUpdate(R.lensProp("date"), R.identity)} />
     );
 
-    const movementInputs = this.renderMovementsInputs();
-
-    const addMovementButton = this.renderAddMovementButton();
-
     return (
       <div className="form-div">
         <form onSubmit={this.handleSubmit}>
           {createTitle(title)}
+          {this.renderReferenceInput()}
           {descriptionInput}
           date: {dateInput}
-          {movementInputs}
-          <div>{addMovementButton}</div>
+          {this.renderMovementsInputs()}
+          <div>{this.renderAddMovementButton()}</div>
           <input type="submit" value="Submit" />
         </form>
         <ErrorMessage value={this.state.errorMessage} />
         <SuccessMessage value={this.state.successMessage} />
       </div>
     );
+  }
+
+  /**
+   * Renders an input for reference
+   */
+  renderReferenceInput() {
+    return createInput({
+      type: "text",
+      name: "reference",
+      onChange: this.handleUpdate(
+        R.lensProp("reference"),
+        R.path(["target", "value"]),
+      ),
+      value: this.getValue().reference || ""
+    });
   }
 
   /**

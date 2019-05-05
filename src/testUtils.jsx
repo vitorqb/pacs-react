@@ -147,6 +147,7 @@ class TransactionFactoryWrapper {
   _factory = new Factory()
     .attr("pk", faker.random.number)
     .attr("description", faker.lorem.text)
+    .attr("reference", "Test reference")
     .attr("date", moment.utc("2018-12-23"))
     .attr("movements", () => MovementFactory.buildList(2))
 
