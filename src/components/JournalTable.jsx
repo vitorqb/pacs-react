@@ -96,6 +96,12 @@ export const ColumnMakers = {
       accessor: R.path(["transaction", "description"])
     };
   },
+  reference() {
+    return {
+      Header: 'Reference',
+      accessor: R.path(["transaction", "reference"]),
+    };
+  },
   date() {
     return {
       Header: 'Date',
@@ -137,6 +143,6 @@ export const ColumnMakers = {
 };
 
 export const defaultColumnMakers = R.props(
-  ['pk', 'description', 'date', 'quantity', 'balanceAfter'],
+  ['pk', 'description', 'reference', 'date', 'quantity', 'balanceAfter'],
   ColumnMakers
 );

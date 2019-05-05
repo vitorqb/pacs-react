@@ -195,6 +195,9 @@ describe('JournalTable', () => {
       expect(ColumnMakers.date().accessor(row))
         .toEqual(transaction.date.format("YYYY-MM-DD"));
     });
+    it('reference', () => {
+      expect(ColumnMakers.reference().accessor(row)).toEqual(transaction.reference);
+    });
     describe('quantity', () => {
       let opts, inject;
 

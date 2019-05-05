@@ -85,7 +85,9 @@ import moment from 'moment';
  * @function
  * Maps a Transaction to a TransactionSpec.
  */
-export const getSpecFromTransaction = R.pick(["description", "date", "movements"]);
+export const getSpecFromTransaction = R.pick(
+  ["description", "date", "movements", "reference"]
+);
 
 /**
  * @function
