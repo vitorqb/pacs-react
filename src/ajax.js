@@ -252,6 +252,11 @@ export function ajaxGetCurrencies (axios) {
 //
 // Reports
 //
+export const monthsPairToPeriods = R.pipe(
+  R.apply(MonthUtil.monthsBetween),
+  R.map(MonthUtil.monthToPeriod),
+);
+
 /**
  * Get the balance evolution report data for a set of accounts and months.
  * @function
@@ -267,10 +272,7 @@ export const ajaxGetAccountBalanceEvolutionData = R.curry(
       method: "POST",
       requestData: {
         accounts: R.map(R.prop("pk"), accounts),
-        periods: R.pipe(
-          R.apply(MonthUtil.monthsBetween),
-          R.map(MonthUtil.monthToPeriod),
-        )(months)
+        periods: monthsPairToPeriods(months),
       },
       // Add months to the response so everything is easier
       parseResponseData: parseAccountBalanceEvolutionResponse(months)
@@ -284,4 +286,26 @@ export const parseAccountBalanceEvolutionResponse = months => R.pipe(
     remapKeys({balance_evolution: 'balanceEvolution'})
   ))}),
   R.assoc('months', months),
+);
+
+/**
+  * Get the accounts flows evolution data for a set of accounts and a period.
+  */
+export const ajaxGetAccountsFlowsEvolutionData = R.curry(
+  function(axios, {accounts, monthsPair}) {
+    const periods = monthsPairToPeriods(monthsPair);
+    return makeRequest({
+      axios,
+      url: "/reports/flow-evolution/",
+      method: "POST",
+      requestData: {
+        accounts: R.map(R.prop("pk"), accounts),
+        periods,
+      },
+      parseResponseData: R.pipe(
+        R.assoc('periods', periods),
+        remapKeys({"data": "accountsFlows"}),
+      )
+    });
+  }
 );
