@@ -10,8 +10,9 @@ import CreateTransactionComponent from './components/CreateTransactionComponent'
 import EditTransactionComponent from './components/EditTransactionComponent';
 import JournalComponent from './components/JournalComponent.jsx';
 import AccountBalanceEvolutionComponent from './components/AccountBalanceEvolutionComponent';
+import AccountFlowEvolutionReportComponent from './components/AccountFlowEvolutionReportComponent';
 import { defaultColumnMakers } from './components/JournalTable.jsx';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount, ajaxGetAccountBalanceEvolutionData } from "./ajax";
+import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount, ajaxGetAccountBalanceEvolutionData, ajaxGetAccountsFlowsEvolutionData } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter, isDescendant } from './utils';
 
@@ -119,6 +120,8 @@ class App extends Component {
         ajaxGetPaginatedJournalDataForAccount(axiosWrapper),
       getAccountBalanceEvolutionData =
         ajaxGetAccountBalanceEvolutionData(axiosWrapper),
+      getAccountsFlowsEvolutionData =
+        ajaxGetAccountsFlowsEvolutionData(axiosWrapper),
     } = this.props || {};
 
     // Retrieves from the state
@@ -160,6 +163,13 @@ class App extends Component {
         currencies,
       )
     );
+    const accountFlowEvolutionReportComponent = (
+      App.renderAccountFlowEvolutionReportComponent(
+        accounts,
+        getAccountsFlowsEvolutionData,
+        currencies,
+      )
+    );
 
     // Prepares the router
     const router = makeRouter(this.getRoutesData({
@@ -172,6 +182,7 @@ class App extends Component {
       editTransactionComponent,
       journalComponent,
       accountBalanceEvolutionComponent,
+      accountFlowEvolutionReportComponent,
     }));
 
     return (
@@ -194,6 +205,7 @@ class App extends Component {
     editTransactionComponent,
     journalComponent,
     accountBalanceEvolutionComponent,
+    accountFlowEvolutionReportComponent,
   }) {
     return [
       {
@@ -240,6 +252,11 @@ class App extends Component {
         path: "/account-balance-evolution-report/",
         text: "Account Balance Evolution Report",
         component: () => accountBalanceEvolutionComponent,
+      },
+      {
+        path: "/account-flow-evolution-report/",
+        text: "Account Flow Evolution Report",
+        component: () => accountFlowEvolutionReportComponent
       }
     ];
   }
@@ -393,6 +410,25 @@ class App extends Component {
         accounts,
         getCurrency: newGetter(R.prop("pk"), currencies),
         getAccountBalanceEvolutionData,
+      }
+    );
+  }
+
+  static renderAccountFlowEvolutionReportComponent(
+    accounts,
+    getAccountsFlowsEvolutionData,
+    currencies,
+  ) {
+    if (R.isNil(accounts)) {
+      return <p>Loading...</p>;
+    }
+    return createElement(
+      AccountFlowEvolutionReportComponent,
+      {
+        getAccountsFlowsEvolutionData,
+        accounts,
+        getCurrency: newGetter(R.prop("pk"), currencies),
+        getAccount: newGetter(R.prop("pk"), accounts),
       }
     );
   }

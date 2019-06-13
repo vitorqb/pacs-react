@@ -5,6 +5,7 @@ import faker from 'faker';
 import * as R from 'ramda';
 import moment from 'moment';
 import { ACC_TYPES } from './constants';
+import { MonthUtil } from './utils';
 
 faker.seed(123);
 
@@ -171,6 +172,95 @@ class TransactionFactoryWrapper {
 }
 
 export const TransactionFactory = new TransactionFactoryWrapper();
+
+/**
+  * A wrapper around Factory providing fake months for test.
+  */
+class MonthFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+    this.currentMonthIndex = -1;
+    this.monthsIndexes = [0, 12, 1, 1, 7, 4, 5, 3, 12, 11, 10, 9, 6, 5, 1];
+    this.currentYearIndex = -1;
+    this.years = [2019, 1993, 2018, 1964, 1900, 2017, 2011, 2000, 1999, 19998];
+  }
+
+  getMonth() {
+    if (this.currentMonthIndex > this.monthsIndexes.length) {
+      this.currentMonthIndex = -1;
+    }
+    this.currentMonthIndex++;
+    return MonthUtil.MONTHS[this.currentMonthIndex];
+  }
+
+  getYear() {
+    if (this.currentYearIndex > this.years.length) {
+      this.currentYearIndex = -1;
+    }
+    this.currentYearIndex++;
+    return this.years[this.currentYearIndex];
+  }
+
+  getFactory() {
+    let year = this.getYear();
+    let month = this.getMonth();
+    return new Factory().attr('year', year).attr('month', month);
+  }
+
+  build(opts={}) { return this.getFactory().build(opts); }
+  buildList(n, opts={}) { return this.getFactory().buildList(n, opts); }
+}
+
+export const MonthFactory = new MonthFactoryWrapper();
+
+class MoneyFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory().attrs({
+      quantity: faker.random.number({min: -10000, max: 10000}),
+      currency: faker.random.number({min: 1, max: 100}),
+    });
+
+  build(opts={}) { return this._factory.build(opts); }
+  buildList(n, opts={}) { return this._factory.buildList(n, opts); }
+  
+}
+
+export const MoneyFactory = new MoneyFactoryWrapper();
+
+/**
+ * A wrapper around Factory providing fake accountFlows for test.
+ */
+class AccountFlowFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr('account', faker.random.number)
+    .attr('flows', () => {
+      const moneysOne = MoneyFactory.buildList(2);
+      const periodOne = MonthUtil.monthToPeriod(MonthFactory.build());
+      const moneysTwo = MoneyFactory.buildList(0);
+      const periodTwo = MonthUtil.monthToPeriod(MonthFactory.build());
+      return [{ moneys: moneysOne, period: periodOne },
+              { moneys: moneysTwo, period: periodTwo }];
+    })
+
+  build(opts={}) { return this._factory.build(opts); }
+  buildList(n, opts={}) { return this._factory.buildList(n, opts); }
+  
+}
+
+export const AccountFlowFactory = new AccountFlowFactoryWrapper();
 
 /**
  * Makes a mock for an axios error.
