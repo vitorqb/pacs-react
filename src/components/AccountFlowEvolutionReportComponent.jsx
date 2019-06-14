@@ -1,5 +1,6 @@
 import React, { Component, createElement } from 'react';
 import * as R from 'ramda';
+import { imutableLensPath } from '../utils';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
@@ -11,6 +12,12 @@ export const Phases = {
 
 export const lenses = {
 
+  // Props
+  accounts: imutableLensPath(['accounts']),
+  getCurrency: imutableLensPath(['getCurrency']),
+  getAccount: imutableLensPath(['getAccount']),
+  
+  // State
   selectedAccounts: R.lensPath(['selectedAccounts']),
   pickedMonthsPair: R.lensPath(['pickedMonthsPair']),
   pickedMonths(i) { return R.compose(this.pickedMonthsPair, R.lensPath([i])); },

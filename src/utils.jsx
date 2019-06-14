@@ -323,3 +323,8 @@ export const MonthUtil = {
     return out;
   }
 };
+
+export const throwImutableError = () => {
+  throw Error("Tried to set an imutable value!");
+}
+export const imutableLensPath = path => R.lenses(R.path(path), throwImutableError);
