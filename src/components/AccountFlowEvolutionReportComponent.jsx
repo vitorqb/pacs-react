@@ -3,15 +3,52 @@ import * as R from 'ramda';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
+import ExchangeRateProfileFilePicker from './ExchangeRateProfileFilePicker';
+import CurrencyInput from './CurrencyInput';
 
 export const Phases = {
   loading: 'loading',
   waiting: 'waiting',
 };
 
+export const CurrencyOptsLenses = {
+
+  convertTo: R.lensPath(['convertTo']),
+  pricePortifolio: R.lensPath(['pricePortifolio']),
+  
+};
+
 export const lenses = {
 
   selectedAccounts: R.lensPath(['selectedAccounts']),
+  selectedExchangeRateProfileData: R.lensPath(['selectedExchangeRateProfileData']),
+  selectedExchangeRateProfile: () => R.compose(
+    lenses.selectedExchangeRateProfileData,
+    R.lensPath(['profile']),
+  ),
+  pickedTargetCurrency: R.lensPath(['pickedTargetCurrency']),
+  selectedCurrencyOpts: () => R.lens(
+    x => R.pipe(
+      R.set(
+        CurrencyOptsLenses.convertTo,
+        R.view(lenses.pickedTargetCurrency, x)
+      ),
+      R.set(
+        CurrencyOptsLenses.pricePortifolio,
+        R.view(lenses.selectedExchangeRateProfile(), x)
+      ),
+    )({}),
+    (v, x) => R.pipe(
+      R.set(
+        lenses.pickedTargetCurrency,
+        R.view(CurrencyOptsLenses.convertTo, v)
+      ),
+      R.set(
+        lenses.selectedExchangeRateProfile(),
+        R.view(CurrencyOptsLenses.pricePortifolio, x)
+      ),
+    )(x)
+  ),
   pickedMonthsPair: R.lensPath(['pickedMonthsPair']),
   pickedMonths(i) { return R.compose(this.pickedMonthsPair, R.lensPath([i])); },
   status: R.lensPath(['status']),
@@ -28,12 +65,16 @@ export const reducers = {
     return R.over(lenses.pickedMonthsPair, updatePickedMonthsPair, state);
   }),
   onSelectedAccountsChange: R.set(lenses.selectedAccounts),
+  onSelectedExchangeRateProfileChange: R.curry((reducerFn, state) => {
+    return R.over(lenses.selectedExchangeRateProfileData, reducerFn, state);
+  }),
   onSubmitReportQuery: R.set(lenses.statusPhase(), Phases.loading),
   onReportQueryIncomingData: ({accountsFlows, periods}) => R.pipe(
     R.set(lenses.statusPhase(), Phases.waiting),
     R.set(lenses.accountsFlows, accountsFlows),
     R.set(lenses.tablePeriods, periods),
-  )
+  ),
+  onPickedTargetCurrencyChange: R.set(lenses.pickedTargetCurrency),
 };
 
 export const handlers = {
@@ -46,7 +87,8 @@ export const handlers = {
     setState(reducers.onSubmitReportQuery);
     let accounts = R.view(lenses.selectedAccounts, state);
     let monthsPair = R.view(lenses.pickedMonthsPair, state);
-    let getFlowsArgs = {accounts, monthsPair};
+    let currencyOpts = R.view(lenses.selectedCurrencyOpts(), state);
+    let getFlowsArgs = {accounts, monthsPair, currencyOpts};
     return props
       .getAccountsFlowsEvolutionData(getFlowsArgs)
       .then(R.pipe(reducers.onReportQueryIncomingData, setState))
@@ -58,6 +100,7 @@ export const handlers = {
 export const defaultState = {
   pickedMonthsPair: [null, null],
   selectedAccounts: [null, null],
+  selectedExchangeRateProfileData: null,
   status: { phase: Phases.waiting },
   accountsFlows: null,
 };
@@ -67,6 +110,24 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   constructor(props) {
     super(props);
     this.state = R.clone(defaultState);
+  }
+
+  renderExchangeRateProfileFilePicker = () => {
+    let value = R.view(lenses.selectedExchangeRateProfileData, this.state);
+    let onChange = reducerFn => {
+      this.setState(reducers.onSelectedExchangeRateProfileChange(reducerFn));
+    };
+    let props = { value, onChange };
+    return createElement(ExchangeRateProfileFilePicker, props);
+  }
+
+  renderTargetCurrencyPicker = ({currencies}) => {
+    let value = R.view(lenses.pickedTargetCurrency, this.state);
+    let onChange = pickedCurrency => {
+      this.setState(reducers.onPickedTargetCurrencyChange(pickedCurrency));
+    };
+    let props = { value, onChange, currencies };
+    return createElement(CurrencyInput, props);
   }
 
   renderMonthPickerComponent = (monthIndex) => {
@@ -108,12 +169,20 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   }
 
   render() {
+    let exchangeRateFilePicker = this.renderExchangeRateProfileFilePicker();
+    let renderTargetCurrencyPicker = this.renderTargetCurrencyPicker(this.props);
     let monthPickersComponents = [0, 1].map(this.renderMonthPickerComponent);
     let multipleAccountsSelector = this.renderMultipleAccountSelector();
     let submitButton = this.renderSubmitButton();
     let table = this.renderTable();
     return (
       <div>
+        <div>
+          {exchangeRateFilePicker}
+        </div>
+        <div>
+          {renderTargetCurrencyPicker}
+        </div>
         <div>
           {monthPickersComponents}
         </div>
