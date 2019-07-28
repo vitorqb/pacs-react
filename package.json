@@ -123,7 +123,7 @@
       "jsx",
       "node"
     ],
-    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.js"
+    "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"]
   },
   "babel": {
     "presets": [
