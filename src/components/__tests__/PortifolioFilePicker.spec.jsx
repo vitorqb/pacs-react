@@ -25,7 +25,7 @@ describe('PortifolioFilePicker', () => {
 
     // Simulates a FilePicker change
     const payload = {file: {name: "foo.txt"}};
-    filePicker.props().onChange(payload);
+    filePicker.props().onChange(() => payload);
 
     // The higher onChange must have been called with a reducer that, when called,
     // stores the changes on the lens.

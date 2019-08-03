@@ -13,9 +13,12 @@ export const parseInputMsg = msg => {
   });
 };
 
+const fileLens = R.lensPath(['file']);
+
 export const valueLens = {
 
-  file: R.lensPath(['file']),
+  file: fileLens,
+  fileName: R.compose(fileLens, R.lensPath(['name'])),
   contents: R.lensPath(['contents']),
   status: R.lensPath(['status']),
 

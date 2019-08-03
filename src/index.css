@@ -31,3 +31,7 @@ div.success-message {
 .th {
     text-align: center;
 }
+
+input[type='file'] {
+    color: transparent;
+}

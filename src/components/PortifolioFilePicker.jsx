@@ -8,6 +8,8 @@ const filePickerValueLens = R.lensPath(['filePickerValue']);
 export const valueLens = {
 
   contents: R.compose(filePickerValueLens, FilePickerValueLens.contents),
+  fileName: R.compose(filePickerValueLens, FilePickerValueLens.fileName),
+  status: R.compose(filePickerValueLens, FilePickerValueLens.status),
   filePickerValue: filePickerValueLens,
   error: R.lensPath(['error']),
   portifolio: R.lensPath(['portifolio']),
@@ -46,9 +48,9 @@ export const reducers = {
 
 const PortifolioFilePicker = ({value, onChange}) => {
   const filePickerValue = R.view(valueLens.filePickerValue, value);
-  const onFilePickerChange = msg => onChange(R.pipe(
-    R.over(valueLens.filePickerValue, msg),
-    reducers.updateContents,      
+  const onFilePickerChange = filePickerReducerFn => onChange(R.pipe(
+    R.over(valueLens.filePickerValue, filePickerReducerFn),
+    reducers.updateContents,
   ));
   return (
     <div>

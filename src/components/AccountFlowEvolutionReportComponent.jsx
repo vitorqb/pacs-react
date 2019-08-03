@@ -3,12 +3,16 @@ import * as R from 'ramda';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
-import PortifolioFilePicker from './PortifolioFilePicker';
+import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
+import ErrorDisplayWrapper from './ErrorDisplayWrapper';
+import SuccessMessageDisplayerWrapper from './SuccessMessageDisplayerWrapper';
 
 export const Phases = {
   loading: 'loading',
   waiting: 'waiting',
 };
+
+const portifolioFilePickerValueLens = R.lensPath(['portifolioFilePickerValue']);
 
 export const lenses = {
 
@@ -19,7 +23,8 @@ export const lenses = {
   statusPhase() { return R.compose(this.status, R.lensPath(['phase'])); },
   accountsFlows: R.lensPath(['accountsFlows']),
   tablePeriods: R.lensPath(['tablePeriods']),
-  portifolioFilePickerValue: R.lensPath(['portifolioFilePickerValue']),
+  portifolioFilePickerValue: portifolioFilePickerValueLens,
+  pickedPortifolio: R.compose(portifolioFilePickerValueLens, PortifolioFilePickerValueLens.portifolio),
 
 };
 
@@ -77,7 +82,19 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     let onChange = reducerFn => {
       this.setState(R.over(lenses.portifolioFilePickerValue, reducerFn));
     };
-    return createElement(PortifolioFilePicker, { value, onChange });
+    const viewErrorFn = p => R.view(PortifolioFilePickerValueLens.error, p.value);
+    const viewSuccessMsg = p => {
+      const fileName = R.view(PortifolioFilePickerValueLens.fileName, p.value);
+      const status = R.view(PortifolioFilePickerValueLens.status, p.value);
+      if (viewErrorFn(p)) { return null; }
+      if (status === "Loading") { return "LOADING!..."; }
+      if (fileName) { return `Selected! ${fileName}`; }
+    };
+    return R.pipe(
+      SuccessMessageDisplayerWrapper(viewSuccessMsg),
+      ErrorDisplayWrapper(viewErrorFn),
+      e => createElement(e, { value, onChange }),
+    )(PortifolioFilePicker);
   };
 
   renderMonthPickerComponent = (monthIndex) => {
