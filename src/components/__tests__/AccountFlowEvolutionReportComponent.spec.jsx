@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import sinon from 'sinon';
 import AccountFlowEvolutionReportComponent, { reducers, handlers, lenses, Phases, submitButton } from '../AccountFlowEvolutionReportComponent';
+import * as sut from '../AccountFlowEvolutionReportComponent';
 import { mount } from 'enzyme';
 import * as R from 'ramda';
 import MultipleAccountsSelector from '../MultipleAccountsSelector';
@@ -11,6 +12,7 @@ import { CurrencyFactory, AccountFactory, MonthFactory, AccountFlowFactory } fro
 function mountAccountFlowEvolutionReportComponent(props={}) {
   let finalProps = {};
   finalProps.accounts = props.accounts || [];
+  finalProps.currencies = props.currencies || [];
   finalProps.getAccountsFlowsEvolutionData =
     props.getAccountsFlowsEvolutionData || sinon.fake.resolves();
   finalProps.getAccount = () => AccountFactory.build();
@@ -24,12 +26,16 @@ function findMonthPicker(comp, i) {
 const pickMonth = (comp, month) => comp.props().onPicked(month);
 const getMonthPickerProps = (c, i) => findMonthPicker(c, i).props();
 const findMultipleAccountsSelector = c => c.find(MultipleAccountsSelector);
+const findPortifolioFilePicker = c => c.find("PortifolioFilePicker");
+const findCurrencyInput = c => c.find("CurrencyInput");
 const simulateSelectedAccountsChange = (c, accs) => {
   c.props().onSelectedAccountsChange(accs);
 };
 const simulateSubmit = c => c.find(submitButton).props().onClick();
+const simulateSelectedTargetCurrencyChange = R.curry((c, v) => c.props().onChange(v));
 const getPickedMonthsPair = (comp) => R.view(lenses.pickedMonthsPair, comp.state());
 const getSelectedAccounts = (c) => R.view(lenses.selectedAccounts, c.state());
+const getSelectedTargetCurrency = (c) => R.view(lenses.selectedTargetCurrency, c.state());
 const getMultipleAccountsSelectorProps = c => findMultipleAccountsSelector(c).props();
 const getStatus = c => R.view(lenses.status, c.state());
 const getStatusPhase = c => R.view(lenses.statusPhase(), c.state());
@@ -72,6 +78,14 @@ describe('AccountFlowEvolutionReportComponent', () => {
     component.update();
     expect(getMultipleAccountsSelectorProps(component).selectedAccounts)
       .toEqual([1, 2]);
+  });
+
+  it('Setting a target currency', () => {
+    const component = mountAccountFlowEvolutionReportComponent();
+    const currencyInput = findCurrencyInput(component);
+    simulateSelectedTargetCurrencyChange(currencyInput, {code: "EUR"});
+    component.update();
+    expect(getSelectedTargetCurrency(component)).toEqual({code: "EUR"});
   });
 
   it('Submiting the query', () => {
@@ -122,6 +136,30 @@ describe('AccountFlowEvolutionReportComponent', () => {
     let component = mountAccountFlowEvolutionReportComponent({accounts});
     expect(getMultipleAccountsSelectorProps(component).accounts)
       .toEqual(accounts);
+  });
+
+  it('Preserves state from PortifolioFilePicker.', () => {
+    const component = mountAccountFlowEvolutionReportComponent({});
+    const setState = sinon.stub(component.instance(), 'setState');
+    const portifolioFilePicker = findPortifolioFilePicker(component);
+    const onChangeReducer = sinon.fake(() => ({foo: "bar"}));
+
+    // Simulates changes for portifolioFilePicker
+    portifolioFilePicker.props().onChange(onChangeReducer);
+
+    // setState must have been called with 1 arg, the state reducer
+    expect(setState.args.length).toEqual(1);
+    expect(setState.args[0].length).toEqual(1);
+    const reducer = setState.args[0][0];
+
+    // The new state should be the old one, with the lens for the portifolio
+    // picker updated by the onChangeReducer function.
+    const expectedNewState = R.over(
+      lenses.portifolioFilePickerValue,
+      onChangeReducer,
+      {},
+    );
+    expect(reducer({})).toEqual(expectedNewState);
   });
 
   describe('reducers.onMonthPick', () => {
@@ -196,6 +234,43 @@ describe('AccountFlowEvolutionReportComponent', () => {
     let setState = sinon.fake();
     handlers.onSubmitReportQuery(props, state, setState);
     expect(setState.called).toBe(false);
+  });
+
+  describe('extractAccountEvolutionDataParams', () => {
+
+    it('Base', () => {
+      const state = R.pipe(
+        R.set(sut.lenses.selectedAccounts, [1]),
+        R.set(sut.lenses.pickedMonthsPair, [1, 2])
+      )({});
+      const exp = {accounts: [1], monthsPair: [1, 2]};
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res).toEqual(exp);
+    });
+
+    it('With currency price portifolio', () => {
+      const portifolio = [
+        {
+          currency: 'EUR',
+          prices: [
+            {
+              date: '2019-01-01',
+              price: 1,
+            }
+          ]
+        }
+      ];
+      const state = R.set(sut.lenses.pickedPortifolio, portifolio, {});
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res.currencyOpts.portifolio).toEqual(portifolio);
+    });
+
+    it('With selectedTargetCurrency', () => {
+      const state = R.set(sut.lenses.selectedTargetCurrency, 1, {});
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res.currencyOpts.convertTo).toEqual(1);
+    });
+
   });
   
 });
