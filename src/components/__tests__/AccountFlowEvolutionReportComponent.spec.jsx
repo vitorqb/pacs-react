@@ -24,6 +24,7 @@ function findMonthPicker(comp, i) {
 const pickMonth = (comp, month) => comp.props().onPicked(month);
 const getMonthPickerProps = (c, i) => findMonthPicker(c, i).props();
 const findMultipleAccountsSelector = c => c.find(MultipleAccountsSelector);
+const findPortifolioFilePicker = c => c.find("PortifolioFilePicker");
 const simulateSelectedAccountsChange = (c, accs) => {
   c.props().onSelectedAccountsChange(accs);
 };
@@ -122,6 +123,30 @@ describe('AccountFlowEvolutionReportComponent', () => {
     let component = mountAccountFlowEvolutionReportComponent({accounts});
     expect(getMultipleAccountsSelectorProps(component).accounts)
       .toEqual(accounts);
+  });
+
+  it('Preserves state from PortifolioFilePicker.', () => {
+    const component = mountAccountFlowEvolutionReportComponent({});
+    const setState = sinon.stub(component.instance(), 'setState');
+    const portifolioFilePicker = findPortifolioFilePicker(component);
+    const onChangeReducer = sinon.fake(() => ({foo: "bar"}));
+
+    // Simulates changes for portifolioFilePicker
+    portifolioFilePicker.props().onChange(onChangeReducer);
+
+    // setState must have been called with 1 arg, the state reducer
+    expect(setState.args.length).toEqual(1);
+    expect(setState.args[0].length).toEqual(1);
+    const reducer = setState.args[0][0];
+
+    // The new state should be the old one, with the lens for the portifolio
+    // picker updated by the onChangeReducer function.
+    const expectedNewState = R.over(
+      lenses.portifolioFilePickerValue,
+      onChangeReducer,
+      {},
+    );
+    expect(reducer({})).toEqual(expectedNewState);
   });
 
   describe('reducers.onMonthPick', () => {

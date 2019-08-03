@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
+import PortifolioFilePicker from './PortifolioFilePicker';
 
 export const Phases = {
   loading: 'loading',
@@ -18,6 +19,7 @@ export const lenses = {
   statusPhase() { return R.compose(this.status, R.lensPath(['phase'])); },
   accountsFlows: R.lensPath(['accountsFlows']),
   tablePeriods: R.lensPath(['tablePeriods']),
+  portifolioFilePickerValue: R.lensPath(['portifolioFilePickerValue']),
 
 };
 
@@ -67,7 +69,16 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   constructor(props) {
     super(props);
     this.state = R.clone(defaultState);
+    this.view = l => R.view(l, this.state);
   }
+
+  renderPortifolioFilePicker = () => {
+    let value = this.view(lenses.portifolioFilePickerValue);
+    let onChange = reducerFn => {
+      this.setState(R.over(lenses.portifolioFilePickerValue, reducerFn));
+    };
+    return createElement(PortifolioFilePicker, { value, onChange });
+  };
 
   renderMonthPickerComponent = (monthIndex) => {
     let value = R.view(lenses.pickedMonths(monthIndex), this.state);
@@ -108,6 +119,7 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   }
 
   render() {
+    let portifolioFilePicker = this.renderPortifolioFilePicker();
     let monthPickersComponents = [0, 1].map(this.renderMonthPickerComponent);
     let multipleAccountsSelector = this.renderMultipleAccountSelector();
     let submitButton = this.renderSubmitButton();
@@ -115,6 +127,7 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     return (
       <div>
         <div>
+          {portifolioFilePicker}
           {monthPickersComponents}
         </div>
         <div>
