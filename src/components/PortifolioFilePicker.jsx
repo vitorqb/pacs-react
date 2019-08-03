@@ -47,8 +47,8 @@ export const reducers = {
 const PortifolioFilePicker = ({value, onChange}) => {
   const filePickerValue = R.view(valueLens.filePickerValue, value);
   const onFilePickerChange = msg => onChange(R.pipe(
-      R.set(valueLens.filePickerValue, msg),
-      reducers.updateContents,      
+    R.over(valueLens.filePickerValue, msg),
+    reducers.updateContents,      
   ));
   return (
     <div>
