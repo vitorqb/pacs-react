@@ -5,3 +5,25 @@ describe('base', () => {
     expect(1).toEqual(1);
   });
 });
+
+describe('getStats', () => {
+  it('base', () => {
+    const portifolio = [
+      {
+        currency: 'EUR',
+        prices: [1,2,3],
+      },
+      {
+        currency: 'BRL',
+        prices: [1],
+      }
+    ];
+    const res = sut.getStats(portifolio);
+    expect(res).toEqual({
+      numberOfEntires: {
+        EUR: 3,
+        BRL: 1,
+      },
+    });
+  });
+});

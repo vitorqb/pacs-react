@@ -46,6 +46,8 @@ describe('PortifolioFilePicker', () => {
 
         expect(R.view(valueLens.error, result)).toEqual(null);
         expect(R.view(valueLens.portifolio, result)).toEqual([]);
+        const portifolioValidation = R.view(valueLens.portifolioValidation, result);
+        expect(portifolioValidation.success()).toEqual([]);
       });
 
       it('Error', () => {
@@ -54,6 +56,8 @@ describe('PortifolioFilePicker', () => {
 
         expect(R.view(valueLens.error, result)).toEqual("Invalid json!");
         expect(R.view(valueLens.portifolio, result)).toEqual(null);
+        const portifolioValidation = R.view(valueLens.portifolioValidation, result);
+        expect(portifolioValidation.fail()).toEqual("Invalid json!");
       });
 
       it('Empty', () => {

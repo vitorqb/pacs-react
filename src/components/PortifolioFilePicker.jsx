@@ -2,6 +2,8 @@ import React from 'react';
 import * as R from 'ramda';
 import * as PricePortifolio from '../domain/PricePortifolio/Core';
 import FilePicker, { valueLens as FilePickerValueLens } from './FilePicker';
+import PortfolioFilePickerStatus, { propsLens as PortfolioFilePickerStatusLens } from './PortifolioFilePicker/PortifolioFilePickerStatus';
+import Monet, { Success, Fail } from 'monet';
 
 const filePickerValueLens = R.lensPath(['filePickerValue']);
 
@@ -13,6 +15,7 @@ export const valueLens = {
   filePickerValue: filePickerValueLens,
   error: R.lensPath(['error']),
   portifolio: R.lensPath(['portifolio']),
+  portifolioValidation: R.lensPath(['portifolioValidation']),
 
 };
 
@@ -26,11 +29,13 @@ export const reducers = {
   updateContentsFromPortifolio: R.curry((value, portifolio) => R.pipe(
     R.set(valueLens.error, null),
     R.set(valueLens.portifolio, portifolio),
+    R.set(valueLens.portifolioValidation, Success(portifolio)),
   )(value)),
 
   updateContentsFromError: R.curry((value, error) => R.pipe(
     R.set(valueLens.error, error),
     R.set(valueLens.portifolio, null),
+    R.set(valueLens.portifolioValidation, Fail(error)),
   )(value)),
 
   updateContents: value => {
@@ -46,15 +51,35 @@ export const reducers = {
 
 };
 
+
 const PortifolioFilePicker = ({value, onChange}) => {
   const filePickerValue = R.view(valueLens.filePickerValue, value);
   const onFilePickerChange = filePickerReducerFn => onChange(R.pipe(
     R.over(valueLens.filePickerValue, filePickerReducerFn),
     reducers.updateContents,
   ));
+  const PortfolioFilePickerStatusProps = R.pipe(
+    R.set(
+      PortfolioFilePickerStatusLens.fileName,
+      R.view(valueLens.fileName, value)
+    ),
+    R.set(
+      PortfolioFilePickerStatusLens.status,
+      R.view(valueLens.status, value)
+    ),
+    R.set(
+      PortfolioFilePickerStatusLens.error,
+      R.view(valueLens.error, value)
+    ),
+    R.set(
+      PortfolioFilePickerStatusLens.portfolioValidation,
+      R.view(valueLens.portifolioValidation, value)
+    ),
+  )({});
   return (
     <div>
       <FilePicker value={filePickerValue} onChange={onFilePickerChange} />
+      <PortfolioFilePickerStatus {...PortfolioFilePickerStatusProps} />
     </div>
   );
 };

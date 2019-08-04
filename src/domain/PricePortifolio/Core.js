@@ -14,3 +14,15 @@ export const parseContents = contents => {
   }
   return Validation.validatePortifolio(parsed);
 };
+
+/**
+  * Produces statistics of a Price Portifolio. Assumes it is valid portifolio.
+  */
+export const getStats = portifolio => {
+  return {
+    numberOfEntires: R.fromPairs(R.map(R.pipe(
+      x => [R.prop('currency', x), R.prop('prices', x)],
+      ([c, ps]) => [c, R.length(ps)],
+    ))(portifolio))
+  };
+};

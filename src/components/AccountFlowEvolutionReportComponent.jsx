@@ -82,19 +82,7 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     let onChange = reducerFn => {
       this.setState(R.over(lenses.portifolioFilePickerValue, reducerFn));
     };
-    const viewErrorFn = p => R.view(PortifolioFilePickerValueLens.error, p.value);
-    const viewSuccessMsg = p => {
-      const fileName = R.view(PortifolioFilePickerValueLens.fileName, p.value);
-      const status = R.view(PortifolioFilePickerValueLens.status, p.value);
-      if (viewErrorFn(p)) { return null; }
-      if (status === "Loading") { return "LOADING!..."; }
-      if (fileName) { return `Selected! ${fileName}`; }
-    };
-    return R.pipe(
-      SuccessMessageDisplayerWrapper(viewSuccessMsg),
-      ErrorDisplayWrapper(viewErrorFn),
-      e => createElement(e, { value, onChange }),
-    )(PortifolioFilePicker);
+    return createElement(PortifolioFilePicker, { value, onChange });
   };
 
   renderMonthPickerComponent = (monthIndex) => {
