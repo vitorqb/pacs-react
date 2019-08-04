@@ -1,13 +1,16 @@
 import * as R from 'ramda';
-import monet from 'monet';
+import monet, { Success, Fail } from 'monet';
+import * as Validation from './Validation';
 
 /**
   * Parses a raw string into a Price Portifolio.
   */
 export const parseContents = contents => {
+  let parsed;
   try {
-    return monet.Success(JSON.parse(contents));
+    parsed = JSON.parse(contents);
   } catch(_) {
     return monet.Fail("Invalid json!");
   }
+  return Validation.validatePortifolio(parsed);
 };

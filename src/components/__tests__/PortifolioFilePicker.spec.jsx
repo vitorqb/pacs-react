@@ -41,11 +41,11 @@ describe('PortifolioFilePicker', () => {
     describe('updateContents', () => {
 
       it('Success', () => {
-        const value = R.set(valueLens.contents, "[1, 2]", {});
+        const value = R.set(valueLens.contents, "[]", {});
         const result = reducers.updateContents(value);
 
         expect(R.view(valueLens.error, result)).toEqual(null);
-        expect(R.view(valueLens.portifolio, result)).toEqual([1, 2]);
+        expect(R.view(valueLens.portifolio, result)).toEqual([]);
       });
 
       it('Error', () => {

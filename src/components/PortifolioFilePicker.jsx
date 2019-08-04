@@ -1,6 +1,6 @@
 import React from 'react';
 import * as R from 'ramda';
-import * as PricePortifolio from '../domain/PricePortifolio.js';
+import * as PricePortifolio from '../domain/PricePortifolio/Core';
 import FilePicker, { valueLens as FilePickerValueLens } from './FilePicker';
 
 const filePickerValueLens = R.lensPath(['filePickerValue']);
