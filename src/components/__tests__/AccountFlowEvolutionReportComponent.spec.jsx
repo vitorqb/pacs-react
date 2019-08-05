@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import sinon from 'sinon';
 import AccountFlowEvolutionReportComponent, { reducers, handlers, lenses, Phases, submitButton } from '../AccountFlowEvolutionReportComponent';
+import * as sut from '../AccountFlowEvolutionReportComponent';
 import { mount } from 'enzyme';
 import * as R from 'ramda';
 import MultipleAccountsSelector from '../MultipleAccountsSelector';
@@ -221,6 +222,43 @@ describe('AccountFlowEvolutionReportComponent', () => {
     let setState = sinon.fake();
     handlers.onSubmitReportQuery(props, state, setState);
     expect(setState.called).toBe(false);
+  });
+
+  describe('extractAccountEvolutionDataParams', () => {
+
+    it('Base', () => {
+      const state = R.pipe(
+        R.set(sut.lenses.selectedAccounts, [1]),
+        R.set(sut.lenses.pickedMonthsPair, [1, 2])
+      )({});
+      const exp = {accounts: [1], monthsPair: [1, 2]};
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res).toEqual(exp);
+    });
+
+    it('With currency price portifolio', () => {
+      const portifolio = [
+        {
+          currency: 'EUR',
+          prices: [
+            {
+              date: '2019-01-01',
+              price: 1,
+            }
+          ]
+        }
+      ];
+      const state = R.set(sut.lenses.pickedPortifolio, portifolio, {});
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res.currencyOpts.portifolio).toEqual(portifolio);
+    });
+
+    it('With selectedTargetCurrency', () => {
+      const state = R.set(sut.lenses.selectedTargetCurrency, 1, {});
+      const res = sut.extractAccountEvolutionDataParams(state);
+      expect(res.currencyOpts.convertTo).toEqual(1);
+    });
+
   });
   
 });

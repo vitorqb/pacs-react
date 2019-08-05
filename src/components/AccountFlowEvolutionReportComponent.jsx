@@ -1,5 +1,6 @@
 import React, { Component, createElement } from 'react';
 import * as R from 'ramda';
+import * as RU from '../ramda-utils';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
@@ -12,11 +13,32 @@ export const Phases = {
   waiting: 'waiting',
 };
 
-const portifolioFilePickerValueLens = R.lensPath(['portifolioFilePickerValue']);
+export const extractAccountEvolutionDataParams = state => {
+  const pickedPortifolio = R.view(lenses.pickedPortifolio, state);
+  const targetCurrency = R.view(lenses.selectedTargetCurrency, state);
+  return R.pipe(
+    RU.mapLenses({
+      accounts: lenses.selectedAccounts,
+      monthsPair: lenses.pickedMonthsPair,
+    }),
+    R.ifElse(
+      _ => pickedPortifolio,
+      R.assocPath(['currencyOpts', 'portifolio'], pickedPortifolio),
+      x => x,
+    ),
+    R.ifElse(
+      _ => targetCurrency,
+      R.assocPath(['currencyOpts', 'convertTo'], targetCurrency),
+      x => x,
+    )
+  )(state);
+};
 
+export const portifolioFilePickerValueLens = R.lensPath(['portifolioFilePickerValue']);
 export const lenses = {
-
+  
   selectedAccounts: R.lensPath(['selectedAccounts']),
+  selectedTargetCurrency: R.lensPath(['selectedTargetCurrency']),
   pickedMonthsPair: R.lensPath(['pickedMonthsPair']),
   pickedMonths(i) { return R.compose(this.pickedMonthsPair, R.lensPath([i])); },
   status: R.lensPath(['status']),
@@ -51,9 +73,7 @@ export const handlers = {
       return null;
     }
     setState(reducers.onSubmitReportQuery);
-    let accounts = R.view(lenses.selectedAccounts, state);
-    let monthsPair = R.view(lenses.pickedMonthsPair, state);
-    let getFlowsArgs = {accounts, monthsPair};
+    let getFlowsArgs = extractAccountEvolutionDataParams(state);
     return props
       .getAccountsFlowsEvolutionData(getFlowsArgs)
       .then(R.pipe(reducers.onReportQueryIncomingData, setState))
