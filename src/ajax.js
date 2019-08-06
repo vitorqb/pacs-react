@@ -292,16 +292,33 @@ export const parseAccountBalanceEvolutionResponse = months => R.pipe(
   * Get the accounts flows evolution data for a set of accounts and a period.
   */
 export const ajaxGetAccountsFlowsEvolutionData = R.curry(
-  function(axios, {accounts, monthsPair}) {
+  function(axios, {accounts, monthsPair, currencyOpts={}}) {
     const periods = monthsPairToPeriods(monthsPair);
+    const portifolio = R.prop('portifolio', currencyOpts);
+    const convertTo = R.prop('convertTo', currencyOpts);
     return makeRequest({
       axios,
       url: "/reports/flow-evolution/",
       method: "POST",
-      requestData: {
-        accounts: R.map(R.prop("pk"), accounts),
-        periods,
-      },
+      requestData: R.pipe(
+        R.assoc('accounts', R.map(R.prop("pk"), accounts)),
+        R.assoc('periods', periods),
+        x => convertTo
+          ? R.assocPath(['currency_opts', 'convert_to'], R.prop('code', convertTo), x)
+          : x,
+        x => portifolio
+          ? R.assocPath(
+            ['currency_opts', 'price_portifolio'],
+            R.map(
+              R.over(
+                R.lensProp('prices'),
+                R.map(R.over(R.lensProp('price'), x => x.toFixed(5))),
+              ),
+              portifolio),
+            x
+          )
+          : x,
+      )({}),
       parseResponseData: R.pipe(
         R.assoc('periods', periods),
         remapKeys({"data": "accountsFlows"}),

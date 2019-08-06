@@ -419,7 +419,7 @@ class App extends Component {
     getAccountsFlowsEvolutionData,
     currencies,
   ) {
-    if (R.isNil(accounts)) {
+    if (R.isNil(accounts) || R.isNil(currencies)) {
       return <p>Loading...</p>;
     }
     return createElement(
@@ -427,6 +427,7 @@ class App extends Component {
       {
         getAccountsFlowsEvolutionData,
         accounts,
+        currencies,
         getCurrency: newGetter(R.prop("pk"), currencies),
         getAccount: newGetter(R.prop("pk"), accounts),
       }

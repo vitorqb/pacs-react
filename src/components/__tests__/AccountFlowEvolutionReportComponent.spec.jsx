@@ -12,6 +12,7 @@ import { CurrencyFactory, AccountFactory, MonthFactory, AccountFlowFactory } fro
 function mountAccountFlowEvolutionReportComponent(props={}) {
   let finalProps = {};
   finalProps.accounts = props.accounts || [];
+  finalProps.currencies = props.currencies || [];
   finalProps.getAccountsFlowsEvolutionData =
     props.getAccountsFlowsEvolutionData || sinon.fake.resolves();
   finalProps.getAccount = () => AccountFactory.build();
@@ -26,12 +27,15 @@ const pickMonth = (comp, month) => comp.props().onPicked(month);
 const getMonthPickerProps = (c, i) => findMonthPicker(c, i).props();
 const findMultipleAccountsSelector = c => c.find(MultipleAccountsSelector);
 const findPortifolioFilePicker = c => c.find("PortifolioFilePicker");
+const findCurrencyInput = c => c.find("CurrencyInput");
 const simulateSelectedAccountsChange = (c, accs) => {
   c.props().onSelectedAccountsChange(accs);
 };
 const simulateSubmit = c => c.find(submitButton).props().onClick();
+const simulateSelectedTargetCurrencyChange = R.curry((c, v) => c.props().onChange(v));
 const getPickedMonthsPair = (comp) => R.view(lenses.pickedMonthsPair, comp.state());
 const getSelectedAccounts = (c) => R.view(lenses.selectedAccounts, c.state());
+const getSelectedTargetCurrency = (c) => R.view(lenses.selectedTargetCurrency, c.state());
 const getMultipleAccountsSelectorProps = c => findMultipleAccountsSelector(c).props();
 const getStatus = c => R.view(lenses.status, c.state());
 const getStatusPhase = c => R.view(lenses.statusPhase(), c.state());
@@ -74,6 +78,14 @@ describe('AccountFlowEvolutionReportComponent', () => {
     component.update();
     expect(getMultipleAccountsSelectorProps(component).selectedAccounts)
       .toEqual([1, 2]);
+  });
+
+  it('Setting a target currency', () => {
+    const component = mountAccountFlowEvolutionReportComponent();
+    const currencyInput = findCurrencyInput(component);
+    simulateSelectedTargetCurrencyChange(currencyInput, {code: "EUR"});
+    component.update();
+    expect(getSelectedTargetCurrency(component)).toEqual({code: "EUR"});
   });
 
   it('Submiting the query', () => {

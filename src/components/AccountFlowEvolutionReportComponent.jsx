@@ -7,6 +7,7 @@ import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
 import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
 import ErrorDisplayWrapper from './ErrorDisplayWrapper';
 import SuccessMessageDisplayerWrapper from './SuccessMessageDisplayerWrapper';
+import CurrencyInput from './CurrencyInput';
 
 export const Phases = {
   loading: 'loading',
@@ -95,7 +96,15 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     super(props);
     this.state = R.clone(defaultState);
     this.view = l => R.view(l, this.state);
-  }
+  };
+
+  renderTargetCurrencySelector = () => {
+    const lens = lenses.selectedTargetCurrency;
+    const value = this.view(lens);
+    const currencies = this.props.currencies;
+    const onChange = newVal => this.setState(R.set(lens, newVal));
+    return createElement(CurrencyInput, { value, currencies, onChange });
+  };
 
   renderPortifolioFilePicker = () => {
     let value = this.view(lenses.portifolioFilePickerValue);
@@ -144,6 +153,7 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   }
 
   render() {
+    const targetCurrencySelector = this.renderTargetCurrencySelector();
     let portifolioFilePicker = this.renderPortifolioFilePicker();
     let monthPickersComponents = [0, 1].map(this.renderMonthPickerComponent);
     let multipleAccountsSelector = this.renderMultipleAccountSelector();
@@ -152,6 +162,7 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     return (
       <div>
         <div>
+          {targetCurrencySelector}
           {portifolioFilePicker}
           {monthPickersComponents}
         </div>
