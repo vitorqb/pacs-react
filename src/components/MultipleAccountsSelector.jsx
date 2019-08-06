@@ -31,13 +31,15 @@ export default function MultipleAccountsSelector(props={}) {
 
   const accountInputs = R.addIndex(R.map)(
     (acc, i) => (
-      <WithDeleteButton key={i} onDelete={() => handleDelete(i)}>
-        <_AccountInput
-          data-acc-input
-          accounts={accounts}
-          value={acc}
-          onChange={handleAccountInputChange(i)} />
-      </WithDeleteButton>
+      <div className="multiple-accounts-selector" key={i}>
+        <WithDeleteButton key={i} onDelete={() => handleDelete(i)}>
+          <_AccountInput
+            data-acc-input
+            accounts={accounts}
+            value={acc}
+            onChange={handleAccountInputChange(i)} />
+        </WithDeleteButton>
+      </div>
     ),
     selectedAccounts
   );

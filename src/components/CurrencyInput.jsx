@@ -18,6 +18,7 @@ export default function CurrencyInput({ currencies, value, onChange }) {
     <Select
       options={options}
       onChange={onChangeHandler}
-      value={selectedOption} />
+      value={selectedOption}
+      className="currency-input" />
   );
 }
