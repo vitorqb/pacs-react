@@ -25,3 +25,9 @@
 .form-div {
     margin-top: 20px;
 }
+
+.portfolio-file-picker-status {
+  margin-left: 10px;
+  border-left: 1px solid black;
+  padding-left: 10px;
+}

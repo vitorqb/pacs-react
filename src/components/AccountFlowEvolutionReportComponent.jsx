@@ -1,23 +1,53 @@
 import React, { Component, createElement } from 'react';
 import * as R from 'ramda';
+import * as RU from '../ramda-utils';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
+import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
+import ErrorDisplayWrapper from './ErrorDisplayWrapper';
+import SuccessMessageDisplayerWrapper from './SuccessMessageDisplayerWrapper';
+import CurrencyInput from './CurrencyInput';
 
 export const Phases = {
   loading: 'loading',
   waiting: 'waiting',
 };
 
-export const lenses = {
+export const extractAccountEvolutionDataParams = state => {
+  const pickedPortifolio = R.view(lenses.pickedPortifolio, state);
+  const targetCurrency = R.view(lenses.selectedTargetCurrency, state);
+  return R.pipe(
+    RU.mapLenses({
+      accounts: lenses.selectedAccounts,
+      monthsPair: lenses.pickedMonthsPair,
+    }),
+    R.ifElse(
+      _ => pickedPortifolio,
+      R.assocPath(['currencyOpts', 'portifolio'], pickedPortifolio),
+      x => x,
+    ),
+    R.ifElse(
+      _ => targetCurrency,
+      R.assocPath(['currencyOpts', 'convertTo'], targetCurrency),
+      x => x,
+    )
+  )(state);
+};
 
+export const portifolioFilePickerValueLens = R.lensPath(['portifolioFilePickerValue']);
+export const lenses = {
+  
   selectedAccounts: R.lensPath(['selectedAccounts']),
+  selectedTargetCurrency: R.lensPath(['selectedTargetCurrency']),
   pickedMonthsPair: R.lensPath(['pickedMonthsPair']),
   pickedMonths(i) { return R.compose(this.pickedMonthsPair, R.lensPath([i])); },
   status: R.lensPath(['status']),
   statusPhase() { return R.compose(this.status, R.lensPath(['phase'])); },
   accountsFlows: R.lensPath(['accountsFlows']),
   tablePeriods: R.lensPath(['tablePeriods']),
+  portifolioFilePickerValue: portifolioFilePickerValueLens,
+  pickedPortifolio: R.compose(portifolioFilePickerValueLens, PortifolioFilePickerValueLens.portifolio),
 
 };
 
@@ -44,9 +74,7 @@ export const handlers = {
       return null;
     }
     setState(reducers.onSubmitReportQuery);
-    let accounts = R.view(lenses.selectedAccounts, state);
-    let monthsPair = R.view(lenses.pickedMonthsPair, state);
-    let getFlowsArgs = {accounts, monthsPair};
+    let getFlowsArgs = extractAccountEvolutionDataParams(state);
     return props
       .getAccountsFlowsEvolutionData(getFlowsArgs)
       .then(R.pipe(reducers.onReportQueryIncomingData, setState))
@@ -67,7 +95,24 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   constructor(props) {
     super(props);
     this.state = R.clone(defaultState);
-  }
+    this.view = l => R.view(l, this.state);
+  };
+
+  renderTargetCurrencySelector = () => {
+    const lens = lenses.selectedTargetCurrency;
+    const value = this.view(lens);
+    const currencies = this.props.currencies;
+    const onChange = newVal => this.setState(R.set(lens, newVal));
+    return createElement(CurrencyInput, { value, currencies, onChange });
+  };
+
+  renderPortifolioFilePicker = () => {
+    let value = this.view(lenses.portifolioFilePickerValue);
+    let onChange = reducerFn => {
+      this.setState(R.over(lenses.portifolioFilePickerValue, reducerFn));
+    };
+    return createElement(PortifolioFilePicker, { value, onChange });
+  };
 
   renderMonthPickerComponent = (monthIndex) => {
     let value = R.view(lenses.pickedMonths(monthIndex), this.state);
@@ -108,6 +153,8 @@ export default class AccountFlowEvolutionReportComponent extends Component {
   }
 
   render() {
+    const targetCurrencySelector = this.renderTargetCurrencySelector();
+    let portifolioFilePicker = this.renderPortifolioFilePicker();
     let monthPickersComponents = [0, 1].map(this.renderMonthPickerComponent);
     let multipleAccountsSelector = this.renderMultipleAccountSelector();
     let submitButton = this.renderSubmitButton();
@@ -115,6 +162,8 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     return (
       <div>
         <div>
+          {targetCurrencySelector}
+          {portifolioFilePicker}
           {monthPickersComponents}
         </div>
         <div>
