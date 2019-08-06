@@ -19,6 +19,7 @@ export default function AccountInput({ accounts, value, onChange }) {
     <Select
       options={options}
       onChange={handleChange}
-      value={selectedOption} />
+      value={selectedOption}
+      className="account-input" />
   );
 }

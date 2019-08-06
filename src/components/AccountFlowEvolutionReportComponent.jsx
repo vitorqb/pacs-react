@@ -152,27 +152,28 @@ export default class AccountFlowEvolutionReportComponent extends Component {
     return AccountFlowEvolutionTable(props);
   }
 
+  renderInputs() {
+    return [
+      ["Target Currency", this.renderTargetCurrencySelector()],
+      ["Currency Price Portifolio File", this.renderPortifolioFilePicker()],
+      ["Initial and Final Month", [0, 1].map(this.renderMonthPickerComponent)],
+      ["Accounts", this.renderMultipleAccountSelector()],
+    ].map(([l, c], i) => (
+      <div className="account-flow-evolution-report__input" key={i}>
+        <span className="account-flow-evolution-report__input__label">{l}</span>
+        <div className="account-flow-evolution-report__input__input">{c}</div>
+      </div>
+    ));
+  }
+
   render() {
-    const targetCurrencySelector = this.renderTargetCurrencySelector();
-    let portifolioFilePicker = this.renderPortifolioFilePicker();
-    let monthPickersComponents = [0, 1].map(this.renderMonthPickerComponent);
-    let multipleAccountsSelector = this.renderMultipleAccountSelector();
-    let submitButton = this.renderSubmitButton();
-    let table = this.renderTable();
     return (
-      <div>
-        <div>
-          {targetCurrencySelector}
-          {portifolioFilePicker}
-          {monthPickersComponents}
+      <div className="account-flow-evolution-report">
+        <div className="account-flow-evolution-report__inputs-container">
+          {this.renderInputs()}
+          {this.renderSubmitButton()}
         </div>
-        <div>
-          {multipleAccountsSelector}
-        </div>
-        {submitButton}
-        <div>
-          {table}
-        </div>
+        {this.renderTable()}
       </div>
     );
   }
@@ -180,5 +181,9 @@ export default class AccountFlowEvolutionReportComponent extends Component {
 }
 
 export function submitButton(props) {
-  return createElement('button', props, "Submit!");
+  return createElement(
+    'button',
+    { className: "account-flow-evolution-report__submit-btn", ...props },
+    "Submit"
+  );
 }

@@ -40,7 +40,12 @@ export function YearPicker(props) {
     'input',
     { type: "number", value, onChange: handleChange }
   );
-  return <div>Year: {input}</div>;
+  return (
+    <div className="month-picker__year">
+      <span className="month-picker__label">Year:</span>
+      <div className="month-picker__input">{input}</div>
+    </div>
+  );
 };
 
 
@@ -51,9 +56,15 @@ export function MonthNamePicker({ value, onPicked }) {
   const options = R.map(fnValueToOption, MonthUtil.MONTHS);
   const chosenOption = fnValueToOption(value);
   const handleChange = R.pipe(fnOptionToValue, onPicked);
-  
-  return createElement(
+
+  const select = createElement(
     Select,
     { options, value: chosenOption, onChange: handleChange}
+  );
+  return (
+    <div className="month-picker__month-name">
+      <span className="month-picker__label"> Month:</span>
+      <div className="month-picker__input">{select}</div>
+    </div>
   );
 }

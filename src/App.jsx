@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import React, { Component, createElement } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import './App.css';
+import './App.scss';
 import TransactionTable from "./components/TransactionTable";
 import CurrencyTable from './components/CurrencyTable';
 import CreateAccountComponent from './components/CreateAccountComponent.jsx';
