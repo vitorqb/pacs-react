@@ -170,7 +170,6 @@ class App extends Component {
    */
   goFetchRemoteData() {
     // Stores the loading state.
-    console.log("HERE");
     this.setState(
       R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.loading)
     );
