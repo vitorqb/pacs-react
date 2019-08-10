@@ -3,6 +3,7 @@ import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
 import { remapKeys, MonthUtil } from './utils';
+import SecretsLens from './domain/Secrets/Lens';
 
 //
 // Contants
@@ -50,13 +51,16 @@ export function makeRequest({
 }
 
 
-// Use secrets.json to get the token
-const secrets = require('./secrets.json');
-export const axiosWrapper = axios.create({
-  baseURL: secrets.serverUrl,
-  headers: {
-    Authorization: "Token " + secrets.pacsAuthToken
-  }
+/**
+ * Given a secrets (see domains/Secrets), returns an axios wrapper used to
+ * make http requests.
+ */
+export const mkAxiosWrapper =
+  secrets => axios.create({
+    baseURL: R.view(SecretsLens.host, secrets),
+    headers: {
+      Authorization: "Token " + R.view(SecretsLens.token, secrets),
+    },
 });
 
 //
