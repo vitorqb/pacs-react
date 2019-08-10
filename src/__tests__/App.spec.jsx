@@ -180,14 +180,14 @@ describe('App.test.jsx', () => {
 
     it('Mounts with a Router object', async () => {
       const app = mountApp();
-      console.log(await app.instance().busy);
+      await app.instance().busy;
       app.update();
       expect(app.find(Router)).toHaveLength(1);
     });
 
     it('Router has all entires for app.getRoutesData()', async () => {
       const app = mountApp();
-      console.log(await app.instance().busy);
+      await app.instance().busy;
       app.update();
       for (var i=0; i<app.instance().getRoutesData({}).length; i++) {
         const routeData = app.instance().getRoutesData({})[i];
