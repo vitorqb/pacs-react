@@ -99,3 +99,23 @@
     }
 
 }
+
+.login-page-wrapper {
+    position: absolute;
+    top: 30vh;
+    left: 50vw;
+    transform: translate(-50%, 0);    
+}
+
+.login-page {
+    font-size: 1.25rem;
+    &__label {
+        display: inline-block;
+        width: 5rem;
+        padding: 5px 2px;
+        text-align: right;
+    }
+    &__btn {
+        text-align: center;
+    }
+}

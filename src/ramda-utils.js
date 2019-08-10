@@ -9,3 +9,12 @@ export const mapLenses = R.curry((lensesMap, obj) => R.pipe(
   R.map(([k, l]) => [k, R.view(l, obj)]),
   R.fromPairs,
 )(lensesMap));
+
+/**
+  * Given a bunch of [lenses, value] pairs, set's them to obj.
+  */
+export const setLenses = R.curry((lensValuePairs, obj) => R.reduce(
+  (accObj, [lens, value]) => R.set(lens, value, accObj),
+  obj,
+  lensValuePairs,
+));

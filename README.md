@@ -15,21 +15,6 @@ You should be fine by running:
 npm run install
 ```
 
-
-### SettingUp ###
-
-You will need to add a `src/secrets.json` file with the token to connect to the 
-backend and the url to the backend:
-
-```js
-// - file src/secrets.json -
-{
-  "pacsAuthToken": "SOME VERY WEIRD TOKEN VALUE HERE",
-  "urlServer": "http://my-pacs-server.com"
-}
-```
-
-
 ### Developing ###
 
 You can start a tern server for js completion with

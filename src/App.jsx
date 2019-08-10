@@ -2,6 +2,7 @@ import * as R from 'ramda';
 import React, { Component, createElement } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.scss';
+import * as RU from './ramda-utils';
 import TransactionTable from "./components/TransactionTable";
 import CurrencyTable from './components/CurrencyTable';
 import CreateAccountComponent from './components/CreateAccountComponent.jsx';
@@ -12,12 +13,16 @@ import JournalComponent from './components/JournalComponent.jsx';
 import AccountBalanceEvolutionComponent from './components/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponent from './components/AccountFlowEvolutionReportComponent';
 import { defaultColumnMakers } from './components/JournalTable.jsx';
-import { axiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount, ajaxGetAccountBalanceEvolutionData, ajaxGetAccountsFlowsEvolutionData } from "./ajax";
+import { mkAxiosWrapper, ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, ajaxGetAccounts, ajaxGetCurrencies, ajaxUpdateTransaction, ajaxGetTransaction, ajaxUpdateAccount, ajaxGetPaginatedJournalDataForAccount, ajaxGetAccountBalanceEvolutionData, ajaxGetAccountsFlowsEvolutionData } from "./ajax";
 import AccountTree from './components/AccountTree';
 import { newGetter, isDescendant } from './utils';
+import LoginPage, { valueLens as LoginPageLens } from './components/LoginPage';
+import secretsLens from './domain/Secrets/Lens';
+import * as SecretsValidation from './domain/Secrets/Validation';
+import ErrorMessage from './components/ErrorMessage';
 
 /**
- * Makes a '<Link>' for a router.
+ * Makes a Link for a router.
  * @param {Object} linkData - An object with data for the link.
  * @param {string} linkData.path - The path (url).
  * @param {string} linkData.text - The text to display in the link.
@@ -27,7 +32,7 @@ export function makeLink({path, text}) {
 }
 
 /**
- * Makes a '<Route>' for a router.
+ * Makes a Route for a router.
  * @param {Object} routeData - An object with data for the route.
  * @param {string} routeData.path - The path (url).
  * @param {Function} linkData.component - a 0-arity function returning a
@@ -56,6 +61,51 @@ export function makeRouter(routerData) {
   );
 }
 
+const loginPageValueLens = R.lensPath(['loginPageValue']);
+
+/**
+ * View the Secrets from the App state.
+ */
+const viewSecrets = state => RU.setLenses(
+  [[secretsLens.token, R.view(lens.token, state)],
+   [secretsLens.host, R.view(lens.host, state)]],
+  {},
+);
+
+/**
+ * Set the Secrets into a satate.
+ */
+const setSecrets = R.curry((secrets, s) => RU.setLenses(
+  [[lens.token, R.view(secretsLens.token, secrets)],
+   [lens.host, R.view(secretsLens.host, secrets)]],
+  s,
+));
+
+const RemoteFetchingStatusEnum = {
+  uninitialized: 'UNINITIALIZED',
+  loading: 'LOADING',
+  finished: 'FINISHED',
+};
+
+const lens = {
+
+  // Is the user logged in?
+  isLoggedIn: R.lensPath(['isLoggedIn']),
+
+  // The state for the initial remote fetching of options.
+  remoteFetchingStatus: R.lensPath(['remoteFetchingStatus']),
+
+  // Errors from the login page
+  loginPageErrors: R.lensPath(['loginPageErrors']),
+
+  // Values from the login page.
+  loginPageValue: loginPageValueLens,
+  host: R.compose(loginPageValueLens, LoginPageLens.host),
+  token: R.compose(loginPageValueLens, LoginPageLens.token),
+  secrets: R.lens(viewSecrets, setSecrets),
+
+};
+
 class App extends Component {
   // The main application
 
@@ -64,64 +114,142 @@ class App extends Component {
   busy;
 
   constructor(props) {
-    // Defines the initial state
+    // Defines the initial state, depending on whether `secrets` have been given as props
     super(props);
-    this.state = {transactions: null};
+    let state = R.set(
+      lens.remoteFetchingStatus,
+      RemoteFetchingStatusEnum.uninitialized,
+      {}
+    );
+    if (props.secrets) {
+      state = RU.setLenses(
+        [[lens.secrets, props.secrets], [lens.isLoggedIn, true]],
+        state,
+      );
+    };
+    this.state = state;
   }
 
-  setTransactions = (transactions) => {
-    this.setState({transactions});
-  }
+  /**
+   * Returns an axiosWrapper to use, based on the secrets lens of the state.
+   */
+  getAxiosWrapper = () => mkAxiosWrapper(R.view(lens.secrets, this.state))
 
-  setAccounts = (accounts) => {
-    this.setState({accounts});
-  }
+  // Setters
+  setTransactions = (transactions) => this.setState({transactions})
+  setAccounts = (accounts) => this.setState({accounts})
+  setCurrencies = (currencies) => this.setState({currencies})
 
-  setCurrencies = (currencies) => {
-    this.setState({currencies});
-  }
-
+  /**
+   * Runs an ajax request to get accounts and set them to the state.
+   */
   ajaxGetAccounts = () => {
     const { getAccounts = ajaxGetAccounts } = this.props;
-    return getAccounts(axiosWrapper).then(this.setAccounts);
+    return getAccounts(this.getAxiosWrapper()).then(this.setAccounts);
   }
 
-  componentDidMount() {
-    // Loads transactions and sets state on return
+  /**
+   * Runs an ajax request to get transactions and set them to the state.
+   */
+  ajaxGetTransactions = () => {
     const { getTransactions = ajaxGetRecentTransactions } = this.props;
-    const getTransactionsPromise = getTransactions(axiosWrapper)
-          .then(this.setTransactions);
+    return  getTransactions(this.getAxiosWrapper()).then(this.setTransactions);
+  }
 
-    // Same for accounts
-    const getAccountsPromise = this.ajaxGetAccounts();
-
-    // Same for currencies
+  /**
+   * Runs an ajax request to get the currencies and set them to the state.
+   */
+  ajaxGetCurrencies = () => {
     const { getCurrencies = ajaxGetCurrencies } = this.props;
-    const getCurrenciesPromise = getCurrencies(axiosWrapper)
-          .then(this.setCurrencies);
+    return getCurrencies(this.getAxiosWrapper()).then(this.setCurrencies);
+  }
 
-    this.busy = Promise.all([
+  /**
+   * Fetches all remote data that has to be fetched during initialization.
+   * Assumes we have valid secrets stored in the state.
+   */
+  goFetchRemoteData() {
+    // Stores the loading state.
+    console.log("HERE");
+    this.setState(
+      R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.loading)
+    );
+    
+    // Loads transactions, accounts and currencies and sets state on return
+    const getTransactionsPromise = this.ajaxGetTransactions();
+    const getAccountsPromise = this.ajaxGetAccounts();
+    const getCurrenciesPromise = this.ajaxGetCurrencies();
+    const allFinished = Promise.all([
       getTransactionsPromise,
       getAccountsPromise,
       getCurrenciesPromise
     ]);
+    this.busy = allFinished.then(_ => this.setState(
+      R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.finished)
+    ));
+    return this.busy;
+  }
+
+  componentDidMount() {
+    // If we are already logged in when we are mounted, fetches the remote info.
+    if (R.view(lens.isLoggedIn, this.state)) { return this.goFetchRemoteData(); }
+  }
+
+  renderLoginPage() {
+    const onLoginPageSubmit = () => {
+      const secrets = R.view(lens.secrets, this.state);
+      const reducerFn = SecretsValidation.validateSecrets(secrets).cata(
+        err => R.set(lens.loginPageErrors, err),
+        _ => {
+          this.goFetchRemoteData();
+          return RU.setLenses([
+            [lens.isLoggedIn, true],
+            [lens.loginPageErrors, null],
+          ]);
+        });
+      return this.setState(reducerFn);
+    };
+    const onLoginPageChange = v => this.setState(R.set(lens.loginPageValue, v));
+    const loginPageValue = R.view(lens.loginPageValue, this.state);
+    return (
+      <div className="login-page-wrapper">
+        <LoginPage
+          onChange={onLoginPageChange}
+          onSubmit={onLoginPageSubmit}
+          value={loginPageValue}
+        />
+        <ErrorMessage value={R.view(lens.loginPageErrors, this.state)} />
+      </div>
+    );
   }
 
   render() {
 
+    // If we are not logged in, render the log in page
+    if (! R.view(lens.isLoggedIn, this.state)) {
+      return this.renderLoginPage();
+    }
+
+    // If we are logged in but the state is not ready, we are loading...
+    const remoteFetchingStatus = R.view(lens.remoteFetchingStatus, this.state);
+    if (  remoteFetchingStatus == RemoteFetchingStatusEnum.uninitialized
+       || remoteFetchingStatus == RemoteFetchingStatusEnum.loading) {
+      return <div>LOADING...</div>;
+    }
+
     // Prepares ajax related functions
     const {
-      createAcc = ajaxCreateAcc(axiosWrapper),
-      updateAcc = ajaxUpdateAccount(axiosWrapper),
-      createTransaction = ajaxCreateTransaction(axiosWrapper),
-      updateTransaction = ajaxUpdateTransaction(axiosWrapper),
-      getTransaction = ajaxGetTransaction(axiosWrapper),
+      createAcc = ajaxCreateAcc(this.getAxiosWrapper()),
+      updateAcc = ajaxUpdateAccount(this.getAxiosWrapper()),
+      createTransaction = ajaxCreateTransaction(this.getAxiosWrapper()),
+      updateTransaction = ajaxUpdateTransaction(this.getAxiosWrapper()),
+      getTransaction = ajaxGetTransaction(this.getAxiosWrapper()),
       getPaginatedJournalDataForAccount =
-        ajaxGetPaginatedJournalDataForAccount(axiosWrapper),
+        ajaxGetPaginatedJournalDataForAccount(this.getAxiosWrapper()),
       getAccountBalanceEvolutionData =
-        ajaxGetAccountBalanceEvolutionData(axiosWrapper),
+        ajaxGetAccountBalanceEvolutionData(this.getAxiosWrapper()),
       getAccountsFlowsEvolutionData =
-        ajaxGetAccountsFlowsEvolutionData(axiosWrapper),
+        ajaxGetAccountsFlowsEvolutionData(this.getAxiosWrapper()),
     } = this.props || {};
 
     // Retrieves from the state
@@ -316,7 +444,7 @@ class App extends Component {
   static renderEditAccountComponent(accounts, updateAcc) {
     if (accounts !== [] && !accounts) {
       return <p>Loading...</p>;
-    }    
+    }
     return (
       <EditAccountComponent
         editAccount={updateAcc}
@@ -349,7 +477,7 @@ class App extends Component {
     if (accounts === null || accounts === undefined) {
       return <p>Loading...</p>;
     } else {
-      return <AccountTree accounts={accounts} />; 
+      return <AccountTree accounts={accounts} />;
     }
   }
 

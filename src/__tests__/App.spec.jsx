@@ -11,6 +11,8 @@ import { AccountFactory, CurrencyFactory, TransactionFactory } from '../testUtil
 import TransactionForm from '../components/TransactionForm';
 import AccountForm from '../components/AccountForm';
 import EditTransactionComponent from '../components/EditTransactionComponent';
+import SecretsLens from '../domain/Secrets/Lens';
+import * as RU from '../ramda-utils';
 
 /**
   * Uses enzyme to mount App.
@@ -43,13 +45,22 @@ function mountApp(opts) {
     setTimeout(() => resolve(transactions), timeout);
   });
 
+  // Set's a dummy secrets
+  const secrets = RU.setLenses(
+    [[SecretsLens.token, 'foo'],
+     [SecretsLens.host, 'bar']],
+    {}
+  );
+
   return mount(
     <App
       getTransactions={getTransactions}
       getAccounts={getAccounts}
       getCurrencies={getCurrencies}
       createAcc={createAcc}
-      createTransaction={createTransaction} />
+      createTransaction={createTransaction}
+      secrets={secrets}
+    />
   );
 }
 
@@ -167,13 +178,17 @@ describe('App.test.jsx', () => {
 
   describe('Entire App rendering', () => {
 
-    it('Mounts with a Router object', () => {
+    it('Mounts with a Router object', async () => {
       const app = mountApp();
+      console.log(await app.instance().busy);
+      app.update();
       expect(app.find(Router)).toHaveLength(1);
     });
 
-    it('Router has all entires for app.getRoutesData()', () => {
+    it('Router has all entires for app.getRoutesData()', async () => {
       const app = mountApp();
+      console.log(await app.instance().busy);
+      app.update();
       for (var i=0; i<app.instance().getRoutesData({}).length; i++) {
         const routeData = app.instance().getRoutesData({})[i];
         expect(app.find(`Link[to="${routeData.path}"]`)).toHaveLength(1);
@@ -226,12 +241,12 @@ describe('App.test.jsx', () => {
 
   describe('App.renderCreateAccountComponent...', () => {
     it('Loading while accounts is null...', () => {
-      const form = mount(new App().renderCreateAccountComponent(null));
+      const form = mount(new App({}).renderCreateAccountComponent(null));
       expect(form.equals(<p>Loading...</p>)).toBe(true);
     });
     it('Rendered when accounts is not null...', () => {
       const accounts = AccountFactory.buildList(2);
-      const form = mount(new App().renderCreateAccountComponent(accounts, ()=>{}));
+      const form = mount(new App({}).renderCreateAccountComponent(accounts, ()=>{}));
       expect(form.find(AccountForm)).toHaveLength(1);
       expect(form.find(AccountForm).props().accounts).toEqual(accounts);
     });
