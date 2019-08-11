@@ -82,7 +82,7 @@ export const transactionSpecToRequestParams = R.pipe(
  * Get all recent transactions.
  */
 export function ajaxGetRecentTransactions(axios) {
-  return makeRequest({
+  return () => makeRequest({
     axios,
     url: "/transactions/",
     parseResponseData: R.map(parseTransactionResponseData)
@@ -162,7 +162,7 @@ export const ajaxCreateAcc = R.curry(function(axios, rawParams) {
  * Get all accounts.
  */
 export function ajaxGetAccounts(axios) {
-  return makeRequest({
+  return () => makeRequest({
     axios,
     url: "/accounts/",
     parseResponseData: R.map(remapKeys({acc_type: "accType"}))
@@ -250,7 +250,7 @@ export function makeUrlPaginatedJournalForAccount(account, paginationRequestOpts
  * Get all currencies
  */
 export function ajaxGetCurrencies (axios) {
-  return makeRequest({axios, url: "/currencies/"});
+  return () => makeRequest({axios, url: "/currencies/"});
 };
 
 //
