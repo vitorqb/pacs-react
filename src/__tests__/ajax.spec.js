@@ -68,15 +68,12 @@ describe('Test ajax', () => {
         expect(axiosMock.lastArg.url).toEqual(url);
       }
 
-      it('Get empty array', () => {
+      it('Get empty array', async () => {
         const axiosMock = getAxiosMock();
-        const result = ajaxGetRecentTransactions(axiosMock);
-
+        const result = await ajaxGetRecentTransactions(axiosMock)();
         expect.assertions(2);
         assertCalledWithUrl(axiosMock);
-        return result.then(x => {
-          expect(x).toEqual([]);
-        });
+        expect(result).toEqual([]);
       });
 
       it('Get two long', async () => {
@@ -86,7 +83,7 @@ describe('Test ajax', () => {
           R.map(R.evolve({date: d => d.format("YYYY-MM-DD")}))
         )(transactions);
         const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
-        const result = await ajaxGetRecentTransactions(axiosMock);
+        const result = await ajaxGetRecentTransactions(axiosMock)();
         expect(result).toEqual(transactions);
         assertCalledWithUrl(axiosMock);
       });
@@ -169,21 +166,21 @@ describe('Test ajax', () => {
     });
 
     describe('ajaxGetAccounts()', () => {
+
       it('Gets to url...', () => {
         const axiosMock = sinon.fake.resolves({data: []});
-        ajaxGetAccounts(axiosMock);
+        ajaxGetAccounts(axiosMock)();
         expect(axiosMock.lastArg.method).toBe("GET");
         expect(axiosMock.lastArg.url).toBe(url);
       });
-      it('Returns promises with the accounts...', () => {
-        expect.assertions(1);
+
+      it('Returns promises with the accounts...', async () => {
         const expAccounts = AccountFactory.buildList(2);
         const rawAccounts = R.map(remapKeys({accType: "acc_type"}), expAccounts);
         const axiosMock = () => Promise.resolve({data: rawAccounts});
-        return ajaxGetAccounts(axiosMock).then(x => {
-          expect(x).toEqual(expAccounts);
-        });
+        expect(await ajaxGetAccounts(axiosMock)()).toEqual(expAccounts);
       });
+
     });
     
   });

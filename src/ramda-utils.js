@@ -18,3 +18,6 @@ export const setLenses = R.curry((lensValuePairs, obj) => R.reduce(
   obj,
   lensValuePairs,
 ));
+
+export const callWithoutArgs = f => f();
+export const viewAndCallWithoutArgs = l => R.pipe(R.view(l), callWithoutArgs);
