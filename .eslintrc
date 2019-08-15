@@ -5,7 +5,7 @@
     "jest/globals": true
   },
   "rules": {
-    "react/jsx-pascal-case": "disabled",
+    "react/jsx-pascal-case": 0,
     "semi": 2
   }
 }
