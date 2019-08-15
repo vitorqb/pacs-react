@@ -13,7 +13,7 @@ export default class MovementInputs extends Component{
   /**
    * Returns a boolean indicating if the account can have movements
    */
-  accountCanHaveMovement = (account) => account.accType == ACC_TYPES.LEAF;
+  accountCanHaveMovement = (account) => account.accType === ACC_TYPES.LEAF;
 
   getDefaultMovementSpec() {
     return {account: "", money: { currency: "", quantity: ""} };

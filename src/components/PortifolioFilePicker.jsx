@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import * as PricePortifolio from '../domain/PricePortifolio/Core';
 import FilePicker, { valueLens as FilePickerValueLens } from './FilePicker';
 import PortfolioFilePickerStatus, { propsLens as PortfolioFilePickerStatusLens } from './PortifolioFilePicker/PortifolioFilePickerStatus';
-import Monet, { Success, Fail } from 'monet';
+import { Success, Fail } from 'monet';
 
 const filePickerValueLens = R.lensPath(['filePickerValue']);
 

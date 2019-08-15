@@ -1,6 +1,5 @@
 import React from 'react';
 import { lens as AppLens } from '../Lens';
-import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
 import CurrencyTable from '../../components/CurrencyTable';
 

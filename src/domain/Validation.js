@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import Monet, { Success, Fail } from 'monet';
+import { Success, Fail } from 'monet';
 
 export const hasProp = R.curry((p, obj) => {
   return (R.propSatisfies(R.isNil, p, obj))

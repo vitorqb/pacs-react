@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import Monet, { Success, Fail } from 'monet';
+import { Success, Fail } from 'monet';
 import secretsLens from './Lens';
 
 export const validateSecrets = secrets => {

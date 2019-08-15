@@ -5,8 +5,6 @@ import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
 import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
-import ErrorDisplayWrapper from './ErrorDisplayWrapper';
-import SuccessMessageDisplayerWrapper from './SuccessMessageDisplayerWrapper';
 import CurrencyInput from './CurrencyInput';
 
 export const Phases = {
@@ -69,7 +67,7 @@ export const reducers = {
 export const handlers = {
 
   onSubmitReportQuery: (props, state, setState) => {
-    if (R.view(lenses.statusPhase(), state) == Phases.loading) {
+    if (R.view(lenses.statusPhase(), state) === Phases.loading) {
       alert("Already loading!");
       return null;
     }
