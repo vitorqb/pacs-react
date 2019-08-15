@@ -68,7 +68,7 @@ describe('App.test.jsx', () => {
       const path = "/a/b";
       const component = () => (<h1>Hola</h1>);
 
-      const exp = (<Route key={path} path={path} component={component} />);
+      const exp = (<Route key={path} path={path} render={component} />);
 
       expect(makeRoute({path, component})).toEqual(exp);
     });
