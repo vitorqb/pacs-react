@@ -31,6 +31,10 @@ export const initialStateFromProps = ({ secrets }) => R.pipe(
   ),
 )({});
 
+export const loadingWrapperClassName = isLoading => {
+  return "loading-wrapper " + `loading-wrapper--${isLoading ? "active" : "deactive"}`;
+};
+
 class App extends Component {
 
   constructor(props) {
@@ -105,10 +109,8 @@ class App extends Component {
 
     // If we are logged in but the state is not ready, we are loading...
     const remoteFetchingStatus = R.view(lens.remoteFetchingStatus, this.state);
-    if (  remoteFetchingStatus === RemoteFetchingStatusEnum.uninitialized
-       || remoteFetchingStatus === RemoteFetchingStatusEnum.loading) {
-      return <div>LOADING...</div>;
-    }
+    const isLoading = remoteFetchingStatus === RemoteFetchingStatusEnum.uninitialized
+          || remoteFetchingStatus === RemoteFetchingStatusEnum.loading;
 
     // Prepares the state, stateGetters and ajax functions
     const state = this.state;
@@ -146,6 +148,9 @@ class App extends Component {
 
     return (
       <div className="App">
+        <div className={loadingWrapperClassName(isLoading)}>
+          <span className="loading-wrapper__label">Loading...</span>
+        </div>
         {router}
       </div>
     );

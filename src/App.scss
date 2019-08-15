@@ -119,3 +119,28 @@
         text-align: center;
     }
 }
+
+.loading-wrapper {
+
+    &--active {
+        z-index: 99999;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    &--deactive {
+        display: none;
+    }
+
+    &__label {
+        font-size: 24px;
+        z-index: 99999;
+        position: absolute;
+        top: 40vh;
+        left: 50vw;
+        transform: translate(-50%, -50%);
+        background-color: white;
+    }
+}
