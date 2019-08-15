@@ -21,6 +21,7 @@ import CurrencyTableInstance from './App/Instances/CurrencyTable';
 import JournalComponentInstance from './App/Instances/JournalComponent';
 import AccountBalanceEvolutionComponentInstance from './App/Instances/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
+import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import { lens as EventsLens } from './App/Events';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
@@ -42,6 +43,7 @@ class App extends Component {
     super(props);
     this.state = initialStateFromProps(props);
     this.goFetchRemoteData = this.goFetchRemoteData.bind(this);
+    this.setState = this.setState.bind(this);
   }
 
   /**
@@ -118,7 +120,16 @@ class App extends Component {
     const ajaxInjections = this.getAjaxInjections();
     const stateGetters = StateGetters.makeGetters(state);
     const events = RU.setLenses(
-      [[EventsLens.refetchState, () => this.goFetchRemoteData()]],
+      [
+        [
+          EventsLens.refetchState,
+          () => this.goFetchRemoteData()
+        ],
+        [
+          EventsLens.overState,
+          R.curry((lens, fn) => this.setState(R.over(lens, fn))),
+        ],
+      ],
       {},
     );
     const renderArgs = { state, stateGetters, ajaxInjections, events };
@@ -136,6 +147,7 @@ class App extends Component {
           AccountBalanceEvolutionComponentInstance(renderArgs);
     const accountFlowEvolutionReportComponent =
           AccountFlowEvolutionReportComponentInstance(renderArgs);
+    const DeleteAccountComponent = DeleteAccountComponentInstance(renderArgs);
 
     // Prepares the router
     const router = makeRouter(this.getRoutesData({
@@ -149,6 +161,7 @@ class App extends Component {
       journalComponent,
       accountBalanceEvolutionComponent,
       accountFlowEvolutionReportComponent,
+      DeleteAccountComponent,
     }));
 
     return (
@@ -175,6 +188,7 @@ class App extends Component {
     journalComponent,
     accountBalanceEvolutionComponent,
     accountFlowEvolutionReportComponent,
+    DeleteAccountComponent,
   }) {
     return [
       {
@@ -201,6 +215,11 @@ class App extends Component {
         path: "/edit-account/",
         text: "Edit Account",
         component: () => editAccountComponent
+      },
+      {
+        path: "/delete-account/",
+        text: "Delete Account",
+        component: () => DeleteAccountComponent
       },
       {
         path: "/account-tree/",

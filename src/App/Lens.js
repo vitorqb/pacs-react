@@ -59,6 +59,9 @@ export const lens = {
   token: R.compose(loginPageValueLens, LoginPageLens.token),
   secrets: R.lens(viewSecrets, setSecrets),
 
+  // Value for the delete account component
+  deleteAccountComponentInstanceValue: R.lensPath(['deleteAccountComponentInstanceValue']),
+
 };
 
 export default lens;

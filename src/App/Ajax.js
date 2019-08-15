@@ -7,6 +7,7 @@ import * as R from 'ramda';
 export const lens = {
   createAcc: R.lensPath(['createAcc']),
   updateAcc: R.lensPath(['updateAcc']),
+  deleteAcc: R.lensPath(['deleteAcc']),
   createTransaction: R.lensPath(['createTransaction']),
   updateTransaction: R.lensPath(['updateTransaction']),
   getTransaction: R.lensPath(['getTransaction']),
@@ -25,6 +26,7 @@ export const lens = {
 export const ajaxInjectionSpec = [
   [lens.createAcc, ajax.ajaxCreateAcc],
   [lens.updateAcc, ajax.ajaxUpdateAccount],
+  [lens.deleteAcc, ajax.ajaxDeleteAccount],
   [lens.createTransaction, ajax.ajaxCreateTransaction],
   [lens.updateTransaction, ajax.ajaxUpdateTransaction],
   [lens.getTransaction, ajax.ajaxGetTransaction],
