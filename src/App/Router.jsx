@@ -24,7 +24,7 @@ export function makeLink({path, text}) {
  *   component to render for this route.
  */
 export function makeRoute({path, component}) {
-  return (<Route key={path} path={path} component={component} />);
+  return (<Route key={path} path={path} render={component} />);
 }
 
 /**

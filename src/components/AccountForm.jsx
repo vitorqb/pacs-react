@@ -58,7 +58,8 @@ export default class AccountForm extends Component {
     event.preventDefault();
     this.setResponseMsg("");
     this.setErrMsg("");
-    return this.props.onSubmit(this.getAccountSpec())
+    return this.props
+      .onSubmit(this.getAccountSpec())
       .then(this.setResponseMsg)
       .catch(this.setErrMsg);
   }

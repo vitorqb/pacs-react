@@ -22,6 +22,7 @@ import CurrencyTableInstance from './App/Instances/CurrencyTable';
 import JournalComponentInstance from './App/Instances/JournalComponent';
 import AccountBalanceEvolutionComponentInstance from './App/Instances/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
+import { lens as EventsLens } from './App/Events';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
   R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.uninitialized),
@@ -41,6 +42,7 @@ class App extends Component {
     // Defines the initial state, depending on whether `secrets` have been given as props
     super(props);
     this.state = initialStateFromProps(props);
+    this.goFetchRemoteData = this.goFetchRemoteData.bind(this);
   }
 
   /**
@@ -116,7 +118,11 @@ class App extends Component {
     const state = this.state;
     const ajaxInjections = this.getAjaxInjections();
     const stateGetters = StateGetters.makeGetters(state);
-    const renderArgs = { state, stateGetters, ajaxInjections };
+    const events = RU.setLenses(
+      [[EventsLens.refetchState, () => this.goFetchRemoteData()]],
+      {},
+    );
+    const renderArgs = { state, stateGetters, ajaxInjections, events };
 
     // Prepares the instances
     const transactionTable = TransactionTableInstace(renderArgs);
