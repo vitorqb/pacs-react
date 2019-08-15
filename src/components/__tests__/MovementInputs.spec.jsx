@@ -29,8 +29,7 @@ describe('MovementInputs', () => {
     it('Mounts with title', () => {
       const title = "sadkjskadkj";
       const movementInput = mount(<MovementInputs title={title}/>);
-      expect(movementInput.find("span.titleSpan").html())
-        .toContain(title);
+      expect(movementInput.find("InputWrapper").first().props().label).toContain(title);
     });
 
     it('Mounts with all values equal to empty string', () => {

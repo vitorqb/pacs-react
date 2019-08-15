@@ -1,0 +1,18 @@
+.input-wrapper {
+
+    &:not(:last-child) {
+        margin-bottom: 3px;
+    }
+
+    &__content {
+        margin-left: 10px;
+    }
+}
+
+.input {
+    &--bigger {
+        max-width: 1200px;
+        min-width: 400px;
+        width: 40vw;
+    }
+}
