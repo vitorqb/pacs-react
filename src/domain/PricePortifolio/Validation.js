@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import monet, { Success, Fail } from 'monet';
+import { Success, Fail } from 'monet';
 import * as Validation from '../Validation';
 
 /**

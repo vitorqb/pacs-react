@@ -304,7 +304,7 @@ export const MonthUtil = {
   periodToMonth: period => {
     const startPrefix = period[0].slice(0, 7);
     const endPrefix = period[1].slice(0, 7);
-    if (startPrefix != endPrefix) {
+    if (startPrefix !== endPrefix) {
       throw new Error("Can not convert a period with two diferent months to month");
     }
     const date = moment(period[0], "YYYY-MM-DD");

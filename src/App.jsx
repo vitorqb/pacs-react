@@ -1,9 +1,8 @@
 import * as R from 'ramda';
-import React, { Component, createElement } from 'react';
+import React, { Component } from 'react';
 import './App.scss';
 import * as RU from './ramda-utils';
 import { mkAxiosWrapper } from "./ajax";
-import { newGetter, isDescendant } from './utils';
 import LoginPage from './components/LoginPage';
 import * as SecretsValidation from './domain/Secrets/Validation';
 import ErrorMessage from './components/ErrorMessage';
@@ -33,7 +32,7 @@ export const initialStateFromProps = ({ secrets }) => R.pipe(
 )({});
 
 export const loadingWrapperClassName = isLoading => {
-  return "loading-wrapper " + `loading-wrapper--${isLoading ? "active" : "deactive"}`;
+  return `loading-wrapper loading-wrapper--${isLoading ? "active" : "deactive"}`;
 };
 
 class App extends Component {
