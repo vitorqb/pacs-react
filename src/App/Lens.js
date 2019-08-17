@@ -11,10 +11,9 @@ const loginPageValueLens = R.lensPath(['loginPageValue']);
 /**
  * View the Secrets from the App state.
  */
-const viewSecrets = state => RU.setLenses(
-  [[secretsLens.token, R.view(lens.token, state)],
-   [secretsLens.host, R.view(lens.host, state)]],
-  {},
+const viewSecrets = state => RU.objFromPairs(
+  secretsLens.token, R.view(lens.token, state),
+  secretsLens.host, R.view(lens.host, state),
 );
 
 /**

@@ -13,13 +13,10 @@ describe('reduceOnSuccess', () => {
   it('Base', () => {
     const account = AccountFactory.build();
     const value = R.set(ComponentValueLens.selectedAccount, account, {});
-    expect(sut.reduceOnSuccess(account, value)).toEqual(RU.setLenses(
-      [
-        [ComponentValueLens.errorMsg, ""],
-        [ComponentValueLens.successMsg, sut.successMsg(account)],
-        [ComponentValueLens.selectedAccount, null],
-      ],
-      {}
+    expect(sut.reduceOnSuccess(account, value)).toEqual(RU.objFromPairs(
+      ComponentValueLens.errorMsg, "",
+      ComponentValueLens.successMsg, sut.successMsg(account),
+      ComponentValueLens.selectedAccount, null,
     ));
   });
   
@@ -29,9 +26,9 @@ describe('reduceOnError', () => {
 
   it('Base', () => {
     const errMsg = "Failed!";
-    expect(sut.reduceOnError(errMsg, {})).toEqual(RU.setLenses(
-      [[ComponentValueLens.errorMsg, errMsg], [ComponentValueLens.successMsg, ""]],
-      {}
+    expect(sut.reduceOnError(errMsg, {})).toEqual(RU.objFromPairs(
+      ComponentValueLens.errorMsg, errMsg,
+      ComponentValueLens.successMsg, "",
     ));
   });
   
@@ -50,8 +47,8 @@ describe('handleSubmitDelete', () => {
     window.confirm.returns(true);
     const account = AccountFactory.build();
     const deleteAcc = sinon.fake.resolves();
-    const ajaxInjections = RU.setLenses([[AjaxInjectionsLens.deleteAcc, deleteAcc]], {});
-    const events = RU.setLenses([[EventsLens.overState, sinon.fake()]], {});
+    const ajaxInjections = RU.objFromPairs(AjaxInjectionsLens.deleteAcc, deleteAcc);
+    const events = RU.objFromPairs(EventsLens.overState, sinon.fake());
     const props = { ajaxInjections, events };
 
     sut.handleSubmitDelete(props, account);

@@ -111,9 +111,9 @@ export default class TransactionForm extends Component {
     const date = this.getValue().date || "";
     const onChange = this.handleUpdate(R.lensProp("date"), R.identity);
     const input = <DateInput key="date" value={date} onChange={onChange} />;
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Date"], [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Date",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;
   }
@@ -135,10 +135,9 @@ export default class TransactionForm extends Component {
         onChange={onChange}
         value={description} />
     );
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Description"],
-       [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Description",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;
   }
@@ -160,10 +159,9 @@ export default class TransactionForm extends Component {
         onChange={onChange}
         value={value} />
     );
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Reference"],
-       [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Reference",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;    
   }

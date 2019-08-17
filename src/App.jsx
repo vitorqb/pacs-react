@@ -118,18 +118,9 @@ class App extends Component {
     const state = this.state;
     const ajaxInjections = this.getAjaxInjections();
     const stateGetters = StateGetters.makeGetters(state);
-    const events = RU.setLenses(
-      [
-        [
-          EventsLens.refetchState,
-          () => this.goFetchRemoteData()
-        ],
-        [
-          EventsLens.overState,
-          R.curry((lens, fn) => this.setState(R.over(lens, fn))),
-        ],
-      ],
-      {},
+    const events = RU.objFromPairs(
+      EventsLens.refetchState, () => this.goFetchRemoteData(),
+      EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
     );
     const renderArgs = { state, stateGetters, ajaxInjections, events };
 

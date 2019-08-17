@@ -12,20 +12,8 @@ const memoizedPkGetter = (applens, appState) => {
 /**
  * Returns memoized getters from 
  */
-export const makeGetters = appState => RU.setLenses(
-  [
-    [
-      AppLens.accounts,
-      memoizedPkGetter(AppLens.accounts, appState)
-    ],
-    [
-      AppLens.currencies,
-      memoizedPkGetter(AppLens.currencies, appState)
-    ],
-    [
-      AppLens.transactions,
-      memoizedPkGetter(AppLens.transactions, appState)
-    ],
-  ],
-  {}
+export const makeGetters = appState => RU.objFromPairs(
+  AppLens.accounts, memoizedPkGetter(AppLens.accounts, appState),
+  AppLens.currencies, memoizedPkGetter(AppLens.currencies, appState),
+  AppLens.transactions, memoizedPkGetter(AppLens.transactions, appState),
 );

@@ -73,14 +73,11 @@ export default function DeleteAccountComponentInstance(renderArgs) {
     return null;
   }
   const overState = R.view(EventsLens.overState, events);
-  const props = RU.setLenses(
-    [
-      [propsLens.onChange, overState(AppLens.deleteAccountComponentInstanceValue)],
-      [propsLens.accounts, accounts],
-      [propsLens.onSubmitDelete, handleSubmitDelete(renderArgs)],
-      [propsLens.value, R.view(AppLens.deleteAccountComponentInstanceValue, state)],
-    ],
-    {}
+  const props = RU.objFromPairs(
+    propsLens.onChange, overState(AppLens.deleteAccountComponentInstanceValue),
+    propsLens.accounts, accounts,
+    propsLens.onSubmitDelete, handleSubmitDelete(renderArgs),
+    propsLens.value, R.view(AppLens.deleteAccountComponentInstanceValue, state),
   );
   return <DeleteAccountComponent {...props} />;
 };

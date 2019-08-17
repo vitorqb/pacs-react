@@ -79,9 +79,9 @@ export default class AccountForm extends Component {
              onChange={onChange}
              value={name} />
     );
-    return InputWrapper(RU.setLenses(
-      [[InputWrapperLens.label, "Name"], [InputWrapperLens.content, input]],
-      {}
+    return InputWrapper(RU.objFromPairs(
+      InputWrapperLens.label, "Name",
+      InputWrapperLens.content, input,
     ));
   }
 
@@ -94,9 +94,9 @@ export default class AccountForm extends Component {
     const input = (
       <input type="text" name="accType" onChange={onChange} value={accType} />
     );
-    return InputWrapper(RU.setLenses(
-      [[InputWrapperLens.label, "Account Type"], [InputWrapperLens.content, input]],
-      {}
+    return InputWrapper(RU.objFromPairs(
+      InputWrapperLens.label, "Account Type",
+      InputWrapperLens.content, input,
     ));    
   }
 
@@ -126,9 +126,9 @@ export default class AccountForm extends Component {
     const value = parent ? R.find(R.propEq("pk", parent), accounts) : null;
     const onChange = this.handleUpdate(R.lensProp("parent"), R.prop("pk"));
     const input = <AccountInput onChange={onChange} accounts={accounts} value={value} />;
-    return InputWrapper(RU.setLenses(
-      [[InputWrapperLens.label, "Parent"], [InputWrapperLens.content, input]],
-      {}
+    return InputWrapper(RU.objFromPairs(
+      InputWrapperLens.label, "Parent",
+      InputWrapperLens.content, input,
     ));
   }
 }

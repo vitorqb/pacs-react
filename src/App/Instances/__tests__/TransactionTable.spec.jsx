@@ -20,10 +20,9 @@ describe('TransactionTable', () => {
   });
 
   it('Still loading if currencies not loaded', () => {
-    const state = RU.setLenses(
-      [[AppLens.transactions, TransactionFactory.buildList(2)],
-       [AppLens.accounts, AccountFactory.buildList(2)]],
-      {}
+    const state = RU.objFromPairs(
+      AppLens.transactions, TransactionFactory.buildList(2),
+      AppLens.accounts, AccountFactory.buildList(2),
     );
     const stateGetters = {};
     const ajaxInjections = {};
@@ -32,10 +31,9 @@ describe('TransactionTable', () => {
   });
 
   it('Still loading if accounts not loaded', () => {
-    const state = RU.setLenses(
-      [[AppLens.transactions, TransactionFactory.buildList(2)],
-       [AppLens.currencies, CurrencyFactory.buildList(2)]],
-      {}
+    const state = RU.objFromPairs(
+      AppLens.transactions, TransactionFactory.buildList(2),
+      AppLens.currencies, CurrencyFactory.buildList(2),
     );
     const stateGetters = {};
     const ajaxInjections = {};
@@ -53,17 +51,16 @@ describe('TransactionTable', () => {
     const currencies = R.map(pk => CurrencyFactory.build({pk}), currenciesPks);
     const accountsPks = R.map(R.prop("account"), movements);
     const accounts = R.map(pk => AccountFactory.build({pk}), accountsPks);
-    const state = RU.setLenses(
-      [[AppLens.transactions, transactions],
-       [AppLens.currencies, currencies],
-       [AppLens.accounts, accounts]],
-      {}
+    const state = RU.objFromPairs(
+      AppLens.transactions, transactions,
+      AppLens.currencies, currencies,
+      AppLens.accounts, accounts,
     );
     const getCurrency = sinon.fake();
     const getAccount = sinon.fake();
-    const stateGetters = RU.setLenses(
-      [[AppLens.accounts, getAccount], [AppLens.currencies, getCurrency]],
-      {},
+    const stateGetters = RU.objFromPairs(
+      AppLens.accounts, getAccount,
+      AppLens.currencies, getCurrency,
     );
     const ajaxInjections = {};
     const resp = mount(TransactionTableInstance({ state, stateGetters, ajaxInjections }));

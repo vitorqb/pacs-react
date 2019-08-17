@@ -1,6 +1,22 @@
 import * as R from 'ramda';
 import * as sut from '../ramda-utils';
 
+describe('splitSublists', () => {
+
+  it('empty', () => {
+    expect(sut.splitSublists(2, [])).toEqual([]);
+  });
+
+  it('One', () => {
+    expect(sut.splitSublists(1, [1, 2, 3])).toEqual([[1], [2], [3]]);
+  });
+
+  it('Two', () => {
+    expect(sut.splitSublists(2, [1, 2, 3, 4])).toEqual([[1, 2], [3, 4]]);
+  });
+
+});
+
 describe('mapLenses', () => {
   it('base', () => {
     const lenses = {x: R.lensProp('x'), y: R.lensProp('y')};
@@ -22,4 +38,23 @@ describe('setLenses', () => {
       w: 3,
     });
   });
+});
+
+describe('objFromPairs', () => {
+
+  it('Empty', () => {
+    expect(sut.objFromPairs()).toEqual({});
+  });
+
+  it('Two long', () => {
+    expect(sut.objFromPairs(
+      R.lensPath(['a']), 1,
+      R.lensPath(['b']), 2,
+    )).toEqual({a: 1, b: 2});
+  });
+
+  it('Error if offs', () => {
+    expect(() => sut.objFromPairs('a')).toThrow('Expected an even number of args');
+  });
+  
 });
