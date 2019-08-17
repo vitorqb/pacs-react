@@ -1,6 +1,5 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
-import './App.scss';
 import * as RU from './ramda-utils';
 import { mkAxiosWrapper } from "./ajax";
 import LoginPage from './components/LoginPage';

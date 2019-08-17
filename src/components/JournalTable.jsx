@@ -1,6 +1,5 @@
 import { createElement } from 'react';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css';
 import * as R from 'ramda';
 
 import { extractMoneysForAccount, moneysToRepr } from '../utils.jsx';

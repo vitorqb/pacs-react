@@ -2,7 +2,6 @@ import React from 'react';
 import * as R from 'ramda';
 import TreeView from 'react-treeview';
 import { ACC_TYPES } from '../constants';
-require('react-treeview/react-treeview.css');
 
 export const MISSING_ROOT_MSG = "Missing root account.";
 export const MULTIPLE_ROOTS_MSG = "Multiple root accounts.";

@@ -4,6 +4,10 @@ import SuccessMessage from './SuccessMessage';
 import ErrorMessage from './ErrorMessage';
 import AccountInput from './AccountInput';
 import * as R from 'ramda';
+import * as RU from '../ramda-utils';
+import InputWrapper, { propLens as InputWrapperLens }  from './InputWrapper';
+
+const extractEventValue = R.path(["target", "value"]);
 
 /** A react component that represents a form to create an account. */
 export default class AccountForm extends Component {
@@ -32,9 +36,7 @@ export default class AccountForm extends Component {
    * @function
    * @returns {AccountSpec}
    */
-  getAccountSpec() {
-    return R.clone(this.props.value);
-  }
+  getAccountSpec = () => R.clone(this.props.value);
 
   /**
    * Set's the responseMsg state, that contains a response message when
@@ -64,39 +66,52 @@ export default class AccountForm extends Component {
       .catch(this.setErrMsg);
   }
 
+  /**
+   * Renders an input for the name.
+   */
+  renderNameInput() {
+    const name = this.getAccountSpec().name || "";
+    const onChange = this.handleUpdate(R.lensProp("name"), extractEventValue);
+    const input = (
+      <input className="input--bigger"
+             type="text"
+             name="name"
+             onChange={onChange}
+             value={name} />
+    );
+    return InputWrapper(RU.setLenses(
+      [[InputWrapperLens.label, "Name"], [InputWrapperLens.content, input]],
+      {}
+    ));
+  }
+
+  /**
+   * Renders an input for the account type.
+   */
+  renderAccTypeInput() {
+    const accType = this.getAccountSpec().accType || "";
+    const onChange = this.handleUpdate(R.lensProp("accType"), extractEventValue);
+    const input = (
+      <input type="text" name="accType" onChange={onChange} value={accType} />
+    );
+    return InputWrapper(RU.setLenses(
+      [[InputWrapperLens.label, "Account Type"], [InputWrapperLens.content, input]],
+      {}
+    ));    
+  }
+
   render() {
-    const { name, accType } = this.getAccountSpec();
     const title = createTitle(this.props.title);
-
-    const nameInput = this.makeInput({
-      type: "text",
-      name: "name",
-      onChange: this.handleUpdate(
-        R.lensProp("name"),
-        R.path(["target", "value"])
-      ),
-      value: name
-    });
-    const accTypeInput = this.makeInput({
-      type: "text",
-      name: "accType",
-      onChange: this.handleUpdate(
-        R.lensProp("accType"),
-        R.path(["target", "value"])
-      ),
-      value: accType      
-    });
+    const nameInput = this.renderNameInput();
+    const accTypeInput = this.renderAccTypeInput();
     const parentInput = this.makeParentInput();
-
     return (
-      <div className="form-div">
+      <div>
         {title}
         <form onSubmit={this.handleSubmit}>
-          <table style={{width: "100%"}}><tbody>
-              {nameInput}
-              {accTypeInput}
-              {parentInput}
-          </tbody></table>
+          {nameInput}
+          {accTypeInput}
+          {parentInput}
           <input type="submit" value="Submit" />
         </form>
         <SuccessMessage value={this.state.responseMsg} />
@@ -109,28 +124,11 @@ export default class AccountForm extends Component {
     const { accounts=[] } = this.props;
     const { parent } = this.getAccountSpec();
     const value = parent ? R.find(R.propEq("pk", parent), accounts) : null;
-    return this.makeTrTag(
-      "parent",
-      <AccountInput
-        onChange={this.handleUpdate(R.lensProp("parent"), R.prop("pk"))}
-        accounts={accounts}
-        value={value} />
-    );
-  }
-
-  makeInput = ({type, name, onChange, value}) => {
-    return this.makeTrTag(
-      name,
-      <input type={type} name={name} value={value || ""} onChange={onChange} />
-    );
-  }
-
-  makeTrTag = (name, component) => {
-    return (
-      <tr key={name}>
-        <td style={{width: "1%"}}>{name}</td>
-        <td>{component}</td>
-      </tr>
-    );
+    const onChange = this.handleUpdate(R.lensProp("parent"), R.prop("pk"));
+    const input = <AccountInput onChange={onChange} accounts={accounts} value={value} />;
+    return InputWrapper(RU.setLenses(
+      [[InputWrapperLens.label, "Parent"], [InputWrapperLens.content, input]],
+      {}
+    ));
   }
 }

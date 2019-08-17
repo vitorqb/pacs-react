@@ -6,6 +6,7 @@ import MultipleAccountsSelector from './MultipleAccountsSelector';
 import AccountFlowEvolutionTable from './AccountFlowEvolutionTable';
 import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
 import CurrencyInput from './CurrencyInput';
+import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 
 export const Phases = {
   loading: 'loading',
@@ -20,15 +21,13 @@ export const extractAccountEvolutionDataParams = state => {
       accounts: lenses.selectedAccounts,
       monthsPair: lenses.pickedMonthsPair,
     }),
-    R.ifElse(
+    R.when(
       _ => pickedPortifolio,
       R.assocPath(['currencyOpts', 'portifolio'], pickedPortifolio),
-      x => x,
     ),
-    R.ifElse(
+    R.when(
       _ => targetCurrency,
       R.assocPath(['currencyOpts', 'convertTo'], targetCurrency),
-      x => x,
     )
   )(state);
 };
@@ -156,12 +155,14 @@ export default class AccountFlowEvolutionReportComponent extends Component {
       ["Currency Price Portifolio File", this.renderPortifolioFilePicker()],
       ["Initial and Final Month", [0, 1].map(this.renderMonthPickerComponent)],
       ["Accounts", this.renderMultipleAccountSelector()],
-    ].map(([l, c], i) => (
-      <div className="account-flow-evolution-report__input" key={i}>
-        <span className="account-flow-evolution-report__input__label">{l}</span>
-        <div className="account-flow-evolution-report__input__input">{c}</div>
-      </div>
-    ));
+    ].map(([l, c], i) => InputWrapper(RU.setLenses(
+      [
+        [InputWrapperLens.label, l],
+        [InputWrapperLens.content, c],
+        [InputWrapperLens.key, i]
+      ],
+      {}
+    )));
   }
 
   render() {

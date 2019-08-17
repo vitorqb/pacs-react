@@ -1,10 +1,12 @@
 import * as R from "ramda";
+import * as RU from '../ramda-utils';
 import React, { Component } from 'react';
-import { createTitle, createInput } from '../utils';
+import { createTitle } from '../utils';
 import MovementInputs from './MovementInputs';
 import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
 import DateInput from './DateInput.jsx';
+import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 
 /**
  * A component that wraps a form to create a Transaction.
@@ -85,32 +87,13 @@ export default class TransactionForm extends Component {
 
   render() {
     const { title="" } = this.props;
-    const { description="", date="" } = this.getValue();
-
-    const descriptionInput = createInput({
-      type: "text",
-      name: "description",
-      onChange: this.handleUpdate(
-        R.lensProp("description"),
-        R.path(["target", "value"])
-      ),
-      value: description
-    });
-
-    const dateInput = (
-      <DateInput
-        key="date"
-        value={date}
-        onChange={this.handleUpdate(R.lensProp("date"), R.identity)} />
-    );
-
     return (
       <div className="form-div">
         <form onSubmit={this.handleSubmit}>
           {createTitle(title)}
           {this.renderReferenceInput()}
-          {descriptionInput}
-          date: {dateInput}
+          {this.renderDescriptionInput()}
+          {this.renderDateInput()}
           {this.renderMovementsInputs()}
           <div>{this.renderAddMovementButton()}</div>
           <input type="submit" value="Submit" />
@@ -122,18 +105,67 @@ export default class TransactionForm extends Component {
   }
 
   /**
+   * Renders an input for date.
+   */
+  renderDateInput() {
+    const date = this.getValue().date || "";
+    const onChange = this.handleUpdate(R.lensProp("date"), R.identity);
+    const input = <DateInput key="date" value={date} onChange={onChange} />;
+    const props = RU.setLenses(
+      [[InputWrapperLens.label, "Date"], [InputWrapperLens.content, input]],
+      {}
+    );
+    return <InputWrapper {...props} />;
+  }
+
+  /**
+   * Renders an input for description.
+   */
+  renderDescriptionInput() {
+    const { description="" } = this.getValue();
+    const onChange = this.handleUpdate(
+      R.lensProp("description"),
+      R.path(['target', 'value']),
+    );
+    const input = (
+      <input
+        className="input--bigger"
+        type="text"
+        name="description"
+        onChange={onChange}
+        value={description} />
+    );
+    const props = RU.setLenses(
+      [[InputWrapperLens.label, "Description"],
+       [InputWrapperLens.content, input]],
+      {}
+    );
+    return <InputWrapper {...props} />;
+  }
+
+  /**
    * Renders an input for reference
    */
   renderReferenceInput() {
-    return createInput({
-      type: "text",
-      name: "reference",
-      onChange: this.handleUpdate(
-        R.lensProp("reference"),
-        R.path(["target", "value"]),
-      ),
-      value: this.getValue().reference || ""
-    });
+    const value = this.getValue().reference || "";
+    const onChange = this.handleUpdate(
+      R.lensProp("reference"),
+      R.path(["target", "value"]),
+    );
+    const input = (
+      <input
+        className="input--bigger"
+        type="text"
+        name="reference"
+        onChange={onChange}
+        value={value} />
+    );
+    const props = RU.setLenses(
+      [[InputWrapperLens.label, "Reference"],
+       [InputWrapperLens.content, input]],
+      {}
+    );
+    return <InputWrapper {...props} />;    
   }
 
   /**
@@ -152,7 +184,7 @@ export default class TransactionForm extends Component {
         <div key={index}>
           <MovementInputs
             key={index}
-            title={`movements[${index}]`}
+            title={`Movement[${index}]`}
             accounts={accounts}
             currencies={currencies}
             value={movementSpec}
