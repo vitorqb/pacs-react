@@ -34,16 +34,15 @@ describe('App.test.jsx', () => {
     });
     
     it('With secrets', () => {
-      const props = {secrets: RU.setLenses(
-        [[SecretsLens.token, 'foo'], [SecretsLens.host, 'bar']],
-        {}
+      const props = {secrets: RU.objFromPairs(
+        SecretsLens.token, 'foo',
+        SecretsLens.host, 'bar',
       )};
-      const exp = RU.setLenses(
-        [[Lens.lens.remoteFetchingStatus, Lens.RemoteFetchingStatusEnum.uninitialized],
-         [Lens.lens.host, 'bar'],
-         [Lens.lens.token, 'foo'],
-         [Lens.lens.isLoggedIn, true]],
-        {}
+      const exp = RU.objFromPairs(
+        Lens.lens.remoteFetchingStatus, Lens.RemoteFetchingStatusEnum.uninitialized,
+        Lens.lens.host, 'bar',
+        Lens.lens.token, 'foo',
+        Lens.lens.isLoggedIn, true,
       );
       const res = sut.initialStateFromProps(props);
       expect(exp).toEqual(res);

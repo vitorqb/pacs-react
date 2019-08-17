@@ -11,13 +11,10 @@ const mountDeleteAccountComponent = ({ accounts, selectedAccount }) => {
   const _accounts = R.isNil(accounts) ? AccountFactory.buildList(2) : accounts;
   const _onChange = sinon.fake();
   const _value = R.set(sut.valueLens.selectedAccount, selectedAccount, {});
-  const _props = RU.setLenses(
-    [
-      [sut.propsLens.onChange, _onChange],
-      [sut.propsLens.accounts, _accounts],
-      [sut.propsLens.value, _value],
-    ],
-    {}
+  const _props = RU.objFromPairs(
+    sut.propsLens.onChange, _onChange,
+    sut.propsLens.accounts, _accounts,
+    sut.propsLens.value, _value,
   );
   return mount(<DeleteAccountComponent {..._props} />);
 };
@@ -61,12 +58,11 @@ describe('DeleteAccountComponent', () => {
       const event = {preventDefault: sinon.fake()};
       const onSubmitDelete = sinon.fake();
       const account = AccountFactory.build();
-      const value = RU.setLenses([[sut.valueLens.selectedAccount, account]], {});
-      const props = RU.setLenses(
-        [[sut.propsLens.value, value],
-         [sut.propsLens.onSubmitDelete, onSubmitDelete],
-         [sut.propsLens.onChange, sinon.fake()]],
-        {}
+      const value = RU.objFromPairs(sut.valueLens.selectedAccount, account);
+      const props = RU.objFromPairs(
+        sut.propsLens.value, value,
+        sut.propsLens.onSubmitDelete, onSubmitDelete,
+        sut.propsLens.onChange, sinon.fake(),
       );
 
       sut.handleSubmit(props, event);
@@ -77,10 +73,9 @@ describe('DeleteAccountComponent', () => {
     it('Sets errMsg if no selectedAccount', () => {
       const event = {preventDefault: sinon.fake()};
       const onChange = sinon.fake();
-      const props = RU.setLenses(
-        [[sut.propsLens.value, {}],
-         [sut.propsLens.onChange, onChange]],
-        {}
+      const props = RU.objFromPairs(
+        sut.propsLens.value, {},
+        sut.propsLens.onChange, onChange,
       );
 
       sut.handleSubmit(props, event);

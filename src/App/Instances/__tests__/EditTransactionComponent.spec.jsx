@@ -23,12 +23,10 @@ describe('', () => {
   });
 
   it('Renders when both not null', () => {
-    const state = RU.setLenses(
-      [
-        [AppLens.currencies, []],
-        [AppLens.accounts, []],
-      ],
-      {});
+    const state = RU.objFromPairs(
+      AppLens.currencies, [],
+      AppLens.accounts, [],
+    );
     const ajaxInjections = {};
     const component = mount(renderEditTransactionComponent({ state, ajaxInjections }));
     expect(component).toContainMatchingElement('EditTransactionComponent');

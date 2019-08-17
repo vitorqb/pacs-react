@@ -41,9 +41,9 @@ export default class MovementInputs extends Component{
     const input = (
       <AccountInput accounts={filteredAccounts} onChange={onChange} value={value} />
     );
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Account"], [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Account",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;
   }
@@ -57,9 +57,9 @@ export default class MovementInputs extends Component{
     const input = (
       <CurrencyInput currencies={currencies} onChange={onChange} value={value} />
     );
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Currency"], [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Currency",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;    
   }
@@ -74,9 +74,9 @@ export default class MovementInputs extends Component{
     const input = (
       <input name="quantity"  onChange={onChange} value={value} />
     );
-    const props = RU.setLenses(
-      [[InputWrapperLens.label, "Quantity"], [InputWrapperLens.content, input]],
-      {}
+    const props = RU.objFromPairs(
+      InputWrapperLens.label, "Quantity",
+      InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;        
   }
@@ -87,9 +87,9 @@ export default class MovementInputs extends Component{
     const currencyRow = this.renderCurrencyInput();
     const quantityRow = this.renderQuantityInput();
     const inputs = <div>{accountInput}{currencyRow}{quantityRow}</div>;
-    const inputWrapperProps = RU.setLenses(
-      [[InputWrapperLens.content, inputs], [InputWrapperLens.label, title]],
-      {}
+    const inputWrapperProps = RU.objFromPairs(
+      InputWrapperLens.content, inputs,
+      InputWrapperLens.label, title,
     );
     return <InputWrapper {...inputWrapperProps} />;
   }

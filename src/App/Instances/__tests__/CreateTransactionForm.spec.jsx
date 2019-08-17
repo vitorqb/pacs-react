@@ -17,9 +17,9 @@ describe('CreateTransactionComponent...', () => {
   it('Rendered when accounts and currencies are not null...', () => {
     const accounts = AccountFactory.buildList(2);
     const currencies = CurrencyFactory.buildList(2);
-    const state = RU.setLenses(
-      [[AppLens.accounts, accounts], [AppLens.currencies, currencies]],
-      {}
+    const state = RU.objFromPairs(
+      AppLens.accounts, accounts,
+      AppLens.currencies, currencies,
     );
     const form = mount(CreateTransactionComponentInstance({ state }));
     expect(form.find('CreateTransactionComponent')).toHaveLength(1);

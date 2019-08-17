@@ -155,13 +155,10 @@ export default class AccountFlowEvolutionReportComponent extends Component {
       ["Currency Price Portifolio File", this.renderPortifolioFilePicker()],
       ["Initial and Final Month", [0, 1].map(this.renderMonthPickerComponent)],
       ["Accounts", this.renderMultipleAccountSelector()],
-    ].map(([l, c], i) => InputWrapper(RU.setLenses(
-      [
-        [InputWrapperLens.label, l],
-        [InputWrapperLens.content, c],
-        [InputWrapperLens.key, i]
-      ],
-      {}
+    ].map(([l, c], i) => InputWrapper(RU.objFromPairs(
+      InputWrapperLens.label, l,
+      InputWrapperLens.content, c,
+      InputWrapperLens.key, i,
     )));
   }
 
