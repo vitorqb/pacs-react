@@ -1,17 +1,18 @@
 import { createElement } from 'react';
 import { mount } from 'enzyme';
 import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS, makeAccountBalanceEvolutionTable } from '../AccountBalanceEvolutionComponent';
+import * as sut from '../AccountBalanceEvolutionComponent';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
 import { newGetter, MonthUtil } from '../../utils';
 import * as R from 'ramda';
+import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
-
 
 function getExampleData(acc) {
   return {
     account: acc.pk,
     initialBalance: [],
-    balanceEvolution: [[], [], []]
+    balanceEvolution: [[], [], []],
   };
 }
 
@@ -20,14 +21,24 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   const accounts = AccountFactory.buildList(2);
   const currency = CurrencyFactory.build();
   const getCurrency = newGetter(R.prop("pk"), [currency]);
-  const data = R.map(getExampleData, accounts);
-  const getAccountBalanceEvolutionData = () => Promise.resolve(data);
-  const defaultProps = {
-    data,
-    accounts,
-    getCurrency,
-    getAccountBalanceEvolutionData,
+  const data = {
+    data: R.map(getExampleData, accounts),
+    months: [{year: 2018, month: "January"}, {year: 2018, month: "March"}],
   };
+  const onChange = sinon.fake();
+  const getAccountBalanceEvolutionData = () => Promise.resolve(data);
+  const defaultValue = RU.objFromPairs(
+    sut.valueLens.data, data,
+    sut.valueLens.pickedMonths, [null, null],
+    sut.valueLens.pickedAccounts, [null, null],
+  );
+  const defaultProps = RU.objFromPairs(
+    sut.propsLens.onChange, onChange,
+    sut.propsLens.value, defaultValue,
+    sut.propsLens.accounts, accounts,
+    sut.propsLens.getCurrency, getCurrency,
+    sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
+  );
   const props = R.mergeDeepRight(defaultProps, customProps);
   return mount(createElement(AccountBalanceEvolutionComponent, props));
 }
@@ -54,182 +65,177 @@ function selectAccounts(comp, accs) {
 }
 
 describe('AccountBalanceEvolutionComponent', () => {
-  describe('Integration', () => {
-    it('base', () => {
-      const accounts = AccountFactory.buildList(2);
-      const currency = CurrencyFactory.build();
-      const getCurrency = newGetter(R.prop("pk"), [currency]);
-      const data = {
-        periods: [[], [], []],
-        months: [{month: "February", year: 2018}, {month: "April", year: 2018}],
-        data: accounts.map(acc => ({
-          account: acc.pk,
-          initialBalance: [],
-          balanceEvolution: [[], [], []]
-        }))
-      };
-      const getAccountBalanceEvolutionData = () => Promise.resolve(data);
-      const component = mountAccountBalanceEvolutionComponent({
-        data,
-        accounts,
-        getCurrency,
-        getAccountBalanceEvolutionData,
-      });
-      // It sees no table there
-      expect(findAccBalEvolTable(component)).toHaveLength(0);
 
-      // The user selects the start and end months
-      pickMonth(findMonthPicker(component, 0), data.months[0]);
-      pickMonth(findMonthPicker(component, 1), data.months[1]);
-
-      // And two accounts to use
-      selectAccounts(component, accounts);
-
-      // And submits
-      const submitPromise = component.instance().handleSubmit();
-
-      expect.assertions(5);
-      return submitPromise.then(() => {
-        // Let the component update.
-        component.update();
-        component.instance().forceUpdate();
-        
-        // It sees the new table there
-        expect(findAccBalEvolTable(component)).toHaveLength(1);
-        // And this table has the same data, getCurrency as the component
-        [["data", data.data], ["getCurrency", getCurrency]].forEach(
-          function([nm, val]) {
-            expect(findAccBalEvolTable(component)).toHaveProp(nm, val);
-          }
-        );
-        // And the expected monthLabels
-        expect(findAccBalEvolTable(component)).toHaveProp(
-          "monthsLabels",
-          ["February/2018", "March/2018", "April/2018"]
-        );
-      });
-    });
-  });
   describe('handlePickedMonth', () => {
-    it('base', () => {
-      const component = mountAccountBalanceEvolutionComponent();
-      expect(component).toHaveState("pickedMonths", [null, null]);
 
-      const value = {month: "March", year: 2000};
-      component.instance().handlePickedMonth(1)(value);
-
-      expect(component).toHaveState("pickedMonths", [null, value]);
+    it('handlers reducer', () => {
+      const value = RU.objFromPairs(sut.valueLens.pickedMonths, [null, null]);
+      const reducer = sut.handlePickedMonth(R.identity, 1, "FOO");
+      const newValue = reducer(value);
+      const newPickedMonths = R.view(sut.valueLens.pickedMonths, newValue);
+      expect(newPickedMonths).toEqual([null, "FOO"]);
     });
+
+    it('integration', () => {
+      const value = RU.objFromPairs(sut.valueLens.pickedMonths, [null, null]);
+      const onChange = x => x;
+      const props = RU.objFromPairs(
+        sut.propsLens.onChange, onChange,
+        sut.propsLens.value, value,
+      );
+      const comp = mountAccountBalanceEvolutionComponent(props);
+      
+      const reducer = comp.find('MonthPicker').at(1).props().onPicked("FOO");
+      const newValue = reducer(value);
+      const newPickedMonths = R.view(sut.valueLens.pickedMonths, newValue);
+      expect(newPickedMonths).toEqual([null, "FOO"]);
+    });
+
   });
-  it('handlePickedAccountsChange', () => {
-    const accounts = AccountFactory.buildList(1);
-    const component = mountAccountBalanceEvolutionComponent();
-    expect(component).toHaveState("pickedAccounts", [null, null]);
-    component.instance().handlePickedAccountsChange(accounts);
-    expect(component).toHaveState("pickedAccounts", accounts);
+
+  describe('handlePickedAccountsChange', () => {
+
+    it('base', () => {
+      const reducer = sut.handlePickedAccountsChange(R.identity, ["FOO"]);
+      const newValue = reducer({});
+      const newPickedAccount = R.view(sut.valueLens.pickedAccounts, newValue);
+      expect(newPickedAccount).toEqual(["FOO"]);
+    });
+
+    it('integration', () => {
+      const onChange = x => x;
+      const props = RU.objFromPairs(sut.propsLens.onChange, onChange);
+      const comp = mountAccountBalanceEvolutionComponent(props);
+      const selectedAccounts = AccountFactory.buildList(1);
+      const reducer = comp
+            .find('MultipleAccountsSelector')
+            .props()
+            .onSelectedAccountsChange(selectedAccounts);
+      const newValue = reducer({});
+      expect(R.view(sut.valueLens.pickedAccounts, newValue)).toEqual(selectedAccounts);
+    });
+    
   });
+
+  describe('setAccountBalanceEvolutionData', () => {
+    const reducer = sut.setAccountBalanceEvolutionData(x => x, "FOO");
+    const newValue = reducer({});
+    const newData = R.view(sut.valueLens.data, newValue);
+    expect(newData).toEqual("FOO");
+  });
+
   describe('handleSubmit', () => {
-    let component, validateMonths, validateAccounts,
-        inject, getAccountBalanceEvolutionData, dataPromise,
-        account, dataPromiseValue;
+    let component, validateMonths, validateAccounts, inject, getAccountBalanceEvolutionData, dataPromise, account, dataPromiseValue, months;
     beforeEach(() => {
+      months = [{month: "February", year: 2018}, {month: "April", year: 2018}];
       account = AccountFactory.build();
-      dataPromiseValue = {
-        data: [getExampleData(account)],
-        months: [
-          {month: "February", year: 2018},
-          {month: "April", year: 2018}
-        ]
-      };
+      dataPromiseValue = {data: [getExampleData(account)], months};
       dataPromise = Promise.resolve(dataPromiseValue);
       getAccountBalanceEvolutionData = sinon.fake.returns(dataPromise);
-      component = mountAccountBalanceEvolutionComponent(
-        { getAccountBalanceEvolutionData, accounts: [account] }
+      const value = RU.objFromPairs(
+        sut.valueLens.data, null,
+        sut.valueLens.pickedMonths, dataPromiseValue.months,
+        sut.valueLens.pickedAccounts, [1, 2]
       );
+      const props = RU.objFromPairs(
+        sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
+        sut.propsLens.accounts, [account],
+        sut.propsLens.value, value,
+      );
+      component = mountAccountBalanceEvolutionComponent(props);
       validateMonths = sinon.fake();
       validateAccounts = sinon.fake();
       inject = { validateMonths, validateAccounts };
-      sinon.spy(component.instance(), 'setAccountBalanceEvolutionData');
-      // Set some valid months to avoid some warnings
-      component.setState({ pickedMonths: dataPromiseValue.months });
+
+      sinon.stub(window, 'alert').callsFake(()=>{});
     });
-    afterEach(() => {
-      component.instance().setAccountBalanceEvolutionData.restore();
-    });
-    it('calls validateMonths', () => {
-      component.setState({pickedMonths: [1, 2]});
-      component.instance().handleSubmit(inject);
-      expect(validateMonths.args).toEqual([[[1, 2]]]);
-    });
-    it('calls validateAccounts', () => {
-      component.setState({pickedAccounts: [1, 2]});
-      component.instance().handleSubmit(inject);
-      expect(validateAccounts.args).toEqual([[[1, 2]]]);      
-    });
-    it('calls getAccountBalanceEvolutionData', () => {
-      // This avoids warnings during mount
-      getAccountBalanceEvolutionData = sinon.fake.resolves(
-        dataPromiseValue
+
+    afterEach(() => { sinon.restore(); });
+
+    it('Dont run query if invalid pickedMonths', async () => {
+      const pickedMonths = [null, null];
+      const pickedAccounts = [account];
+      const value = RU.objFromPairs(
+        sut.valueLens.pickedMonths, pickedMonths,
+        sut.valueLens.pickedAccounts, pickedAccounts,
       );
-      component.setProps({ getAccountBalanceEvolutionData });
-      // Sets the input (as if from the user);
-      component.setState({
-        pickedAccounts: [1, 2],
-        pickedMonths: [3, 4]
-      });
-      // Calls handleSubmit
-      component.instance().handleSubmit(inject);
+      const props = RU.objFromPairs(
+        sut.propsLens.onChange, x => x,
+        sut.propsLens.value, value
+      );
+      return expect(sut.handleSubmit(props))
+        .resolves
+        .toEqual(MONTH_VALIDATION_ERRORS.IS_NULL);
+    });
+
+    it('Dont run query if invalid pickedAccounts', async () => {
+      const pickedMonths = months;
+      const pickedAccounts = [null, null];
+      const value = RU.objFromPairs(
+        sut.valueLens.pickedMonths, pickedMonths,
+        sut.valueLens.pickedAccounts, pickedAccounts,
+      );
+      const props = RU.objFromPairs(
+        sut.propsLens.onChange, x => x,
+        sut.propsLens.value, value
+      );
+      return expect(sut.handleSubmit(props))
+        .resolves
+        .toEqual(ACCOUNT_VALIDATION_ERRORS.IS_NULL);
+    });
+    
+    it('calls getAccountBalanceEvolutionData', async () => {
+      const responseData = {data: [getExampleData(account)], months};
+      const getAccountBalanceEvolutionData = sinon.fake.resolves(responseData);
+      const pickedMonths = months;
+      const pickedAccounts = [account];
+      const value = RU.objFromPairs(
+        sut.valueLens.pickedMonths, pickedMonths,
+        sut.valueLens.pickedAccounts, pickedAccounts,
+      );
+      const onChange = f => f(value);
+      const props = RU.objFromPairs(
+        sut.propsLens.value, value,
+        sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
+        sut.propsLens.onChange, onChange,
+      );
+
+      const result = await sut.handleSubmit(props);
+      const expResult = sut.setAccountBalanceEvolutionData(onChange, responseData);
+
       // And ensures getAccountBalanceEvolutionData was called with the args
-      expect(getAccountBalanceEvolutionData.args).toEqual([
-        [[1, 2], [3, 4]]
-      ]);
+      expect(getAccountBalanceEvolutionData.args).toEqual([[[account], months]]);
+      expect(result).toEqual(expResult);
     });
-    it('Calls setAccountBalanceEvolutionData with response', () => {
-      expect.assertions(1);
-      return component.instance().handleSubmit(inject).then(() => {
-        expect(component.instance().setAccountBalanceEvolutionData.args).toEqual([
-          [dataPromiseValue]
-        ]);
-      });
+
+    it('Calls setAccountBalanceEvolutionData with response', async () => {
+      const value = RU.objFromPairs(
+        sut.valueLens.pickedMonths, months,
+        sut.valueLens.pickedAccounts, [account],
+      );
+      const getAccountBalanceEvolutionData = sinon.fake.resolves("DATA");
+      const props = RU.objFromPairs(
+        sut.propsLens.value, value,
+        sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
+        sut.propsLens.onChange, x => x,
+      );
+      const reducer = await sut.handleSubmit(props);
+      const expReducer = sut.setAccountBalanceEvolutionData(x => x, "DATA");
+
+      expect(reducer({})).toEqual(expReducer({}));
     });
-    it.each(
-      [['validateMonths', 'invalid month'], ['validateAccounts', 'invalid acc']]
-    )('Fails if validatoin for %s fails', (functionName, errMsg) => {
-      const inject = {};
-      inject['alert'] = sinon.fake();
-      inject[functionName] = () => errMsg;
-      component.setProps({inject});
-      expect.assertions(2);
-      return component.instance().handleSubmit().then(x => {
-        expect(x).toBe(undefined);
-        expect(inject['alert'].args).toEqual([[errMsg]]);
-      });
-    });
+
   });
   describe('MultipleAccountSelector', () => {
     it('Passes accounts prop', () => {
       const accounts = AccountFactory.buildList(2);
-      const comp = mountAccountBalanceEvolutionComponent({ accounts });
-      expect(findMultipleAccSelect(comp)).toHaveProp('accounts', accounts);
-    });
-    it('Passes selectedAccount', () => {
-      const selectedAccounts = AccountFactory.buildList(1);
-      const comp = mountAccountBalanceEvolutionComponent({});
-      comp.instance().handlePickedAccountsChange(selectedAccounts);
-      comp.update();
-      expect(findMultipleAccSelect(comp)).toHaveProp(
-        'selectedAccounts',
-        selectedAccounts
+      const data = null;
+      const props = RU.objFromPairs(
+        sut.propsLens.accounts, accounts,
+        R.compose(sut.propsLens.value, sut.valueLens.data), data
       );
-    });
-    it('Calls handlePickedAccountsChange on change', () => {
-      const comp = mountAccountBalanceEvolutionComponent();
-      const newAccounts = AccountFactory.buildList(3);
-      sinon.spy(comp.instance(), 'handlePickedAccountsChange');
-      selectAccounts(comp, newAccounts);
-      expect(comp.instance().handlePickedAccountsChange.args)
-        .toEqual([[newAccounts]]);
-      comp.instance().handlePickedAccountsChange.restore();
+      const comp = mountAccountBalanceEvolutionComponent(props);
+      expect(findMultipleAccSelect(comp)).toHaveProp('accounts', accounts);
     });
   });
 });
