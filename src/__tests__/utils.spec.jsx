@@ -208,4 +208,31 @@ describe('MonthUtil', () => {
       expect(MonthUtil.monthsBetween(...months)).toEqual(exp);
     });
   });
+
+  describe('firstDayOfMonth', () => {
+    it('Base', () => {
+      const month = {year: 1993, month: 'November'};
+      expect(MonthUtil.firstDayOfMonth(month)).toEqual('1993-11-01');
+    });
+  });
+
+  describe('lastDayOfMonth', () => {
+
+    it('base', () => {
+      const month = {year: 1993, month: 'November'};
+      expect(MonthUtil.lastDayOfMonth(month)).toEqual('1993-11-30');
+    });
+
+    it('february normal year', () => {
+      const month = {year: 2015, month: 'February'};
+      expect(MonthUtil.lastDayOfMonth(month)).toEqual('2015-02-28');
+    });
+
+    it('february leap year', () => {
+      const month = {year: 2016, month: 'February'};
+      expect(MonthUtil.lastDayOfMonth(month)).toEqual('2016-02-29');
+    });
+    
+  });
+  
 });

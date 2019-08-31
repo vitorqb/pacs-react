@@ -321,5 +321,21 @@ export const MonthUtil = {
       out = [...out, current];
     }
     return out;
-  }
+  },
+
+  /**
+   * Returns the first day of a Month (year, month).
+   */
+  firstDayOfMonth: m => {
+    const { getMonthAsNumber } = MonthUtil;
+    return moment(`${getMonthAsNumber(m)}01`).format('YYYY-MM-DD');
+  },
+
+  /**
+   * Returns the last day of a Month (year, month).
+   */
+  lastDayOfMonth: m => {
+    const { getMonthAsNumber } = MonthUtil;
+    return moment(`${getMonthAsNumber(m)}01`).endOf('month').format('YYYY-MM-DD');
+  },
 };
