@@ -30,6 +30,7 @@ export default function AccountBalanceEvolutionComponentInstance(renderArgs){
     propsLens.onChange, overState(instanceLens),
     propsLens.accounts, accounts,
     propsLens.getCurrency, R.view(AppLens.currencies, stateGetters),
+    propsLens.getAccount, R.view(AppLens.accounts, stateGetters),
     propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
     R.lensPath(['value']), R.view(instanceLens, state),
   );

@@ -20,6 +20,7 @@ function getExampleData(acc) {
 
 function mountAccountBalanceEvolutionComponent(customProps={}) {
   const accounts = AccountFactory.buildList(2);
+  const getAccount = newGetter(R.prop("pk"), accounts);
   const currency = CurrencyFactory.build();
   const getCurrency = newGetter(R.prop("pk"), [currency]);
   const data = {
@@ -37,6 +38,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
     sut.propsLens.onChange, onChange,
     sut.propsLens.value, defaultValue,
     sut.propsLens.accounts, accounts,
+    sut.propsLens.getAccount, getAccount,
     sut.propsLens.getCurrency, getCurrency,
     sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
   );

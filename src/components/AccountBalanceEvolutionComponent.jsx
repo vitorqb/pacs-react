@@ -16,6 +16,7 @@ export const propsLens = {
   onChange: R.lensPath(['onChange']),
   accounts: R.lensPath(['accounts']),
   getCurrency: R.lensPath(['getCurrency']),
+  getAccount: R.lensPath(['getAccount']),
   getAccountBalanceEvolutionData: R.lensPath(['getAccountBalanceEvolutionData']),
   
 };
@@ -89,7 +90,7 @@ export const AccountBalanceEvolutionComponent = props => {
   const pickedAccounts = R.view(valueLens.pickedAccounts, props.value);
   const accounts = R.view(propsLens.accounts, props);
   const getCurrency = R.view(propsLens.getCurrency, props);
-  const getAccount = newGetter(R.prop("pk"), accounts);
+  const getAccount = R.view(propsLens.getAccount, props);
   const monthPickers = makeMonthPickers(pickedMonths, handlePickedMonth(onChange));
   const accountBalanceEvolutionTable = makeAccountBalanceEvolutionTable(
     data, getCurrency, getAccount
