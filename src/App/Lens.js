@@ -61,6 +61,9 @@ export const lens = {
   // Value for the delete account component
   deleteAccountComponentInstanceValue: R.lensPath(['deleteAccountComponentInstanceValue']),
 
+  // Value for the account balance evolution component
+  accountBalanceEvolutionInstanceValue: R.lensPath(['accountBalanceEvolutionInstanceValue']),
+
 };
 
 export default lens;

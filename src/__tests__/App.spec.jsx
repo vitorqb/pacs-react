@@ -24,13 +24,10 @@ describe('App.test.jsx', () => {
 
     it('No secrets', () => {
       const props = {};
-      const exp = R.set(
-        Lens.lens.remoteFetchingStatus,
-        Lens.RemoteFetchingStatusEnum.uninitialized,
-        {}
-      );
       const res = sut.initialStateFromProps(props);
-      expect(exp).toEqual(res);
+
+      expect(R.view(Lens.lens.remoteFetchingStatus, res))
+        .toEqual(Lens.RemoteFetchingStatusEnum.uninitialized);
     });
     
     it('With secrets', () => {
@@ -38,14 +35,17 @@ describe('App.test.jsx', () => {
         SecretsLens.token, 'foo',
         SecretsLens.host, 'bar',
       )};
-      const exp = RU.objFromPairs(
-        Lens.lens.remoteFetchingStatus, Lens.RemoteFetchingStatusEnum.uninitialized,
-        Lens.lens.host, 'bar',
-        Lens.lens.token, 'foo',
-        Lens.lens.isLoggedIn, true,
-      );
       const res = sut.initialStateFromProps(props);
-      expect(exp).toEqual(res);
+
+      expect(R.view(Lens.lens.isLoggedIn, res)).toEqual(true);
+      expect(R.view(Lens.lens.host, res)).toEqual('bar');
+      expect(R.view(Lens.lens.token, res)).toEqual('foo');
+      expect(R.view(Lens.lens.remoteFetchingStatus, res))
+        .toEqual(Lens.RemoteFetchingStatusEnum.uninitialized);
+    });
+
+    it('Contains account balance evolution component instance initial state', () => {
+      
     });
 
   });

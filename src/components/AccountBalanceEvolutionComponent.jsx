@@ -4,92 +4,143 @@ import AccountBalanceEvolutionTable from './AccountBalanceEvolutionTable';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import { MonthUtil, newGetter } from '../utils';
 import * as R from 'ramda';
+import * as RU from '../ramda-utils';
+import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 
-export default class AccountBalanceEvolutionComponent extends Component {
+export const MONTHS_PICKER_LABEL = "Initial and final months";
+export const MULTIPLE_ACCOUNTS_LABEL = "Accounts";
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      pickedMonths: [null, null],
-      // !!!! TODO -> Should be able to pick as many accounts as we want.
-      pickedAccounts: [null, null]
-    };
-  }
+export const propsLens = {
 
-  handlePickedMonth = R.curry((i, newValue) => {
-    this.setState(R.assocPath(["pickedMonths", i], newValue));
-  })
+  value: R.lensPath(['value']),
+  onChange: R.lensPath(['onChange']),
+  accounts: R.lensPath(['accounts']),
+  getCurrency: R.lensPath(['getCurrency']),
+  getAccount: R.lensPath(['getAccount']),
+  getAccountBalanceEvolutionData: R.lensPath(['getAccountBalanceEvolutionData']),
+  
+};
 
-  handlePickedAccountsChange = (x) => {
-    this.setState(R.assoc("pickedAccounts", x));
-  }
+export const valueLens = {
 
-  setAccountBalanceEvolutionData = (x) => {
-    this.setState(R.assoc("data", x));
-  }
+  pickedMonths: R.lensPath(['pickedMonths']),
+  pickedAccounts: R.lensPath(['pickedAccounts']),
+  data: R.lensPath(['data']),
 
-  handleSubmit = (inject=undefined) => {
-    // Dep injection
-    const _inject = inject || this.props.inject || {};
-    const _validateMonths = _inject.validateMonths || validateMonths;
-    const _validateAccounts = _inject.validateAccounts || validateAccounts;
-    const _alert = _inject.alert || alert;
-    const { pickedMonths, pickedAccounts } = this.state;
+};
 
-    const errorMsg = R.find(
-      R.complement(R.isNil),
-      [_validateMonths(pickedMonths), _validateAccounts(pickedAccounts)]
-    );
-    if (errorMsg) {
-      _alert(errorMsg);
-      return Promise.resolve();
-    };
+/**
+ * Calls onChange with a reducer for when the user picks a new month.
+ */
+export const handlePickedMonth = R.curry((onChange, i, newValue) => onChange(R.set(
+  R.compose(valueLens.pickedMonths, R.lensPath([i])),
+  newValue,  
+)));
 
-    return this
-      .props
-      .getAccountBalanceEvolutionData(pickedAccounts, pickedMonths)
-      .then(this.setAccountBalanceEvolutionData)
-      .catch(() => alert('Request failed!'));
+/**
+ * Calls onChange with a reducer for when the user picks an account.
+ */
+export const handlePickedAccountsChange = R.curry((onChange, x) => onChange(R.set(
+  valueLens.pickedAccounts,
+  x
+)));
+
+/**
+ * Calls onChange with a reducer for when new data is received.
+ */
+export const setAccountBalanceEvolutionData = R.curry((onChange, x) => onChange(R.set(
+  valueLens.data,
+  x
+)));
+
+/**
+ * Handles submission of a request for getting the data for the account
+ * balance evolution.
+ * Returns a promise with the reduced value.
+ */
+export const handleSubmit = R.curry(props => {
+  const value = R.view(propsLens.value, props);
+  const pickedMonths = R.view(valueLens.pickedMonths, value);
+  const pickedAccounts = R.view(valueLens.pickedAccounts, value);
+  const onChange = R.view(propsLens.onChange, props);
+  const getAccountBalanceEvolutionData = R.view(
+    propsLens.getAccountBalanceEvolutionData,
+    props
+  );
+
+  const errorMsg = R.find(
+    R.complement(R.isNil),
+    [validateMonths(pickedMonths), validateAccounts(pickedAccounts)]
+  );
+  if (errorMsg) {
+    alert(errorMsg);
+    return Promise.resolve(errorMsg);
   };
 
-  render(props) {
-    const { pickedMonths, pickedAccounts, data } = this.state;
-    const { accounts, getCurrency } = this.props;
-    const getAccount = newGetter(R.prop("pk"), accounts);
-    const monthPickers = makeMonthPickers(pickedMonths, this.handlePickedMonth);
-    const accountBalanceEvolutionTable = makeAccountBalanceEvolutionTable(
-      data, getCurrency, getAccount
-    );
-    return (
-      <div>
-        {monthPickers}
-        <MultipleAccountsSelector
-          accounts={accounts}
-          selectedAccounts={pickedAccounts}
-          onSelectedAccountsChange={(x) => this.handlePickedAccountsChange(x)} />
-        <button onClick={this.handleSubmit}>Submit!</button>
-        <div>
-          {accountBalanceEvolutionTable}
-        </div>
-      </div>
-    );
-  }
-}
+  return getAccountBalanceEvolutionData(pickedAccounts, pickedMonths)
+    .then(setAccountBalanceEvolutionData(onChange))
+    .catch(() => alert('Request failed!'));
+  
+});
 
+export const AccountBalanceEvolutionComponent = props => {
+  const onChange = R.view(propsLens.onChange, props);
+  const pickedMonths = R.view(valueLens.pickedMonths, props.value);
+  const data = R.view(valueLens.data, props.value);
+  const pickedAccounts = R.view(valueLens.pickedAccounts, props.value);
+  const accounts = R.view(propsLens.accounts, props);
+  const getCurrency = R.view(propsLens.getCurrency, props);
+  const getAccount = R.view(propsLens.getAccount, props);
+  const monthPickers = makeMonthPickers(pickedMonths, handlePickedMonth(onChange));
+  const accountBalanceEvolutionTable = makeAccountBalanceEvolutionTable(
+    data, getCurrency, getAccount
+  );
+  return (
+    <div className="form-div">
+      {monthPickers}
+      <AccountBalanceEvolutionMultipleAccountSelector {...props} />
+      <button onClick={() => handleSubmit(props)}>Submit!</button>
+      <div>
+        {accountBalanceEvolutionTable}
+      </div>
+    </div>
+  );
+};
+export default AccountBalanceEvolutionComponent;
+
+/**
+ * Component for wrapping MultipleAccountsSelector.
+ */
+export function AccountBalanceEvolutionMultipleAccountSelector(props) {
+  const onChange = R.view(propsLens.onChange, props);
+  const accounts = R.view(propsLens.accounts, props);
+  const pickedAccounts = R.view(valueLens.pickedAccounts, props.value);
+  const multipleAccountSelector = (
+    <MultipleAccountsSelector
+      accounts={accounts}
+      selectedAccounts={pickedAccounts}
+      onSelectedAccountsChange={handlePickedAccountsChange(onChange)} />
+  );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, MULTIPLE_ACCOUNTS_LABEL,
+    InputWrapperLens.content, multipleAccountSelector,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
+};
 
 /**
  * Returns two MonthPickers for the component
  */
-export function makeMonthPickers(values, onPicked, inject={}) {
-  const _MonthPicker = inject.MonthPicker || MonthPicker;
-  const _createElement = inject.createElement || createElement;
-  return R.addIndex(R.map)(
-    (value, i) => _createElement(
-      _MonthPicker,
-      { key: i, value, onPicked: onPicked(i) }
-    ),
+export function makeMonthPickers(values, onPicked) {
+  const monthPickers = R.addIndex(R.map)(
+    (value, i) => createElement(MonthPicker, { key: i, value, onPicked: onPicked(i) }),
     values
   );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, MONTHS_PICKER_LABEL,
+    InputWrapperLens.content, monthPickers,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
 };
 
 export function makeAccountBalanceEvolutionTable(

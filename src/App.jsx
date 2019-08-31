@@ -18,7 +18,7 @@ import EditTransactionComponentInstance from './App/Instances/EditTransactionCom
 import AccountTreeInstance from './App/Instances/AccountTree';
 import CurrencyTableInstance from './App/Instances/CurrencyTable';
 import JournalComponentInstance from './App/Instances/JournalComponent';
-import AccountBalanceEvolutionComponentInstance from './App/Instances/AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponentInstance, { initialState as AccountBalanceEvolutionComponentInstanceInitialSatate } from './App/Instances/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import { lens as EventsLens } from './App/Events';
@@ -29,6 +29,10 @@ export const initialStateFromProps = ({ secrets }) => R.pipe(
     _ => secrets,
     RU.setLenses([[lens.secrets, secrets], [lens.isLoggedIn, true]]),
   ),
+  R.set(
+    lens.accountBalanceEvolutionInstanceValue,
+    AccountBalanceEvolutionComponentInstanceInitialSatate,
+  )
 )({});
 
 export const loadingWrapperClassName = isLoading => {
