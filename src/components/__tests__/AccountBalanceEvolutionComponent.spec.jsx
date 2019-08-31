@@ -2,11 +2,12 @@ import { createElement } from 'react';
 import { mount } from 'enzyme';
 import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS, makeAccountBalanceEvolutionTable } from '../AccountBalanceEvolutionComponent';
 import * as sut from '../AccountBalanceEvolutionComponent';
-import { AccountFactory, CurrencyFactory } from '../../testUtils';
+import { AccountFactory, CurrencyFactory, MonthFactory } from '../../testUtils';
 import { newGetter, MonthUtil } from '../../utils';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
+import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
 
 function getExampleData(acc) {
   return {
@@ -241,28 +242,35 @@ describe('AccountBalanceEvolutionComponent', () => {
 });
 
 describe('makeMonthPickers', () => {
-  // Fakes react createElement
-  const createElement = sinon.fake();
-  // Fakes the MonthPicker component
-  const MonthPicker = {};
-  // Values parsed to MonthPicker
-  const values = [{}, {}];
-  // Fakes the values passed as onPicked
-  const onPickedFuns = [{}, {}];
-  const resp = makeMonthPickers(
-    values,
-    i => onPickedFuns[i],
-    { MonthPicker, createElement }
-  );
-  it('Calls MonthPicker with values and onPicked', () => {
-    expect(createElement.args).toEqual([
-      [MonthPicker, {key: 0, value: values[0], onPicked: onPickedFuns[0]}],
-      [MonthPicker, {key: 1, value: values[1], onPicked: onPickedFuns[1]}],
-    ]);
+
+  let values, onPicked;
+
+  beforeEach(() => {
+    values = MonthFactory.buildList(2);
+    onPicked = sinon.fake();
   });
-  it('Returns createElement mapped', () => {
-    expect(resp).toEqual([createElement(), createElement()]);
+
+  it('Renders input wrapper with labels', () => {
+    const c = mount(sut.makeMonthPickers(values, onPicked));
+    const inputWrapperProps = c.find('InputWrapper').props();
+    expect(R.view(InputWrapperLens.label, inputWrapperProps))
+      .toEqual(sut.MONTHS_PICKER_LABEL);
   });
+
+  it('Renders MonthPickers', () => {
+    const c = mount(sut.makeMonthPickers(values, onPicked));
+    const monthPickers = c.find('MonthPicker');
+    expect(monthPickers).toHaveLength(2);
+    expect(monthPickers.at(0).props()).toEqual({
+      value: values[0],
+      onPicked: onPicked(0),
+    });
+    expect(monthPickers.at(1).props()).toEqual({
+      value: values[1],
+      onPicked: onPicked(1),
+    });
+  });
+  
 });
 
 describe('makeAccountBalanceEvolutionTable', () => {

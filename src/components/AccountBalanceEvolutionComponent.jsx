@@ -4,6 +4,11 @@ import AccountBalanceEvolutionTable from './AccountBalanceEvolutionTable';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import { MonthUtil, newGetter } from '../utils';
 import * as R from 'ramda';
+import * as RU from '../ramda-utils';
+import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
+
+export const MONTHS_PICKER_LABEL = "Initial and final months";
+export const MULTIPLE_ACCOUNTS_LABEL = "Accounts";
 
 export const propsLens = {
 
@@ -90,12 +95,9 @@ export const AccountBalanceEvolutionComponent = props => {
     data, getCurrency, getAccount
   );
   return (
-    <div>
+    <div className="form-div">
       {monthPickers}
-      <MultipleAccountsSelector
-        accounts={accounts}
-        selectedAccounts={pickedAccounts}
-        onSelectedAccountsChange={handlePickedAccountsChange(onChange)} />
+      <AccountBalanceEvolutionMultipleAccountSelector {...props} />
       <button onClick={() => handleSubmit(props)}>Submit!</button>
       <div>
         {accountBalanceEvolutionTable}
@@ -105,20 +107,39 @@ export const AccountBalanceEvolutionComponent = props => {
 };
 export default AccountBalanceEvolutionComponent;
 
+/**
+ * Component for wrapping MultipleAccountsSelector.
+ */
+export function AccountBalanceEvolutionMultipleAccountSelector(props) {
+  const onChange = R.view(propsLens.onChange, props);
+  const accounts = R.view(propsLens.accounts, props);
+  const pickedAccounts = R.view(valueLens.pickedAccounts, props.value);
+  const multipleAccountSelector = (
+    <MultipleAccountsSelector
+      accounts={accounts}
+      selectedAccounts={pickedAccounts}
+      onSelectedAccountsChange={handlePickedAccountsChange(onChange)} />
+  );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, MULTIPLE_ACCOUNTS_LABEL,
+    InputWrapperLens.content, multipleAccountSelector,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
+};
 
 /**
  * Returns two MonthPickers for the component
  */
-export function makeMonthPickers(values, onPicked, inject={}) {
-  const _MonthPicker = inject.MonthPicker || MonthPicker;
-  const _createElement = inject.createElement || createElement;
-  return R.addIndex(R.map)(
-    (value, i) => _createElement(
-      _MonthPicker,
-      { key: i, value, onPicked: onPicked(i) }
-    ),
+export function makeMonthPickers(values, onPicked) {
+  const monthPickers = R.addIndex(R.map)(
+    (value, i) => createElement(MonthPicker, { key: i, value, onPicked: onPicked(i) }),
     values
   );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, MONTHS_PICKER_LABEL,
+    InputWrapperLens.content, monthPickers,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
 };
 
 export function makeAccountBalanceEvolutionTable(
