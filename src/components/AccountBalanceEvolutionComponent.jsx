@@ -1,11 +1,13 @@
 import React, { Component, createElement } from 'react';
 import MonthPicker from './MonthPicker';
-import AccountBalanceEvolutionTable from './AccountBalanceEvolutionTable';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
 import { MonthUtil, newGetter } from '../utils';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
+import * as AccountBalance from '../domain/AccountBalance/core';
+import * as SimpleTable from './SimpleTable';
+import SimpleTableComponent from './SimpleTable';
 
 export const MONTHS_PICKER_LABEL = "Initial and final months";
 export const MULTIPLE_ACCOUNTS_LABEL = "Accounts";
@@ -27,6 +29,52 @@ export const valueLens = {
   pickedAccounts: R.lensPath(['pickedAccounts']),
   data: R.lensPath(['data']),
 
+};
+
+/**
+ * View the table data from props.
+ */
+export const viewTableData = props => {
+  const getAccount = R.view(propsLens.getAccount, props);
+  const getCurrency = R.view(propsLens.getCurrency, props);
+  return R.pipe(
+    R.view(R.compose(propsLens.value, valueLens.data, R.lensPath(['data']))),
+    R.ifElse(
+      R.isNil,
+      R.always([]),
+      R.map(data => AccountBalance.toCellData({getAccount, getCurrency, data})),
+    ),
+  )(props);
+};
+
+/**
+ * View the table x labels (headers).
+ */
+export const viewXLabels = R.pipe(
+  R.view(R.compose(propsLens.value, valueLens.data, R.lensPath(['data']))),
+  R.ifElse(
+    R.isNil,
+    R.always([]),
+    R.pipe(R.map(R.prop('date')), R.uniq, R.sort(R.comparator(R.lt)),)
+  )
+);
+
+/**
+ * View the table y labels (rows).
+ */
+export const viewYLabels = props => {
+  const getAccount = R.view(propsLens.getAccount, props);
+  return R.pipe(
+    R.view(R.compose(propsLens.value, valueLens.data, R.lensPath(['data']))),
+    R.ifElse(
+      R.isNil,
+      R.always([]),
+      R.pipe(
+        R.map(R.pipe(R.prop('account'), getAccount,  R.prop('name'))),
+        R.uniq,
+      ),
+    ),
+  )(props);
 };
 
 /**
@@ -79,7 +127,7 @@ export const handleSubmit = R.curry(props => {
 
   return getAccountBalanceEvolutionData(pickedAccounts, pickedMonths)
     .then(setAccountBalanceEvolutionData(onChange))
-    .catch(() => alert('Request failed!'));
+    .catch(e => alert(`Request failed: ${e}`));
   
 });
 
@@ -92,8 +140,10 @@ export const AccountBalanceEvolutionComponent = props => {
   const getCurrency = R.view(propsLens.getCurrency, props);
   const getAccount = R.view(propsLens.getAccount, props);
   const monthPickers = makeMonthPickers(pickedMonths, handlePickedMonth(onChange));
-  const accountBalanceEvolutionTable = makeAccountBalanceEvolutionTable(
-    data, getCurrency, getAccount
+  const simpleTableProps = RU.objFromPairs(
+    SimpleTable.propsLens.data, viewTableData(props),
+    SimpleTable.propsLens.xLabels, viewXLabels(props),
+    SimpleTable.propsLens.yLabels, viewYLabels(props),
   );
   return (
     <div className="form-div">
@@ -101,7 +151,7 @@ export const AccountBalanceEvolutionComponent = props => {
       <AccountBalanceEvolutionMultipleAccountSelector {...props} />
       <button onClick={() => handleSubmit(props)}>Submit!</button>
       <div>
-        {accountBalanceEvolutionTable}
+        <SimpleTableComponent {...simpleTableProps} />
       </div>
     </div>
   );
@@ -143,33 +193,6 @@ export function makeMonthPickers(values, onPicked) {
   return <InputWrapper {...inputWrapperProps} />;
 };
 
-export function makeAccountBalanceEvolutionTable(
-  data,
-  getCurrency,
-  getAccount,
-  inject={}
-) {
-  const _AccountBalanceEvolutionTable = (
-    inject.AccountBalanceEvolutionTable || AccountBalanceEvolutionTable
-  );
-  const _createElement = inject.createElement || createElement;
-  
-  if (R.isNil(data)) {
-    return null;
-  }
-  return _createElement(
-    _AccountBalanceEvolutionTable,
-    {
-      monthsLabels: R.pipe(
-        R.apply(MonthUtil.monthsBetween),
-        R.map(MonthUtil.toLabel)
-      )(data.months),
-      data: data.data,
-      getCurrency,
-      getAccount
-    }
-  );
-};
 
 /**
  * Validates that the start and end months make sense

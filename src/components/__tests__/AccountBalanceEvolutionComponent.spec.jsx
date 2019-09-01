@@ -1,20 +1,29 @@
 import { createElement } from 'react';
 import { mount } from 'enzyme';
-import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS, makeAccountBalanceEvolutionTable } from '../AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS } from '../AccountBalanceEvolutionComponent';
 import * as sut from '../AccountBalanceEvolutionComponent';
-import { AccountFactory, CurrencyFactory, MonthFactory } from '../../testUtils';
+import { AccountFactory, CurrencyFactory, MonthFactory, MoneyFactory } from '../../testUtils';
 import { newGetter, MonthUtil } from '../../utils';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
 import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
+import * as utils from '../../utils';
+
+function getExampleDataItem() {
+  const account = AccountFactory.build();
+  const currency = CurrencyFactory.build();
+  const balance = [MoneyFactory.build({currency: currency.pk})];
+  const month = MonthFactory.build();
+  const date = MonthUtil.lastDayOfMonth(month);
+  return {
+    metadata: {account, currency},
+    item: {date, account: account.pk, balance}
+  };
+}
 
 function getExampleData(acc) {
-  return {
-    account: acc.pk,
-    initialBalance: [],
-    balanceEvolution: [[], [], []],
-  };
+  return { data: [getExampleDataItem()] };
 }
 
 
@@ -23,10 +32,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   const getAccount = newGetter(R.prop("pk"), accounts);
   const currency = CurrencyFactory.build();
   const getCurrency = newGetter(R.prop("pk"), [currency]);
-  const data = {
-    data: R.map(getExampleData, accounts),
-    months: [{year: 2018, month: "January"}, {year: 2018, month: "March"}],
-  };
+  const data = R.map(getExampleData, accounts);
   const onChange = sinon.fake();
   const getAccountBalanceEvolutionData = () => Promise.resolve(data);
   const defaultValue = RU.objFromPairs(
@@ -46,10 +52,6 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   return mount(createElement(AccountBalanceEvolutionComponent, props));
 }
 
-function findAccBalEvolTable(comp) {
-  return comp.find("AccountBalanceEvolutionTable");
-}
-
 function findMonthPicker(comp, i) {
   const found = comp.find("MonthPicker");
   return R.isNil(i) ? found : found.at(i);
@@ -66,6 +68,72 @@ function pickMonth(comp, month) {
 function selectAccounts(comp, accs) {
   findMultipleAccSelect(comp).props().onSelectedAccountsChange(accs);
 }
+
+describe('viewTableData', () => {
+
+  it('Null', () => {
+    const value = RU.objFromPairs(sut.valueLens.data, null);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    expect(sut.viewTableData(props)).toEqual([]);
+  });
+
+  it('Not null', () => {
+    const { item, metadata } = getExampleDataItem();
+    const getCurrency = () => metadata.currency;
+    const value = RU.objFromPairs(sut.valueLens.data, {data: [item]});
+    const props = RU.objFromPairs(
+      sut.propsLens.value, value,
+      sut.propsLens.getAccount, () => metadata.account,
+      sut.propsLens.getCurrency, getCurrency,
+    );
+    expect(sut.viewTableData(props)).toEqual([
+      {
+        xLabel: item.date,
+        yLabel: metadata.account.name,
+        value: utils.moneysToRepr(getCurrency, item.balance),
+      }
+    ]);
+  });
+  
+});
+
+describe('viewXLabels', () => {
+
+  it('empty', () => {
+    const value = RU.objFromPairs(sut.valueLens.data, null);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    expect(sut.viewXLabels(props)).toEqual([]);    
+  });
+
+  it('Not null', () => {
+    const data = [{date: '2019-01-01'}, {date: '2018-01-01'}, {date: '2018-01-01'}];
+    const value = RU.objFromPairs(sut.valueLens.data, {data});
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    expect(sut.viewXLabels(props)).toEqual(['2018-01-01', '2019-01-01']);
+  });
+  
+});
+
+describe('viewYLabels', () => {
+
+  it('empty', () => {
+    const value = RU.objFromPairs(sut.valueLens.data, null);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    expect(sut.viewYLabels(props)).toEqual([]);    
+  });
+
+  it('Not null', () => {
+    const data = [{account: 1}, {account: 1}];
+    const value = RU.objFromPairs(sut.valueLens.data, {data});
+    const getAccount = () => ({name: 'accName'});
+    const props = RU.objFromPairs(
+      sut.propsLens.value, value,
+      sut.propsLens.getAccount, getAccount,
+    );
+    expect(sut.viewYLabels(props)).toEqual(['accName']);
+  });
+  
+});
 
 describe('AccountBalanceEvolutionComponent', () => {
 
@@ -273,45 +341,6 @@ describe('makeMonthPickers', () => {
     });
   });
   
-});
-
-describe('makeAccountBalanceEvolutionTable', () => {
-  let data, getCurrency, getAccount, createElement,
-      AccountBalanceEvolutionTable, inject;
-  beforeEach(() => {
-    data = {
-      data: [],
-      months: [{month: 'april', year: 2019}, {month: 'june', year: 2019}]
-    };
-    getCurrency = sinon.fake();
-    getAccount = sinon.fake();
-    createElement = sinon.fake();
-    AccountBalanceEvolutionTable = sinon.fake();
-    inject = { createElement, AccountBalanceEvolutionTable };    
-  });
-  it('Returns null if data is null or undefined', () => {
-    expect(makeAccountBalanceEvolutionTable(null)).toEqual(null);
-    expect(makeAccountBalanceEvolutionTable(undefined)).toEqual(null);
-  });
-  it('Calls createElement with AccountBalanceEvolutionTable and props', () => {
-    makeAccountBalanceEvolutionTable(data, getCurrency, getAccount, inject);
-    expect(createElement.args).toEqual([
-      [
-        AccountBalanceEvolutionTable,
-        {
-          monthsLabels: R.map(
-            MonthUtil.toLabel,
-            // Note months must come from data.months and not months
-            // this way when we update the select months the table won't change
-            MonthUtil.monthsBetween(...data.months)
-          ),
-          data: data.data,
-          getCurrency,
-          getAccount
-        }
-      ]
-    ]);
-  });
 });
 
 describe('validateMonths', () => {

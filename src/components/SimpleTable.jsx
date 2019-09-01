@@ -34,7 +34,7 @@ export default function SimpleTable(props) {
 export function SimpleTableHeader(props) {
   const xLabels = R.view(propsLens.xLabels, props);
   const thArray = R.map(x => <th key={`${x}-header`}>{x}</th>, xLabels);
-  return <tr><th></th>{thArray}</tr>;
+  return <tr key={"table-header"}><th key={"first-headeer"}></th>{thArray}</tr>;
 };
 
 export function SimpleTableBody(props) {
@@ -55,9 +55,12 @@ export function SimpleTableBody(props) {
     // [xlab, value1, value2, ...]
     R.map(([xlab, cells]) => [xlab, ...R.map(RU.third, cells)]),
     // [tr, td, td, ...]
-    R.map(([xlab, ...cells]) => [<th>{xlab}></th>, R.map(x => <td>{x}</td>, cells)]),
+    R.addIndex(R.map)(([xlab, ...cells], i) => [
+      (<th key={`-1${i}`}>{xlab}</th>),
+      R.addIndex(R.map)((x, j) => <td key={`${j}${i}`}>{x}</td>, cells)
+    ]),
     // [tr]
-    R.map(els => <tr>{els}</tr>),
+    R.addIndex(R.map)((els, i) => <tr key={`${i}`}>{els}</tr>),
   )([xLabels, yLabels]);
 };
 
