@@ -182,21 +182,21 @@ class MonthFactoryWrapper {
     this.build = this.build.bind(this);
     this.buildList = this.buildList.bind(this);
     this.currentMonthIndex = -1;
-    this.monthsIndexes = [0, 12, 1, 1, 7, 4, 5, 3, 12, 11, 10, 9, 6, 5, 1];
+    this.monthsIndexes = [0, 11, 1, 1, 7, 4, 5, 3, 11, 11, 10, 9, 6, 5, 1];
     this.currentYearIndex = -1;
-    this.years = [2019, 1993, 2018, 1964, 1900, 2017, 2011, 2000, 1999, 19998];
+    this.years = [2019, 1993, 2018, 1964, 1900, 2017, 2011, 2000, 1999, 1999];
   }
 
   getMonth() {
-    if (this.currentMonthIndex > this.monthsIndexes.length) {
+    if (this.currentMonthIndex >= this.monthsIndexes.length - 1) {
       this.currentMonthIndex = -1;
     }
     this.currentMonthIndex++;
-    return MonthUtil.MONTHS[this.currentMonthIndex];
+    return MonthUtil.MONTHS[this.monthsIndexes[this.currentMonthIndex]];
   }
 
   getYear() {
-    if (this.currentYearIndex > this.years.length) {
+    if (this.currentYearIndex >= this.years.length - 1) {
       this.currentYearIndex = -1;
     }
     this.currentYearIndex++;
