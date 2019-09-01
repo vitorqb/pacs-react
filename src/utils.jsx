@@ -338,4 +338,12 @@ export const MonthUtil = {
     const { getMonthAsNumber } = MonthUtil;
     return moment(`${getMonthAsNumber(m)}01`).endOf('month').format('YYYY-MM-DD');
   },
+
+  /**
+   * Returns the month of a date (string).
+   */
+  dateToMonth: d => {
+    const momentDate = moment(d);
+    return {month: momentDate.format("MMMM"), year: Number(momentDate.format("YYYY"))};
+  }
 };

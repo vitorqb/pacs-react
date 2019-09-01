@@ -46,3 +46,29 @@ export const objFromPairs = (...pairs) => {
 
 export const callWithoutArgs = f => f();
 export const viewAndCallWithoutArgs = l => R.pipe(R.view(l), callWithoutArgs);
+export const viewIsNil = R.pipe(R.view, R.isNil);
+export const viewEquals = R.curry((l, obj, val) => R.equals(R.view(l, obj), val));
+export const first = (arr) => arr[0];
+export const second = (arr) => arr[1];
+export const third = (arr) => arr[2];
+
+/**
+ * Returns all permutations of two arrays.
+ * The order is defined by arr1 and arr2.
+ */
+export const permutations = (arr1, arr2) => {
+  return R.pipe(
+    R.map(R.pipe(R.repeat(R.__, arr2.length), R.zip(R.__, arr2))),
+    R.unnest,
+  )(arr1);
+};
+
+/**
+ * Returns the first item of col for which pred is true.
+ */
+export const findFirst = R.curry((pred, col) => {
+  for (var i = 0; i < col.length; i++) {
+    if (pred(col[i])) { return col[i]; }
+  }
+  return null;
+});

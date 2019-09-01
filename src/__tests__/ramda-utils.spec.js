@@ -58,3 +58,57 @@ describe('objFromPairs', () => {
   });
   
 });
+
+describe('viewEquals', () => {
+
+  it('true', () => {
+    const lens = R.lensPath(['x']);
+    const obj = sut.objFromPairs(lens, 1);
+    expect(sut.viewEquals(lens, obj, 1)).toBe(true);
+  });
+
+  it('false', () => {
+    const lens = R.lensPath(['x']);
+    const obj = sut.objFromPairs(lens, 1);
+    expect(sut.viewEquals(lens, obj, 2)).toBe(false);
+    expect(sut.viewEquals(R.lensPath(['y']), obj, 1)).toBe(false);
+  });
+
+});
+
+describe('permutations', () => {
+
+  it('empty', () => {
+    expect(sut.permutations([], [])).toEqual([]);
+    expect(sut.permutations([1], [])).toEqual([]);
+    expect(sut.permutations([], [1])).toEqual([]);
+  });
+
+  it('Base', () => {
+    expect(sut.permutations([1], ['a', 'b'])).toEqual([[1, 'a'], [1, 'b']]);
+  });
+
+  it('Long', () => {
+    expect(sut.permutations([1, 2, 3], ['a', 'b', 4])).toEqual([
+      [1, 'a'], [1, 'b'], [1, 4],
+      [2, 'a'], [2, 'b'], [2, 4],
+      [3, 'a'], [3, 'b'], [3, 4],
+    ]);
+  });
+  
+});
+
+describe('findFirst', () => {
+
+  it('base', () => {
+    const col = [1, 2, 3];
+    const pred = R.equals(1);
+    expect(sut.findFirst(pred)(col)).toEqual(1);
+  });
+
+  it('not found', () => {
+    const pred = R.equals(1);
+    expect(sut.findFirst(pred)([])).toEqual(null);
+    expect(sut.findFirst(pred)([2])).toEqual(null);    
+  });
+});
