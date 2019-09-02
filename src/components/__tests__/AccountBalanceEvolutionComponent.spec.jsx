@@ -9,6 +9,7 @@ import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
 import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
 import * as utils from '../../utils';
+import * as PortifolioFilePicker from '../PortifolioFilePicker';
 
 function getExampleDataItem() {
   const account = AccountFactory.build();
@@ -33,7 +34,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   const currency = CurrencyFactory.build();
   const getCurrency = newGetter(R.prop("pk"), [currency]);
   const data = R.map(getExampleData, accounts);
-  const onChange = sinon.fake();
+  const onChange = R.view(sut.propsLens.onChange, customProps) || sinon.fake();
   const getAccountBalanceEvolutionData = () => Promise.resolve(data);
   const defaultValue = RU.objFromPairs(
     sut.valueLens.data, data,
@@ -309,6 +310,49 @@ describe('AccountBalanceEvolutionComponent', () => {
       expect(findMultipleAccSelect(comp)).toHaveProp('accounts', accounts);
     });
   });
+
+  describe('PortifolioFilePicker', () => {
+
+    it('Is rendered with value', () => {
+      const pickedPortifolioValue = {foo: "bar"};
+      const value = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, pickedPortifolioValue);
+      const props = RU.objFromPairs(sut.propsLens.value, value);
+      const c = mountAccountBalanceEvolutionComponent(props);
+      const portifolioFilePicker = c.find('PortifolioFilePicker');
+      expect(portifolioFilePicker.props().value).toEqual(pickedPortifolioValue);
+    });
+
+    it('Calls onChange on change', () => {
+      const onChange = f => f({});
+      const props = RU.objFromPairs(sut.propsLens.onChange, onChange);
+      const c = mountAccountBalanceEvolutionComponent(props);
+      const portifolioFilePicker = c.find('PortifolioFilePicker');
+
+      const newValue = portifolioFilePicker.props().onChange(() => "FOO");
+      const expNewValue = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, "FOO");
+      expect(newValue).toEqual(expNewValue);
+    });
+  });
+});
+
+describe('AccountBalancePortifolioFilePicker', () => {
+
+  it('Renders InputWrapper', () => {
+    const c = mount(sut.AccountBalancePortifolioFilePicker({}));
+    const inputWrapper = c.find('InputWrapper');
+    const label = R.view(InputWrapperLens.label, inputWrapper.props());
+    expect(label).toEqual(sut.PORTIFOLIO_FILE_PICKER_LABEL);
+  });
+
+  it('Renders with props', () => {
+    const pickedPortifolioValue = "BAR";
+    const value = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, pickedPortifolioValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const c = mount(sut.AccountBalancePortifolioFilePicker(props));
+    const portifolioFilePickerValue = c.find('PortifolioFilePicker').props().value;
+    expect(portifolioFilePickerValue).toEqual(pickedPortifolioValue);
+  });
+  
 });
 
 describe('makeMonthPickers', () => {

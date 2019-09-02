@@ -8,9 +8,11 @@ import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 import * as AccountBalance from '../domain/AccountBalance/core';
 import * as SimpleTable from './SimpleTable';
 import SimpleTableComponent from './SimpleTable';
+import PortifolioFilePicker from './PortifolioFilePicker';
 
 export const MONTHS_PICKER_LABEL = "Initial and final months";
 export const MULTIPLE_ACCOUNTS_LABEL = "Accounts";
+export const PORTIFOLIO_FILE_PICKER_LABEL = "Currency Price Portifolio File";;
 
 export const propsLens = {
 
@@ -27,6 +29,7 @@ export const valueLens = {
 
   pickedMonths: R.lensPath(['pickedMonths']),
   pickedAccounts: R.lensPath(['pickedAccounts']),
+  pickedPortifolioValue: R.lensPath(['pickedPortifolio']),
   data: R.lensPath(['data']),
 
 };
@@ -78,6 +81,17 @@ export const viewYLabels = props => {
 };
 
 /**
+ * A generic handler factory with one lens and a new value.
+ */
+export const handleChange = R.curry((l, onChange, x) => onChange(R.set(l, x)));
+export const handleChangeWithReducer = R.curry((l, onChange, f) => onChange(R.over(l, f)));
+
+/**
+ * Handlers.
+ */
+export const handlePickedPortifolio = handleChangeWithReducer(valueLens.pickedPortifolioValue);
+
+/**
  * Calls onChange with a reducer for when the user picks a new month.
  */
 export const handlePickedMonth = R.curry((onChange, i, newValue) => onChange(R.set(
@@ -88,18 +102,12 @@ export const handlePickedMonth = R.curry((onChange, i, newValue) => onChange(R.s
 /**
  * Calls onChange with a reducer for when the user picks an account.
  */
-export const handlePickedAccountsChange = R.curry((onChange, x) => onChange(R.set(
-  valueLens.pickedAccounts,
-  x
-)));
+export const handlePickedAccountsChange = handleChange(valueLens.pickedAccounts);
 
 /**
  * Calls onChange with a reducer for when new data is received.
  */
-export const setAccountBalanceEvolutionData = R.curry((onChange, x) => onChange(R.set(
-  valueLens.data,
-  x
-)));
+export const setAccountBalanceEvolutionData = handleChange(valueLens.data);
 
 /**
  * Handles submission of a request for getting the data for the account
@@ -147,6 +155,7 @@ export const AccountBalanceEvolutionComponent = props => {
   );
   return (
     <div className="form-div">
+      <AccountBalancePortifolioFilePicker {...props} />
       {monthPickers}
       <AccountBalanceEvolutionMultipleAccountSelector {...props} />
       <button onClick={() => handleSubmit(props)}>Submit!</button>
@@ -157,6 +166,24 @@ export const AccountBalanceEvolutionComponent = props => {
   );
 };
 export default AccountBalanceEvolutionComponent;
+
+/**
+ * Component for wrapping PortifolioFilePicker.
+ */
+export function AccountBalancePortifolioFilePicker(props) {
+  const onChange = R.view(propsLens.onChange, props);
+  const pickedPortifolioValue = R.view(valueLens.pickedPortifolioValue, props.value);
+  const portifolioPicker = (
+    <PortifolioFilePicker
+      onChange={handlePickedPortifolio(onChange)}
+      value={pickedPortifolioValue} />
+  );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, PORTIFOLIO_FILE_PICKER_LABEL,
+    InputWrapperLens.content, portifolioPicker,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
+};
 
 /**
  * Component for wrapping MultipleAccountsSelector.
