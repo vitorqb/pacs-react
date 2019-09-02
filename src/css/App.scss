@@ -144,3 +144,8 @@
         background-color: white;
     }
 }
+
+// To overrido somethings from bootstrap
+.table td {
+    padding: 6px;
+}
