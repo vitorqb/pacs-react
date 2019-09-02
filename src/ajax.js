@@ -279,15 +279,17 @@ export const monthsPairToPeriods = R.pipe(
  * @param {Account[]} accounts
  * @param {Month[]} months
  */
-export const ajaxGetAccountBalanceEvolutionData = R.curry(
-  function(axios, accounts, months) {
+export const ajaxGetAccountBalanceEvolutionData = R.curry((axios, accounts, months) => {
     return makeRequest({
       axios,
       url: "/reports/balance-evolution/",
       method: "POST",
       requestData: {
         accounts: R.map(R.prop("pk"), accounts),
-        periods: monthsPairToPeriods(months),
+        dates: R.pipe(
+          R.apply(MonthUtil.monthsBetween),
+          R.map(MonthUtil.lastDayOfMonth),
+        )(months),
       },
       // Add months to the response so everything is easier
       parseResponseData: parseAccountBalanceEvolutionResponse(months)
