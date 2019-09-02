@@ -5,6 +5,9 @@ import * as R from 'ramda';
 import * as RU from '../ramda-utils';
 import React from 'react';
 
+export const tableClassName = "table table-striped";
+export const theadClassName = "thead-dark";
+
 export const propsLens = {
 
   // Data is [{xLabel, yLabel, value}]
@@ -20,8 +23,8 @@ export const propsLens = {
 
 export default function SimpleTable(props) {
   return (
-    <table>
-      <thead>
+    <table className={tableClassName}>
+      <thead className={theadClassName}>
         <SimpleTableHeader {...props} />
       </thead>
       <tbody>
