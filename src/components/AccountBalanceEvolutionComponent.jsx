@@ -9,7 +9,9 @@ import * as AccountBalance from '../domain/AccountBalance/core';
 import * as SimpleTable from './SimpleTable';
 import SimpleTableComponent from './SimpleTable';
 import PortifolioFilePicker from './PortifolioFilePicker';
+import CurrencyInput from './CurrencyInput';
 
+export const TARGET_CURRENCY_LABEL = "Target Currency";
 export const MONTHS_PICKER_LABEL = "Initial and final months";
 export const MULTIPLE_ACCOUNTS_LABEL = "Accounts";
 export const PORTIFOLIO_FILE_PICKER_LABEL = "Currency Price Portifolio File";;
@@ -19,6 +21,7 @@ export const propsLens = {
   value: R.lensPath(['value']),
   onChange: R.lensPath(['onChange']),
   accounts: R.lensPath(['accounts']),
+  currencies: R.lensPath(['currencies']),
   getCurrency: R.lensPath(['getCurrency']),
   getAccount: R.lensPath(['getAccount']),
   getAccountBalanceEvolutionData: R.lensPath(['getAccountBalanceEvolutionData']),
@@ -30,6 +33,7 @@ export const valueLens = {
   pickedMonths: R.lensPath(['pickedMonths']),
   pickedAccounts: R.lensPath(['pickedAccounts']),
   pickedPortifolioValue: R.lensPath(['pickedPortifolio']),
+  pickedTargetCurrency: R.lensPath(['pickedTargetCurrency']),
   data: R.lensPath(['data']),
 
 };
@@ -110,6 +114,11 @@ export const handlePickedAccountsChange = handleChange(valueLens.pickedAccounts)
 export const setAccountBalanceEvolutionData = handleChange(valueLens.data);
 
 /**
+ * Calls onChange with a reducer for when a new currency is picked.
+ */
+export const handlePickedTargetCurrencyChange = handleChange(valueLens.pickedTargetCurrency);
+
+/**
  * Handles submission of a request for getting the data for the account
  * balance evolution.
  * Returns a promise with the reduced value.
@@ -156,6 +165,7 @@ export const AccountBalanceEvolutionComponent = props => {
   return (
     <div className="form-div">
       <AccountBalancePortifolioFilePicker {...props} />
+      <AccountBalanceCurrencyInput {...props} />
       {monthPickers}
       <AccountBalanceEvolutionMultipleAccountSelector {...props} />
       <button onClick={() => handleSubmit(props)}>Submit!</button>
@@ -166,6 +176,26 @@ export const AccountBalanceEvolutionComponent = props => {
   );
 };
 export default AccountBalanceEvolutionComponent;
+
+/**
+ * Component for wrapping CurrencyInput.
+ */
+export function AccountBalanceCurrencyInput(props) {
+  const onChange = R.view(propsLens.onChange, props);
+  const pickedTargetCurrency = R.view(valueLens.pickedTargetCurrency, props.value);
+  const currencies = R.view(propsLens.currencies, props);
+  const currencyInput = (
+    <CurrencyInput
+      currencies={currencies}
+      onChange={handlePickedTargetCurrencyChange(onChange)}
+      value={pickedTargetCurrency} />
+  );
+  const inputWrapperProps = RU.objFromPairs(
+    InputWrapperLens.label, TARGET_CURRENCY_LABEL,
+    InputWrapperLens.content, currencyInput,
+  );
+  return <InputWrapper {...inputWrapperProps} />;
+};
 
 /**
  * Component for wrapping PortifolioFilePicker.

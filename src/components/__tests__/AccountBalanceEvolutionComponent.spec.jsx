@@ -12,8 +12,8 @@ import * as utils from '../../utils';
 import * as PortifolioFilePicker from '../PortifolioFilePicker';
 
 function getExampleDataItem() {
-  const account = AccountFactory.build();
   const currency = CurrencyFactory.build();
+  const account = AccountFactory.build();
   const balance = [MoneyFactory.build({currency: currency.pk})];
   const month = MonthFactory.build();
   const date = MonthUtil.lastDayOfMonth(month);
@@ -32,6 +32,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   const accounts = AccountFactory.buildList(2);
   const getAccount = newGetter(R.prop("pk"), accounts);
   const currency = CurrencyFactory.build();
+  const currencies = [currency, ...CurrencyFactory.buildList(2)];
   const getCurrency = newGetter(R.prop("pk"), [currency]);
   const data = R.map(getExampleData, accounts);
   const onChange = R.view(sut.propsLens.onChange, customProps) || sinon.fake();
@@ -45,6 +46,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
     sut.propsLens.onChange, onChange,
     sut.propsLens.value, defaultValue,
     sut.propsLens.accounts, accounts,
+    sut.propsLens.currencies, currencies,
     sut.propsLens.getAccount, getAccount,
     sut.propsLens.getCurrency, getCurrency,
     sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
@@ -95,7 +97,7 @@ describe('viewTableData', () => {
       }
     ]);
   });
-  
+
 });
 
 describe('viewXLabels', () => {
@@ -103,7 +105,7 @@ describe('viewXLabels', () => {
   it('empty', () => {
     const value = RU.objFromPairs(sut.valueLens.data, null);
     const props = RU.objFromPairs(sut.propsLens.value, value);
-    expect(sut.viewXLabels(props)).toEqual([]);    
+    expect(sut.viewXLabels(props)).toEqual([]);
   });
 
   it('Not null', () => {
@@ -112,7 +114,7 @@ describe('viewXLabels', () => {
     const props = RU.objFromPairs(sut.propsLens.value, value);
     expect(sut.viewXLabels(props)).toEqual(['2018-01-01', '2019-01-01']);
   });
-  
+
 });
 
 describe('viewYLabels', () => {
@@ -120,7 +122,7 @@ describe('viewYLabels', () => {
   it('empty', () => {
     const value = RU.objFromPairs(sut.valueLens.data, null);
     const props = RU.objFromPairs(sut.propsLens.value, value);
-    expect(sut.viewYLabels(props)).toEqual([]);    
+    expect(sut.viewYLabels(props)).toEqual([]);
   });
 
   it('Not null', () => {
@@ -133,7 +135,7 @@ describe('viewYLabels', () => {
     );
     expect(sut.viewYLabels(props)).toEqual(['accName']);
   });
-  
+
 });
 
 describe('AccountBalanceEvolutionComponent', () => {
@@ -156,7 +158,7 @@ describe('AccountBalanceEvolutionComponent', () => {
         sut.propsLens.value, value,
       );
       const comp = mountAccountBalanceEvolutionComponent(props);
-      
+
       const reducer = comp.find('MonthPicker').at(1).props().onPicked("FOO");
       const newValue = reducer(value);
       const newPickedMonths = R.view(sut.valueLens.pickedMonths, newValue);
@@ -186,7 +188,7 @@ describe('AccountBalanceEvolutionComponent', () => {
       const newValue = reducer({});
       expect(R.view(sut.valueLens.pickedAccounts, newValue)).toEqual(selectedAccounts);
     });
-    
+
   });
 
   describe('setAccountBalanceEvolutionData', () => {
@@ -194,6 +196,49 @@ describe('AccountBalanceEvolutionComponent', () => {
     const newValue = reducer({});
     const newData = R.view(sut.valueLens.data, newValue);
     expect(newData).toEqual("FOO");
+  });
+
+  describe('handlePickedTargetCurrencyChange', () => {
+
+    it('reducer', () => {
+      const newValue = sut.handlePickedTargetCurrencyChange(f => f({}), "FOO");
+      const newPickedTargetCurrency = R.view(sut.valueLens.pickedTargetCurrency, newValue);
+      expect(newPickedTargetCurrency).toEqual("FOO");
+    });
+
+    describe('integration', () => {
+
+      let oldPickedTargetCurrency, value, props, c, currencyInput, currencies;
+
+      beforeEach(() => {
+        currencies = CurrencyFactory.buildList(2);
+        oldPickedTargetCurrency = currencies[1];
+        value = RU.objFromPairs(sut.valueLens.pickedTargetCurrency, oldPickedTargetCurrency);
+        props = RU.objFromPairs(
+          sut.propsLens.value, value,
+          sut.propsLens.onChange, f => f({}),
+          sut.propsLens.currencies, currencies,
+        );
+        c = mountAccountBalanceEvolutionComponent(props);
+        currencyInput = c.find('CurrencyInput');
+      });
+
+      it('Passes value.', () => {
+        expect(currencyInput.props().value).toEqual(oldPickedTargetCurrency);
+      });
+
+      it('Passes currency', () => {
+        expect(currencyInput.props().currencies).toEqual(currencies);
+      });
+
+      it('Calls reducer.', () => {
+        const newPickedTargetCurrency = currencies[0];
+        const newValue = currencyInput.props().onChange(newPickedTargetCurrency);
+        expect(R.view(sut.valueLens.pickedTargetCurrency, newValue)).toBe(newPickedTargetCurrency);
+      });
+
+    });
+
   });
 
   describe('handleSubmit', () => {
@@ -255,7 +300,7 @@ describe('AccountBalanceEvolutionComponent', () => {
         .resolves
         .toEqual(ACCOUNT_VALIDATION_ERRORS.IS_NULL);
     });
-    
+
     it('calls getAccountBalanceEvolutionData', async () => {
       const responseData = {data: [getExampleData(account)], months};
       const getAccountBalanceEvolutionData = sinon.fake.resolves(responseData);
@@ -352,7 +397,7 @@ describe('AccountBalancePortifolioFilePicker', () => {
     const portifolioFilePickerValue = c.find('PortifolioFilePicker').props().value;
     expect(portifolioFilePickerValue).toEqual(pickedPortifolioValue);
   });
-  
+
 });
 
 describe('makeMonthPickers', () => {
@@ -384,7 +429,7 @@ describe('makeMonthPickers', () => {
       onPicked: onPicked(1),
     });
   });
-  
+
 });
 
 describe('validateMonths', () => {
