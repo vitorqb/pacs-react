@@ -27,3 +27,13 @@ describe('getStats', () => {
     });
   });
 });
+
+describe('normalizePortifolioPrices', () => {
+
+  it('base', () => {
+    const portifolio = [{prices: [{price: 1}]}];
+    const parsed = sut.normalizePortifolioPrices(portifolio);
+    expect(parsed).toEqual([{prices: [{price: '1.00000'}]}]);
+  });
+  
+});

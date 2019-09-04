@@ -1,8 +1,9 @@
 import sinon from 'sinon';
 import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount, parseAccountBalanceEvolutionResponse } from '../ajax';
+import * as sut from '../ajax';
 import * as R from 'ramda';
-import { AccountFactory, TransactionFactory } from '../testUtils';
-import { remapKeys, getSpecFromTransaction } from '../utils';
+import { AccountFactory, TransactionFactory, CurrencyFactory, MonthFactory, PriceFactory } from '../testUtils';
+import { remapKeys, getSpecFromTransaction, MonthUtil } from '../utils';
 import paginatedJournalResponse from './example_responses/paginated_journal';
 
 describe('Test ajax', () => {
@@ -257,6 +258,59 @@ describe('ajaxGetAccountBalanceEvolutionData', () => {
           {initialBalance: 4, balanceEvolution: 5},
           {initialBalance: 6, balanceEvolution: 7},
       ]);
+    });
+
+    describe('getAccountBalanceEvolutionDataRequestData', () => {
+
+      let currency, accounts, months, currencyOpts;
+      
+      beforeEach(() => {
+        currency = CurrencyFactory.build();
+        accounts = AccountFactory.buildList(2);
+        months = MonthFactory.buildList(2);
+        currencyOpts = {
+          convertTo: currency,
+          portifolio: [
+            {
+              currency: currency.code,
+              prices: PriceFactory.buildList(3),
+            },
+          ],
+        };
+      });
+
+      
+      it('Base', () => {
+        expect(
+          sut.getAccountBalanceEvolutionDataRequestData({accounts, months})
+        ).toEqual(
+          {
+            accounts: [accounts[0].pk, accounts[1].pk],
+            dates: R.pipe(
+              R.apply(MonthUtil.monthsBetween),
+              R.map(MonthUtil.lastDayOfMonth),
+            )(months),
+          }
+        );
+      });
+
+      it('With targetCurrency', () => {
+        const args = {accounts, months, currencyOpts};
+        const parsed = sut.getAccountBalanceEvolutionDataRequestData(args);
+        expect(parsed.currency_opts.convert_to).toEqual(currency.code);
+      });
+
+      it('With portifolio', () => {
+        const args = {accounts, months, currencyOpts};
+        const parsed = sut.getAccountBalanceEvolutionDataRequestData(args);
+        expect(parsed.currency_opts.price_portifolio).toEqual([
+          R.over(
+            R.lensPath(['prices']),
+            R.map(R.over(R.lensProp('price'), x => x.toFixed(5))),
+            currencyOpts.portifolio[0]
+          ),
+        ]);
+      });
     });
   });
 });

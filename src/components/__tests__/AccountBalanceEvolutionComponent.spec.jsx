@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
 import * as utils from '../../utils';
 import * as PortifolioFilePicker from '../PortifolioFilePicker';
+import { Success, Fail } from 'monet';
 
 function getExampleDataItem() {
   const currency = CurrencyFactory.build();
@@ -321,7 +322,7 @@ describe('AccountBalanceEvolutionComponent', () => {
       const expResult = sut.setAccountBalanceEvolutionData(onChange, responseData);
 
       // And ensures getAccountBalanceEvolutionData was called with the args
-      expect(getAccountBalanceEvolutionData.args).toEqual([[[account], months]]);
+      expect(getAccountBalanceEvolutionData.args).toEqual([[{accounts: [account], months}]]);
       expect(result).toEqual(expResult);
     });
 
@@ -359,12 +360,12 @@ describe('AccountBalanceEvolutionComponent', () => {
   describe('PortifolioFilePicker', () => {
 
     it('Is rendered with value', () => {
-      const pickedPortifolioValue = {foo: "bar"};
-      const value = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, pickedPortifolioValue);
+      const portifolioPickerValue = {foo: "bar"};
+      const value = RU.objFromPairs(sut.valueLens.portifolioPickerValue, portifolioPickerValue);
       const props = RU.objFromPairs(sut.propsLens.value, value);
       const c = mountAccountBalanceEvolutionComponent(props);
       const portifolioFilePicker = c.find('PortifolioFilePicker');
-      expect(portifolioFilePicker.props().value).toEqual(pickedPortifolioValue);
+      expect(portifolioFilePicker.props().value).toEqual(portifolioPickerValue);
     });
 
     it('Calls onChange on change', () => {
@@ -374,7 +375,7 @@ describe('AccountBalanceEvolutionComponent', () => {
       const portifolioFilePicker = c.find('PortifolioFilePicker');
 
       const newValue = portifolioFilePicker.props().onChange(() => "FOO");
-      const expNewValue = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, "FOO");
+      const expNewValue = RU.objFromPairs(sut.valueLens.portifolioPickerValue, "FOO");
       expect(newValue).toEqual(expNewValue);
     });
   });
@@ -390,12 +391,12 @@ describe('AccountBalancePortifolioFilePicker', () => {
   });
 
   it('Renders with props', () => {
-    const pickedPortifolioValue = "BAR";
-    const value = RU.objFromPairs(sut.valueLens.pickedPortifolioValue, pickedPortifolioValue);
+    const portifolioPickerValue = "BAR";
+    const value = RU.objFromPairs(sut.valueLens.portifolioPickerValue, portifolioPickerValue);
     const props = RU.objFromPairs(sut.propsLens.value, value);
     const c = mount(sut.AccountBalancePortifolioFilePicker(props));
     const portifolioFilePickerValue = c.find('PortifolioFilePicker').props().value;
-    expect(portifolioFilePickerValue).toEqual(pickedPortifolioValue);
+    expect(portifolioFilePickerValue).toEqual(portifolioPickerValue);
   });
 
 });
@@ -478,4 +479,44 @@ describe('validateAccounts', () => {
     const accounts = [];
     expect(validateAccounts(accounts)).toBe(ACCOUNT_VALIDATION_ERRORS.EMPTY);
   });
+});
+
+describe('validatedParamsForAccountBalanceEvolutionDataRequest', () => {
+
+  let validPickedAccounts, validPickedMonths, validValue;
+
+  beforeEach(() => {
+    validPickedAccounts = [AccountFactory.build()];
+    validPickedMonths = [{year: 1999, month: "January"}, {year: 1999, month: "March"}];
+    validValue = RU.objFromPairs(
+      sut.valueLens.pickedAccounts, validPickedAccounts,
+      sut.valueLens.pickedMonths, validPickedMonths,
+    );
+  });
+
+  it('Valid', () => {
+    const props = RU.objFromPairs(sut.propsLens.value, validValue);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Success({ accounts: validPickedAccounts, months: validPickedMonths });
+    expect(res).toEqual(exp);
+  });
+
+  it('Fails because of accounts', () => {
+    const pickedAccounts = [null];
+    const value = R.set(sut.valueLens.pickedAccounts, pickedAccounts, validValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Fail(sut.ACCOUNT_VALIDATION_ERRORS.IS_NULL);
+    expect(res).toEqual(exp);
+  });
+
+  it('Fails because of months', () => {
+    const pickedMonths = [null];
+    const value = R.set(sut.valueLens.pickedMonths, pickedMonths, validValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Fail(sut.MONTH_VALIDATION_ERRORS.IS_NULL);
+    expect(res).toEqual(exp);
+  });
+  
 });

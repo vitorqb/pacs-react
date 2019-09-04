@@ -8,8 +8,9 @@ import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 import * as AccountBalance from '../domain/AccountBalance/core';
 import * as SimpleTable from './SimpleTable';
 import SimpleTableComponent from './SimpleTable';
-import PortifolioFilePicker from './PortifolioFilePicker';
+import PortifolioFilePicker, { valueLens as PortifolioFilePickerValueLens } from './PortifolioFilePicker';
 import CurrencyInput from './CurrencyInput';
+import { Success, Fail } from 'monet';
 
 export const TARGET_CURRENCY_LABEL = "Target Currency";
 export const MONTHS_PICKER_LABEL = "Initial and final months";
@@ -28,11 +29,13 @@ export const propsLens = {
   
 };
 
+export const portifolioPickerValueLens = R.lensPath(['portifolioPickerValueLens']);
 export const valueLens = {
 
   pickedMonths: R.lensPath(['pickedMonths']),
   pickedAccounts: R.lensPath(['pickedAccounts']),
-  pickedPortifolioValue: R.lensPath(['pickedPortifolio']),
+  portifolioPickerValue: portifolioPickerValueLens,
+  pickedPortifolio: R.compose(portifolioPickerValueLens, PortifolioFilePickerValueLens.portifolio),
   pickedTargetCurrency: R.lensPath(['pickedTargetCurrency']),
   data: R.lensPath(['data']),
 
@@ -93,7 +96,7 @@ export const handleChangeWithReducer = R.curry((l, onChange, f) => onChange(R.ov
 /**
  * Handlers.
  */
-export const handlePickedPortifolio = handleChangeWithReducer(valueLens.pickedPortifolioValue);
+export const handlePickedPortifolio = handleChangeWithReducer(valueLens.portifolioPickerValue);
 
 /**
  * Calls onChange with a reducer for when the user picks a new month.
@@ -125,24 +128,19 @@ export const handlePickedTargetCurrencyChange = handleChange(valueLens.pickedTar
  */
 export const handleSubmit = R.curry(props => {
   const value = R.view(propsLens.value, props);
-  const pickedMonths = R.view(valueLens.pickedMonths, value);
-  const pickedAccounts = R.view(valueLens.pickedAccounts, value);
   const onChange = R.view(propsLens.onChange, props);
   const getAccountBalanceEvolutionData = R.view(
     propsLens.getAccountBalanceEvolutionData,
     props
   );
 
-  const errorMsg = R.find(
-    R.complement(R.isNil),
-    [validateMonths(pickedMonths), validateAccounts(pickedAccounts)]
-  );
-  if (errorMsg) {
-    alert(errorMsg);
-    return Promise.resolve(errorMsg);
-  };
+  const validatedParams = validatedParamsForAccountBalanceEvolutionDataRequest(props);
+  if (validatedParams.isFail()) {
+    alert(validatedParams.fail());
+    return Promise.resolve(validatedParams.fail());
+  }
 
-  return getAccountBalanceEvolutionData(pickedAccounts, pickedMonths)
+  return getAccountBalanceEvolutionData(validatedParams.success())
     .then(setAccountBalanceEvolutionData(onChange))
     .catch(e => alert(`Request failed: ${e}`));
   
@@ -202,11 +200,11 @@ export function AccountBalanceCurrencyInput(props) {
  */
 export function AccountBalancePortifolioFilePicker(props) {
   const onChange = R.view(propsLens.onChange, props);
-  const pickedPortifolioValue = R.view(valueLens.pickedPortifolioValue, props.value);
+  const portifolioPickerValue = R.view(valueLens.portifolioPickerValue, props.value);
   const portifolioPicker = (
     <PortifolioFilePicker
       onChange={handlePickedPortifolio(onChange)}
-      value={pickedPortifolioValue} />
+      value={portifolioPickerValue} />
   );
   const inputWrapperProps = RU.objFromPairs(
     InputWrapperLens.label, PORTIFOLIO_FILE_PICKER_LABEL,
@@ -281,6 +279,36 @@ export function validateAccounts(accounts) {
     return ACCOUNT_VALIDATION_ERRORS.EMPTY;
   }
   return null;
+};
+
+/**
+ * Extracts and validates the params for getAccountBalanceEvolutionData.
+ * Returns a Validation.
+ */
+export function validatedParamsForAccountBalanceEvolutionDataRequest(props) {
+
+  const value = R.view(propsLens.value,  props);
+  const pickedMonths = R.view(valueLens.pickedMonths, value);
+  const pickedMonthsErr = validateMonths(pickedMonths);
+  const pickedAccounts = R.view(valueLens.pickedAccounts, value);
+  const pickedAccountsErr = validateAccounts(pickedAccounts);
+  const pickedPortifolio = R.view(valueLens.pickedPortifolio, value);
+  const pickedTargetCurrency = R.view(valueLens.pickedTargetCurrency, value);
+  const params = R.pipe(
+    R.assoc('months', pickedMonths),
+    R.assoc('accounts', pickedAccounts),
+    R.when(
+      _ => pickedPortifolio,
+      R.assocPath(['currencyOpts', 'portifolio'], pickedPortifolio)
+    ),
+    R.when(
+      _ => pickedTargetCurrency,
+      R.assocPath(['currencyOpts', 'convertTo'], pickedTargetCurrency)
+    )
+  )({});
+  if (! R.isNil(pickedMonthsErr)) { return Fail(pickedMonthsErr); };
+  if (! R.isNil(pickedAccountsErr)) { return Fail(pickedAccountsErr); };
+  return Success(params);
 };
 
 export const ACCOUNT_VALIDATION_ERRORS = {

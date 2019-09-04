@@ -9,6 +9,11 @@ import { MonthUtil } from './utils';
 
 faker.seed(123);
 
+function randomDate() {
+  const out = faker.date.between('2015-01-01', '2025-12-31');
+  return out.toISOString().format;
+}
+
 /**
  * A wrapper arround Factory.
  */
@@ -261,6 +266,27 @@ class AccountFlowFactoryWrapper {
 }
 
 export const AccountFlowFactory = new AccountFlowFactoryWrapper();
+
+/**
+ * A wrapper around Factory providing fake prices for test.
+ */
+class PriceFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr('price', faker.random.number({min: 0, max: 100}))
+    .attr('date', randomDate())
+
+  build(opts={}) { return this._factory.build(opts); }
+  buildList(n, opts={}) { return this._factory.buildList(n, opts); }
+
+}
+
+export const PriceFactory = new PriceFactoryWrapper();
 
 /**
  * Makes a mock for an axios error.
