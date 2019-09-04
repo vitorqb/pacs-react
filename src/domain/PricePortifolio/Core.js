@@ -26,3 +26,10 @@ export const getStats = portifolio => {
     ))(portifolio))
   };
 };
+
+/**
+ * Normalizes all prices of a portifolio to 5 fixed digits.
+ */
+export const normalizePortifolioPrices = R.map(
+  R.over(R.lensProp('prices'), R.map(R.over(R.lensProp('price'), x => x.toFixed(5))))
+);

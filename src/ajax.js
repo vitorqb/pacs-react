@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as R from 'ramda';
 import { remapKeys, MonthUtil } from './utils';
 import SecretsLens from './domain/Secrets/Lens';
+import * as PricePortifolio from './domain/PricePortifolio/Core';
 
 //
 // Contants
@@ -279,23 +280,39 @@ export const monthsPairToPeriods = R.pipe(
  * @param {Account[]} accounts
  * @param {Month[]} months
  */
-export const ajaxGetAccountBalanceEvolutionData = R.curry((axios, accounts, months) => {
-    return makeRequest({
-      axios,
-      url: "/reports/balance-evolution/",
-      method: "POST",
-      requestData: {
-        accounts: R.map(R.prop("pk"), accounts),
-        dates: R.pipe(
-          R.apply(MonthUtil.monthsBetween),
-          R.map(MonthUtil.lastDayOfMonth),
-        )(months),
-      },
-      // Add months to the response so everything is easier
-      parseResponseData: parseAccountBalanceEvolutionResponse(months)
-    });
-  }
-);
+export const ajaxGetAccountBalanceEvolutionData = R.curry((axios, params) => {
+  return makeRequest({
+    axios,
+    url: "/reports/balance-evolution/",
+    method: "POST",
+    requestData: getAccountBalanceEvolutionDataRequestData(params)
+  });
+});
+
+export const getAccountBalanceEvolutionDataRequestData = params => {
+  const accounts = R.prop('accounts', params);
+  const months = R.prop('months', params);
+  const portifolio = R.prop('portifolio', params.currencyOpts);
+  const convertTo = R.prop('convertTo', params.currencyOpts);
+  return R.pipe(
+    R.assoc('accounts', R.map(R.prop('pk'), accounts)),
+    R.assoc('dates', R.pipe(
+      R.apply(MonthUtil.monthsBetween),
+      R.map(MonthUtil.lastDayOfMonth),
+    )(months)),
+    R.when(
+      _ => convertTo,
+      R.assocPath(['currency_opts', 'convert_to'], R.prop('code', convertTo))
+    ),
+    R.when(
+      _ => portifolio,
+      x => R.assocPath(
+        ['currency_opts', 'price_portifolio'],
+        PricePortifolio.normalizePortifolioPrices(portifolio)
+      )(x),
+    )
+  )({});
+};
 
 export const parseAccountBalanceEvolutionResponse = months => R.pipe(
   R.evolve({ data: R.map(R.pipe(

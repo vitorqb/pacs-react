@@ -9,10 +9,12 @@ import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
 import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
 import * as utils from '../../utils';
+import * as PortifolioFilePicker from '../PortifolioFilePicker';
+import { Success, Fail } from 'monet';
 
 function getExampleDataItem() {
-  const account = AccountFactory.build();
   const currency = CurrencyFactory.build();
+  const account = AccountFactory.build();
   const balance = [MoneyFactory.build({currency: currency.pk})];
   const month = MonthFactory.build();
   const date = MonthUtil.lastDayOfMonth(month);
@@ -31,9 +33,10 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   const accounts = AccountFactory.buildList(2);
   const getAccount = newGetter(R.prop("pk"), accounts);
   const currency = CurrencyFactory.build();
+  const currencies = [currency, ...CurrencyFactory.buildList(2)];
   const getCurrency = newGetter(R.prop("pk"), [currency]);
   const data = R.map(getExampleData, accounts);
-  const onChange = sinon.fake();
+  const onChange = R.view(sut.propsLens.onChange, customProps) || sinon.fake();
   const getAccountBalanceEvolutionData = () => Promise.resolve(data);
   const defaultValue = RU.objFromPairs(
     sut.valueLens.data, data,
@@ -44,6 +47,7 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
     sut.propsLens.onChange, onChange,
     sut.propsLens.value, defaultValue,
     sut.propsLens.accounts, accounts,
+    sut.propsLens.currencies, currencies,
     sut.propsLens.getAccount, getAccount,
     sut.propsLens.getCurrency, getCurrency,
     sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
@@ -94,7 +98,7 @@ describe('viewTableData', () => {
       }
     ]);
   });
-  
+
 });
 
 describe('viewXLabels', () => {
@@ -102,7 +106,7 @@ describe('viewXLabels', () => {
   it('empty', () => {
     const value = RU.objFromPairs(sut.valueLens.data, null);
     const props = RU.objFromPairs(sut.propsLens.value, value);
-    expect(sut.viewXLabels(props)).toEqual([]);    
+    expect(sut.viewXLabels(props)).toEqual([]);
   });
 
   it('Not null', () => {
@@ -111,7 +115,7 @@ describe('viewXLabels', () => {
     const props = RU.objFromPairs(sut.propsLens.value, value);
     expect(sut.viewXLabels(props)).toEqual(['2018-01-01', '2019-01-01']);
   });
-  
+
 });
 
 describe('viewYLabels', () => {
@@ -119,7 +123,7 @@ describe('viewYLabels', () => {
   it('empty', () => {
     const value = RU.objFromPairs(sut.valueLens.data, null);
     const props = RU.objFromPairs(sut.propsLens.value, value);
-    expect(sut.viewYLabels(props)).toEqual([]);    
+    expect(sut.viewYLabels(props)).toEqual([]);
   });
 
   it('Not null', () => {
@@ -132,7 +136,7 @@ describe('viewYLabels', () => {
     );
     expect(sut.viewYLabels(props)).toEqual(['accName']);
   });
-  
+
 });
 
 describe('AccountBalanceEvolutionComponent', () => {
@@ -155,7 +159,7 @@ describe('AccountBalanceEvolutionComponent', () => {
         sut.propsLens.value, value,
       );
       const comp = mountAccountBalanceEvolutionComponent(props);
-      
+
       const reducer = comp.find('MonthPicker').at(1).props().onPicked("FOO");
       const newValue = reducer(value);
       const newPickedMonths = R.view(sut.valueLens.pickedMonths, newValue);
@@ -185,7 +189,7 @@ describe('AccountBalanceEvolutionComponent', () => {
       const newValue = reducer({});
       expect(R.view(sut.valueLens.pickedAccounts, newValue)).toEqual(selectedAccounts);
     });
-    
+
   });
 
   describe('setAccountBalanceEvolutionData', () => {
@@ -193,6 +197,49 @@ describe('AccountBalanceEvolutionComponent', () => {
     const newValue = reducer({});
     const newData = R.view(sut.valueLens.data, newValue);
     expect(newData).toEqual("FOO");
+  });
+
+  describe('handlePickedTargetCurrencyChange', () => {
+
+    it('reducer', () => {
+      const newValue = sut.handlePickedTargetCurrencyChange(f => f({}), "FOO");
+      const newPickedTargetCurrency = R.view(sut.valueLens.pickedTargetCurrency, newValue);
+      expect(newPickedTargetCurrency).toEqual("FOO");
+    });
+
+    describe('integration', () => {
+
+      let oldPickedTargetCurrency, value, props, c, currencyInput, currencies;
+
+      beforeEach(() => {
+        currencies = CurrencyFactory.buildList(2);
+        oldPickedTargetCurrency = currencies[1];
+        value = RU.objFromPairs(sut.valueLens.pickedTargetCurrency, oldPickedTargetCurrency);
+        props = RU.objFromPairs(
+          sut.propsLens.value, value,
+          sut.propsLens.onChange, f => f({}),
+          sut.propsLens.currencies, currencies,
+        );
+        c = mountAccountBalanceEvolutionComponent(props);
+        currencyInput = c.find('CurrencyInput');
+      });
+
+      it('Passes value.', () => {
+        expect(currencyInput.props().value).toEqual(oldPickedTargetCurrency);
+      });
+
+      it('Passes currency', () => {
+        expect(currencyInput.props().currencies).toEqual(currencies);
+      });
+
+      it('Calls reducer.', () => {
+        const newPickedTargetCurrency = currencies[0];
+        const newValue = currencyInput.props().onChange(newPickedTargetCurrency);
+        expect(R.view(sut.valueLens.pickedTargetCurrency, newValue)).toBe(newPickedTargetCurrency);
+      });
+
+    });
+
   });
 
   describe('handleSubmit', () => {
@@ -254,7 +301,7 @@ describe('AccountBalanceEvolutionComponent', () => {
         .resolves
         .toEqual(ACCOUNT_VALIDATION_ERRORS.IS_NULL);
     });
-    
+
     it('calls getAccountBalanceEvolutionData', async () => {
       const responseData = {data: [getExampleData(account)], months};
       const getAccountBalanceEvolutionData = sinon.fake.resolves(responseData);
@@ -275,7 +322,7 @@ describe('AccountBalanceEvolutionComponent', () => {
       const expResult = sut.setAccountBalanceEvolutionData(onChange, responseData);
 
       // And ensures getAccountBalanceEvolutionData was called with the args
-      expect(getAccountBalanceEvolutionData.args).toEqual([[[account], months]]);
+      expect(getAccountBalanceEvolutionData.args).toEqual([[{accounts: [account], months}]]);
       expect(result).toEqual(expResult);
     });
 
@@ -309,6 +356,49 @@ describe('AccountBalanceEvolutionComponent', () => {
       expect(findMultipleAccSelect(comp)).toHaveProp('accounts', accounts);
     });
   });
+
+  describe('PortifolioFilePicker', () => {
+
+    it('Is rendered with value', () => {
+      const portifolioPickerValue = {foo: "bar"};
+      const value = RU.objFromPairs(sut.valueLens.portifolioPickerValue, portifolioPickerValue);
+      const props = RU.objFromPairs(sut.propsLens.value, value);
+      const c = mountAccountBalanceEvolutionComponent(props);
+      const portifolioFilePicker = c.find('PortifolioFilePicker');
+      expect(portifolioFilePicker.props().value).toEqual(portifolioPickerValue);
+    });
+
+    it('Calls onChange on change', () => {
+      const onChange = f => f({});
+      const props = RU.objFromPairs(sut.propsLens.onChange, onChange);
+      const c = mountAccountBalanceEvolutionComponent(props);
+      const portifolioFilePicker = c.find('PortifolioFilePicker');
+
+      const newValue = portifolioFilePicker.props().onChange(() => "FOO");
+      const expNewValue = RU.objFromPairs(sut.valueLens.portifolioPickerValue, "FOO");
+      expect(newValue).toEqual(expNewValue);
+    });
+  });
+});
+
+describe('AccountBalancePortifolioFilePicker', () => {
+
+  it('Renders InputWrapper', () => {
+    const c = mount(sut.AccountBalancePortifolioFilePicker({}));
+    const inputWrapper = c.find('InputWrapper');
+    const label = R.view(InputWrapperLens.label, inputWrapper.props());
+    expect(label).toEqual(sut.PORTIFOLIO_FILE_PICKER_LABEL);
+  });
+
+  it('Renders with props', () => {
+    const portifolioPickerValue = "BAR";
+    const value = RU.objFromPairs(sut.valueLens.portifolioPickerValue, portifolioPickerValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const c = mount(sut.AccountBalancePortifolioFilePicker(props));
+    const portifolioFilePickerValue = c.find('PortifolioFilePicker').props().value;
+    expect(portifolioFilePickerValue).toEqual(portifolioPickerValue);
+  });
+
 });
 
 describe('makeMonthPickers', () => {
@@ -340,7 +430,7 @@ describe('makeMonthPickers', () => {
       onPicked: onPicked(1),
     });
   });
-  
+
 });
 
 describe('validateMonths', () => {
@@ -389,4 +479,44 @@ describe('validateAccounts', () => {
     const accounts = [];
     expect(validateAccounts(accounts)).toBe(ACCOUNT_VALIDATION_ERRORS.EMPTY);
   });
+});
+
+describe('validatedParamsForAccountBalanceEvolutionDataRequest', () => {
+
+  let validPickedAccounts, validPickedMonths, validValue;
+
+  beforeEach(() => {
+    validPickedAccounts = [AccountFactory.build()];
+    validPickedMonths = [{year: 1999, month: "January"}, {year: 1999, month: "March"}];
+    validValue = RU.objFromPairs(
+      sut.valueLens.pickedAccounts, validPickedAccounts,
+      sut.valueLens.pickedMonths, validPickedMonths,
+    );
+  });
+
+  it('Valid', () => {
+    const props = RU.objFromPairs(sut.propsLens.value, validValue);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Success({ accounts: validPickedAccounts, months: validPickedMonths });
+    expect(res).toEqual(exp);
+  });
+
+  it('Fails because of accounts', () => {
+    const pickedAccounts = [null];
+    const value = R.set(sut.valueLens.pickedAccounts, pickedAccounts, validValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Fail(sut.ACCOUNT_VALIDATION_ERRORS.IS_NULL);
+    expect(res).toEqual(exp);
+  });
+
+  it('Fails because of months', () => {
+    const pickedMonths = [null];
+    const value = R.set(sut.valueLens.pickedMonths, pickedMonths, validValue);
+    const props = RU.objFromPairs(sut.propsLens.value, value);
+    const res = sut.validatedParamsForAccountBalanceEvolutionDataRequest(props);
+    const exp = Fail(sut.MONTH_VALIDATION_ERRORS.IS_NULL);
+    expect(res).toEqual(exp);
+  });
+  
 });
