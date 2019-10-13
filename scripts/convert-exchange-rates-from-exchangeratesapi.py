@@ -69,10 +69,32 @@ Into this:
 import json
 import sys
 from datetime import datetime, timedelta
+import re
+import argparse
 
-
+# Helpers
+date_regexp = r"^[0-9]{4}\-[01][0-9]\-[0123][0-9]$"
 date_format = "%Y-%m-%d"
 
+def is_valid_date(date):
+    if not re.match(r"", date):
+        raise argparse.ArgumentTypeError(f"Invalid date: {date}")
+    return date
+
+# Args parsing
+parser = argparse.ArgumentParser(
+    description=('Converts exchange rates between api.exchangeratesapi.io and pacs.')
+)
+
+parser.add_argument(
+    "--max-date",
+    default=None,
+    help=("Max date. The last available value will be copied and carried over until"
+          " this date. If nil, defaults to max date found on input."),
+    type=is_valid_date
+)
+
+args = parser.parse_args()
 
 def date_before(date):
     date = datetime.strptime(date, date_format)
@@ -101,7 +123,7 @@ def main():
 
     # Fill missing dates
     mindate = min(k[1] for k in data.keys())
-    maxdate = max(k[1] for k in data.keys())
+    maxdate = args.max_date or max(k[1] for k in data.keys())
     for cur in currencies:
         i_date = mindate
         while i_date < maxdate:
