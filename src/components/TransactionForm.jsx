@@ -7,6 +7,8 @@ import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
 import DateInput from './DateInput.jsx';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
+import { DateUtil } from '../utils';
+import DateDistanceVisualizer, { propsLens as DateDistanceVisualizerPropsLens } from './DateDistanceVisualizer';
 
 /**
  * A component that wraps a form to create a Transaction.
@@ -110,13 +112,31 @@ export default class TransactionForm extends Component {
   renderDateInput() {
     const date = this.getValue().date || "";
     const onChange = this.handleUpdate(R.lensProp("date"), R.identity);
-    const input = <DateInput key="date" value={date} onChange={onChange} />;
+    const input = (
+      <span>
+        <DateInput key="date" value={date} onChange={onChange} />
+        {this.renderDistanceVisualizer()}
+      </span>
+    );
     const props = RU.objFromPairs(
       InputWrapperLens.label, "Date",
       InputWrapperLens.content, input,
     );
     return <InputWrapper {...props} />;
   }
+
+  renderDistanceVisualizer() {
+    // Don't render if no date
+    const date = this.getValue().date;
+    if (! date) return null;
+
+    const today = DateUtil.today();
+    const props = RU.objFromPairs(
+      DateDistanceVisualizerPropsLens.date1, today,
+      DateDistanceVisualizerPropsLens.date2, date,      
+    );
+    return <DateDistanceVisualizer {...props} />;
+  }  
 
   /**
    * Renders an input for description.
