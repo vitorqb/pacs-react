@@ -355,3 +355,12 @@ export const DateUtil = {
   daysBetween: (date1, date2) => Math.round(date1.startOf("day").diff(date2.startOf("day"), "days", true)),
   today: () => moment()
 };
+
+/**
+ * Passes the event to a function after calling preventDefault and stopPropagation on the event.
+ */
+export const withEventPrevention = fn => e => {
+  e.stopPropagation();
+  e.preventDefault();
+  return fn(e);
+};

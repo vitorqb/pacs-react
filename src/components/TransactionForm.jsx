@@ -192,12 +192,19 @@ export default class TransactionForm extends Component {
   renderMovementsInputs() {
     const self = this;
     const { accounts, currencies } = this.props;
+    const movements = this.getValue().movements;
 
     /**
      * Renders a single MovementInput from an MovementSpec
      */
     function renderOne(movementSpec, index){
       // If index > 1, the movement spec is optional and can be removed.
+      const currencyActionButtonsOpts = getCurrencyActionButtonsOpts(
+        movementSpec,
+        index,
+        movements,
+        self.handleUpdate(R.lensPath(["movements"]), R.identity)
+      );
       return (
         <div key={index}>
           <MovementInputs
@@ -206,7 +213,8 @@ export default class TransactionForm extends Component {
             accounts={accounts}
             currencies={currencies}
             value={movementSpec}
-            onChange={self.handleUpdate(R.lensPath(["movements", index]), R.identity)}/>
+            onChange={self.handleUpdate(R.lensPath(["movements", index]), R.identity)}
+            currencyActionButtonsOpts={currencyActionButtonsOpts} />
           {renderRemovalButton(index)}
         </div>
       );
@@ -230,7 +238,7 @@ export default class TransactionForm extends Component {
       );
     }
 
-    return this.getValue().movements.map(renderOne);
+    return movements.map(renderOne);
   }
 
   renderAddMovementButton() {
@@ -246,4 +254,37 @@ export default class TransactionForm extends Component {
       </button>
     );
   }
+}
+
+
+/**
+ * Returns the currency action button options for a given movement Spec.
+ * `movementSpec` is the current movement spec being rendered.
+ * `index` is the index in the list of movement specs.
+ * `movements` is the full list of movement specs.
+ * `onChange` is the callback when the movements change.
+ */
+export function getCurrencyActionButtonsOpts(movementSpec, index, movements, onChange) {
+  var result = [];
+
+  if (! isLastMovement(index, movements)) {
+    const copyCurrencyToNextMovementSpecButtonOpt = {
+      label: "->next",
+      onClick: () => onChange(copyCurrencyToNextMovementSpec(movementSpec, index, movements))
+    };
+    result = R.append(copyCurrencyToNextMovementSpecButtonOpt, result);
+  }
+
+  return result;
+}
+
+export function isLastMovement(index, movements) { return (index + 1) == movements.length; }
+
+/**
+ * Copies the Currency from `movementSpec` to the next movement spec in the list.
+ */
+export function copyCurrencyToNextMovementSpec(movementSpec, index, movements) {
+  const newCurrency = R.pathOr(null, ["money", "currency"], movementSpec);
+  const result = R.assocPath([index + 1, "money", "currency"], newCurrency, movements);
+  return result;
 }

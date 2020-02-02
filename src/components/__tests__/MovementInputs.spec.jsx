@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import sinon from 'sinon';
 import React from 'react';
-import MovementInputs from "../MovementInputs";
+import MovementInputs, * as sut from "../MovementInputs";
 import { mount } from "enzyme";
 import { memoizeSimple } from '../../utils.jsx';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
@@ -146,4 +146,18 @@ describe('MovementInputs', () => {
     });
 
   });
+});
+
+describe('renderCurrencyActionButtons', () => {
+
+  it('Null if no currencyActionButtonOpts', () => {
+    expect(sut.CurrencyActionButtons({})).toBe(null);
+  });
+
+  it('Renders a div when not null', () => {
+    const currencyActionButtonsOpts = [{label: "Foo"}];
+    const result = mount(sut.CurrencyActionButtons({currencyActionButtonsOpts}));
+    expect(result.find(".currency-action-buttons")).toHaveLength(1);
+  });
+  
 });

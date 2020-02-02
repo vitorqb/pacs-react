@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import React from 'react';
 import { mount } from 'enzyme';
-import TransactionForm from '../TransactionForm';
+import TransactionForm, * as sut from '../TransactionForm';
 import MovementInputs from '../MovementInputs';
 import ErrorMessage from '../ErrorMessage';
 import SuccessMessage from '../SuccessMessage';
@@ -367,4 +367,55 @@ describe('TransactionForm', () => {
 
   });
 
+});
+
+describe('getCurrencyActionButtonsOpts', () => {
+
+  it('Empty if it is last movement', () => {
+    const movementSpec = {id: 1};
+    const movements = [movementSpec];
+    const index = 0;
+    expect(sut.getCurrencyActionButtonsOpts(movementSpec, index, movements)).toEqual([]);
+  });
+
+  it('Not empty if it is not last movement', () => {
+    const movementSpec = {account: 1};
+    const movements = [movementSpec, {account: 2}];
+    const index = 0;
+    const result = sut.getCurrencyActionButtonsOpts(movementSpec, index, movements);
+    expect(result).toHaveLength(1);
+  });
+  
+});
+
+describe('Is last movement', () => {
+
+  it('True (two long)', () => {
+    expect(sut.isLastMovement(0, [{id: 1}])).toBe(true);
+  });
+
+  it('False', () => {
+    expect(sut.isLastMovement(1, [{id: 1}, {id: 2}, {id: 3}])).toBe(false);
+  });
+  
+});
+
+describe('copyCurrencyToNextMovementSpec', () => {
+
+  it('Base', () => {
+    const movement1 = {money: {currency: 1}};
+    const movement2 = {money: {currency: 2}};
+    const movements = [movement1, movement2];
+    expect(sut.copyCurrencyToNextMovementSpec(movement1, 0, movements))
+      .toEqual([movement1, {money: {currency: 1}}]);
+  });
+
+  it('Empty movement spec', () => {
+    const movement1 = {};
+    const movement2 = {money: {currency: 3}};
+    const movements = [movement1, movement2];
+    expect(sut.copyCurrencyToNextMovementSpec(movement1, 0, movements))
+      .toEqual([movement1, {money: {currency: null}}]);
+  });
+  
 });
