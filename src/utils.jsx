@@ -360,7 +360,7 @@ export const DateUtil = {
  * Passes the event to a function after calling preventDefault and stopPropagation on the event.
  */
 export const withEventPrevention = fn => e => {
-  e.stopPropagation();
-  e.preventDefault();
+  if (e.stopPropagation) { e.stopPropagation(); }
+  if (e.preventDefault) { e.preventDefault(); }
   return fn(e);
 };

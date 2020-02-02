@@ -419,3 +419,23 @@ describe('copyCurrencyToNextMovementSpec', () => {
   });
   
 });
+
+describe('copyQuantityToNextMovementSpec', () => {
+
+  it('Base', () => {
+    const movement1 = {money: {quantity: 1}};
+    const movement2 = {money: {quantity: 2}};
+    const movements = [movement1, movement2];
+    expect(sut.copyQuantityToNextMovementSpec(movement1, 0, movements))
+      .toEqual([movement1, {money: {quantity: -1}}]);
+  });
+
+  it('Base', () => {
+    const movement1 = {};
+    const movement2 = {money: {quantity: 2}};
+    const movements = [movement1, movement2];
+    expect(sut.copyQuantityToNextMovementSpec(movement1, 0, movements))
+      .toEqual([movement1, {money: {quantity: null}}]);
+  });
+  
+});

@@ -76,7 +76,10 @@ export default class MovementInputs extends Component{
       R.path(["target", "value"])
     );
     const input = (
-      <input name="quantity"  onChange={onChange} value={value} />
+      <Fragment>
+        <input name="quantity"  onChange={onChange} value={value} />
+        <QuantityActionButtons quantityActionButtonsOpts={this.props.quantityActionButtonsOpts} />
+      </Fragment>
     );
     const props = RU.objFromPairs(
       InputWrapperLens.label, "Quantity",
@@ -120,4 +123,23 @@ export function CurrencyActionButtons({ currencyActionButtonsOpts }) {
     currencyActionButtonsOpts
   );
   return <div className="currency-action-buttons">{currencyActionButtons}</div>;
+}
+
+/**
+ * Component with a single action button for quantity.
+ */
+export function QuantityActionButton({ label, onClick }) {
+  return (
+    <button className="currency-action-button" onClick={utils.withEventPrevention(onClick)}>
+      {label}
+    </button>
+  ); 
+}
+
+export function QuantityActionButtons({ quantityActionButtonsOpts }) {
+  const quantityActionButtons = R.map(
+    x => <QuantityActionButton {...x} key={x.label} />,
+    quantityActionButtonsOpts || []
+  );
+  return <div className="quantity-action-buttons">{quantityActionButtons}</div>;
 }

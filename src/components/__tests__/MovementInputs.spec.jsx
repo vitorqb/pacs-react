@@ -161,3 +161,33 @@ describe('renderCurrencyActionButtons', () => {
   });
   
 });
+
+describe('QuantityActionButton', () => {
+
+  it('Base', () => {
+    const label = "Foo";
+    const onClick = () => "BAR";
+    const result = mount(
+      <sut.QuantityActionButton {...{label, onClick}} />
+    );
+    expect(result.find(".currency-action-button")).toHaveLength(1);
+    expect(result.text()).toEqual(label);
+    expect(result.props().onClick()).toEqual(onClick());
+  });
+
+});
+
+describe('QuantityActionButtons', () => {
+
+  it('Base', () => {
+    const label = "Foo";
+    const onClick = () => "BAR";
+    const quantityActionButtonsOpts = [{label, onClick}];
+    const result = mount(<sut.QuantityActionButtons {...{quantityActionButtonsOpts}} />);
+
+    expect(result.find(".quantity-action-buttons")).toHaveLength(1);
+    expect(result.find(".currency-action-button")).toHaveLength(1);
+    expect(result.find(".currency-action-button").at(0).text()).toEqual(label);
+  });
+  
+});

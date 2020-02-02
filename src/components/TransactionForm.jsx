@@ -205,6 +205,12 @@ export default class TransactionForm extends Component {
         movements,
         self.handleUpdate(R.lensPath(["movements"]), R.identity)
       );
+      const quantityActionButtonsOpts = getQuantityActionButtonsOptions(
+        movementSpec,
+        index,
+        movements,
+        self.handleUpdate(R.lensPath(["movements"]), R.identity)
+      );
       return (
         <div key={index}>
           <MovementInputs
@@ -214,7 +220,9 @@ export default class TransactionForm extends Component {
             currencies={currencies}
             value={movementSpec}
             onChange={self.handleUpdate(R.lensPath(["movements", index]), R.identity)}
-            currencyActionButtonsOpts={currencyActionButtonsOpts} />
+            currencyActionButtonsOpts={currencyActionButtonsOpts}
+            quantityActionButtonsOpts={quantityActionButtonsOpts}
+            />
           {renderRemovalButton(index)}
         </div>
       );
@@ -287,4 +295,34 @@ export function copyCurrencyToNextMovementSpec(movementSpec, index, movements) {
   const newCurrency = R.pathOr(null, ["money", "currency"], movementSpec);
   const result = R.assocPath([index + 1, "money", "currency"], newCurrency, movements);
   return result;
+}
+
+/**
+ * Returns the quantity action button options for a given movement Spec.
+ * `movementSpec` is the current movement spec being rendered.
+ * `index` is the index in the list of movement specs.
+ * `movements` is the full list of movement specs.
+ * `onChange` is the callback when the movements change.
+ */
+export function getQuantityActionButtonsOptions(movementSpec, index, movements, onChange) {
+  var result = [];
+
+  if (! isLastMovement(index, movements)) {
+    const copyQuantityToNextMovementSpecButtonOpt = {
+      label: "->next",
+      onClick: () => onChange(copyQuantityToNextMovementSpec(movementSpec, index, movements))
+    };
+    result = R.append(copyQuantityToNextMovementSpecButtonOpt, result);
+  }
+
+  return result; 
+}
+
+/**
+ * Copies the quantity from a movementSpec to the next on the array, inverting the sign.
+ */
+export function copyQuantityToNextMovementSpec(movementSpec, index, movements) {
+  const quantity = R.pathOr(null, ["money", "quantity"], movementSpec);
+  const newQuantity = R.isNil(quantity) ? null : R.negate(quantity);
+  return R.assocPath([index + 1, "money", "quantity"], newQuantity, movements);
 }
