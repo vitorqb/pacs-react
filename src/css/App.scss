@@ -145,6 +145,19 @@
     }
 }
 
+.date-distance-visualizer {
+    
+    font-weight: 600;
+    padding: 2.5px;
+    margin: 0px 5px 0px 5px;
+    border-radius: 7px;
+    min-width: 50px;
+    display: inline-block;
+    text-align: center;
+    box-shadow: 0px 0px 2.5px;
+    
+}
+
 // To overrido somethings from bootstrap
 .table td {
     padding: 6px;

@@ -347,3 +347,11 @@ export const MonthUtil = {
     return {month: momentDate.format("MMMM"), year: Number(momentDate.format("YYYY"))};
   }
 };
+
+/**
+ * Utilities for date
+ */
+export const DateUtil = {
+  daysBetween: (date1, date2) => Math.round(date1.startOf("day").diff(date2.startOf("day"), "days", true)),
+  today: () => moment()
+};

@@ -1,5 +1,5 @@
 import React from 'react';
-import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil } from '../utils';
+import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil, DateUtil } from '../utils';
 import { AccountFactory, CurrencyFactory } from '../testUtils.jsx';
 import * as R from 'ramda';
 import moment from 'moment';
@@ -233,6 +233,31 @@ describe('MonthUtil', () => {
       expect(MonthUtil.lastDayOfMonth(month)).toEqual('2016-02-29');
     });
     
+  });
+  
+});
+
+describe('DateUtils', () => {
+
+  describe('Days between', () => {
+
+    it('Zero', () => {
+      const date = moment("2019-01-01");
+      expect(DateUtil.daysBetween(date, date)).toBe(0);
+    });
+
+    it('Positive', () => {
+      const date1 = moment("2019-01-01");
+      const date2 = moment("2019-01-03");
+      expect(DateUtil.daysBetween(date1, date2)).toBe(-2);
+    });
+
+    it('Negative', () => {
+      const date1 = moment("2019-01-03");
+      const date2 = moment("2019-01-01");
+      expect(DateUtil.daysBetween(date1, date2)).toBe(2);
+    });
+
   });
   
 });
