@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 const isEven = i => i % 2 === 0;
-const mapIndexed = R.addIndex(R.map);
+export const mapIndexed = R.addIndex(R.map);
 
 /**
  * Splits a list into sublists of equal number of items.

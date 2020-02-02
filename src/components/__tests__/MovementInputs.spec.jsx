@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import sinon from 'sinon';
 import React from 'react';
-import MovementInputs from "../MovementInputs";
+import MovementInputs, * as sut from "../MovementInputs";
 import { mount } from "enzyme";
 import { memoizeSimple } from '../../utils.jsx';
 import { AccountFactory, CurrencyFactory } from '../../testUtils';
@@ -146,4 +146,48 @@ describe('MovementInputs', () => {
     });
 
   });
+});
+
+describe('renderCurrencyActionButtons', () => {
+
+  it('Null if no currencyActionButtonOpts', () => {
+    expect(sut.CurrencyActionButtons({})).toBe(null);
+  });
+
+  it('Renders a div when not null', () => {
+    const currencyActionButtonsOpts = [{label: "Foo"}];
+    const result = mount(sut.CurrencyActionButtons({currencyActionButtonsOpts}));
+    expect(result.find(".currency-action-buttons")).toHaveLength(1);
+  });
+  
+});
+
+describe('QuantityActionButton', () => {
+
+  it('Base', () => {
+    const label = "Foo";
+    const onClick = () => "BAR";
+    const result = mount(
+      <sut.QuantityActionButton {...{label, onClick}} />
+    );
+    expect(result.find(".currency-action-button")).toHaveLength(1);
+    expect(result.text()).toEqual(label);
+    expect(result.props().onClick()).toEqual(onClick());
+  });
+
+});
+
+describe('QuantityActionButtons', () => {
+
+  it('Base', () => {
+    const label = "Foo";
+    const onClick = () => "BAR";
+    const quantityActionButtonsOpts = [{label, onClick}];
+    const result = mount(<sut.QuantityActionButtons {...{quantityActionButtonsOpts}} />);
+
+    expect(result.find(".quantity-action-buttons")).toHaveLength(1);
+    expect(result.find(".currency-action-button")).toHaveLength(1);
+    expect(result.find(".currency-action-button").at(0).text()).toEqual(label);
+  });
+  
 });

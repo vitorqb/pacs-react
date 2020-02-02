@@ -33,7 +33,22 @@
 }
 
 .currency-input {
+
     width: 400px;
+    display: inline-block;
+    
+}
+
+.currency-action-button,
+.currency-action-button:active,
+.currency-action-button:focus {
+
+    margin: 0px 5px 0 5px;
+    box-shadow: 0px 0px 2px black;
+    padding: 0px 5px 0px 5px;
+    border: 0px;
+    border-radius: 2.5px;
+    
 }
 
 .account-input {
@@ -155,6 +170,18 @@
     display: inline-block;
     text-align: center;
     box-shadow: 0px 0px 2.5px;
+    
+}
+
+.currency-action-buttons {
+
+    display: inline-block;
+    
+}
+
+.quantity-action-buttons {
+
+    display: inline-block;
     
 }
 
