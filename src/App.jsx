@@ -21,6 +21,7 @@ import JournalComponentInstance from './App/Instances/JournalComponent';
 import AccountBalanceEvolutionComponentInstance, { initialState as AccountBalanceEvolutionComponentInstanceInitialSatate } from './App/Instances/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
+import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
@@ -142,6 +143,8 @@ class App extends Component {
     const accountFlowEvolutionReportComponent =
           AccountFlowEvolutionReportComponentInstance(renderArgs);
     const DeleteAccountComponent = DeleteAccountComponentInstance(renderArgs);
+    const fetchCurrencyExchangeRateDataComponent =
+          CurrencyExchangeRateDataFetcherComponentInstance(renderArgs);
 
     // Prepares the router
     const router = makeRouter(this.getRoutesData({
@@ -156,6 +159,7 @@ class App extends Component {
       accountBalanceEvolutionComponent,
       accountFlowEvolutionReportComponent,
       DeleteAccountComponent,
+      fetchCurrencyExchangeRateDataComponent
     }));
 
     return (
@@ -183,6 +187,7 @@ class App extends Component {
     accountBalanceEvolutionComponent,
     accountFlowEvolutionReportComponent,
     DeleteAccountComponent,
+    fetchCurrencyExchangeRateDataComponent
   }) {
     return [
       {
@@ -239,6 +244,11 @@ class App extends Component {
         path: "/account-flow-evolution-report/",
         text: "Account Flow Evolution Report",
         component: () => accountFlowEvolutionReportComponent
+      },
+      {
+        path: "/exchange-rate-data/fetch/",
+        text: "Currency Exchange Rate Data Fetcher",
+        component: () => fetchCurrencyExchangeRateDataComponent
       }
     ];
   }
