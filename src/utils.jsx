@@ -353,7 +353,46 @@ export const MonthUtil = {
  */
 export const DateUtil = {
   daysBetween: (date1, date2) => Math.round(date1.startOf("day").diff(date2.startOf("day"), "days", true)),
-  today: () => moment()
+
+  today: () => moment(),
+
+  format: (date, fmt) => date.format(fmt || "YYYY-MM-DD")
+};
+
+export const StrUtil = {
+
+  /**
+   * Joins a list of strings with a given separator.
+   * @param lst - The list.
+   * @param sep - The separator (defaults to comma).
+   */
+  joinList(lst, sep) {
+    const sep_ = sep || ",";
+    return lst.join(sep);
+  }
+  
+};
+
+export const FileUtil = {
+
+  /**
+   * Downloads a file from a string.
+   */
+  downloadFromString(str, filename="download") {
+    var blob = new Blob([str], {type: 'text/plain'});
+    if(window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveBlob(blob, filename);
+    } else {
+      var elem = window.document.createElement('a');
+      elem.href = window.URL.createObjectURL(blob);
+      elem.target = "_blank";
+      elem.download = filename;        
+      document.body.appendChild(elem);
+      elem.click();        
+      document.body.removeChild(elem);
+    }
+  }
+  
 };
 
 /**

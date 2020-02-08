@@ -11,10 +11,13 @@ export default function CurrencyExchangeRateDataFetcherComponentInstance(renderA
   const lens = R.lensPath(["CurrencyExchangeRateDataFetcherComponentInstance"]);
   const onChange = R.view(EventsLens.setState, events);
   const value = R.view(lens, state);
+  const fetchCurrencyExchangeRateData = R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData,
+                                               ajaxInjections);
 
   return (
     <CurrencyExchangeRateDataFetcherComponent
       onChange={onChange(lens)}
-      value={value} />
+      value={value}
+      fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
   );
 }

@@ -2,7 +2,7 @@
 import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
-import { remapKeys, MonthUtil } from './utils';
+import { remapKeys, MonthUtil, DateUtil, StrUtil } from './utils';
 import SecretsLens from './domain/Secrets/Lens';
 import * as PricePortifolio from './domain/PricePortifolio/Core';
 
@@ -40,13 +40,14 @@ export function makeRequest({
   url,
   method = "GET",
   requestData = {},
+  requestParams = {},
   parseResponseData = R.identity,
 }) {
   const handleSuccess = R.pipe(extractDataFromAxiosResponse, parseResponseData);
   function handleFailure(error) {
     throw extractDataFromAxiosError(error);
   }
-  return axios({url, method, data: requestData})
+  return axios({url, method, data: requestData, params: requestParams})
     .then(handleSuccess)
     .catch(handleFailure);
 }
@@ -357,6 +358,31 @@ export const ajaxGetAccountsFlowsEvolutionData = R.curry(
         R.assoc('periods', periods),
         remapKeys({"data": "accountsFlows"}),
       )
+    });
+  }
+);
+
+/**
+ * @type Function
+ * Get the json with data for the exchange rate.
+ * @param axios - The axios or axios wrapper fn.
+ * @param args.startAt - Start momentjs date.
+ * @param args.endAt - End momentjs date.
+ * @param args.currencyCodes - List with currency codes.
+ */
+export const ajaxFetchCurrencyExchangeRateData = R.curry(
+  function(axios, { startAt, endAt, currencyCodes }) {
+    const parsedStartAt = DateUtil.format(startAt);
+    const parsedEndAt = DateUtil.format(endAt);
+    const parsedCurrencyCodes = StrUtil.joinList(currencyCodes, ",");
+    const params = { "start_at": parsedStartAt,
+                     "end_at": parsedEndAt,
+                     "currency_codes": parsedCurrencyCodes };
+    return makeRequest({
+      axios,
+      url: "/exchange_rates/data/",
+      method: "GET",
+      requestParams: params,
     });
   }
 );

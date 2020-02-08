@@ -153,8 +153,8 @@
         font-size: 24px;
         z-index: 99999;
         position: absolute;
-        top: 40vh;
-        left: 50vw;
+        top: 50%;
+        left: 40%;
         transform: translate(-50%, -50%);
         background-color: white;
     }
@@ -188,4 +188,9 @@
 // To overrido somethings from bootstrap
 .table td {
     padding: 6px;
+}
+
+/* CurrencyExchangeRateDataFetcherComponent */
+.currency-exchange-rate-data-fetcher {
+    position: relative;
 }

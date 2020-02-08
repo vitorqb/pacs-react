@@ -1,5 +1,5 @@
 import React from 'react';
-import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil, DateUtil } from '../utils';
+import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil, DateUtil, StrUtil } from '../utils';
 import { AccountFactory, CurrencyFactory } from '../testUtils.jsx';
 import * as R from 'ramda';
 import moment from 'moment';
@@ -258,6 +258,16 @@ describe('DateUtils', () => {
       expect(DateUtil.daysBetween(date1, date2)).toBe(2);
     });
 
+  });
+  
+});
+
+describe('StrUtils', () => {
+
+  it('joinList', () => {
+    expect(StrUtil.joinList(["1", "FOO"], ".")).toEqual("1.FOO");
+    expect(StrUtil.joinList(["1", "FOO"], "")).toEqual("1FOO");
+    expect(StrUtil.joinList(["1", "FOO"])).toEqual("1,FOO");
   });
   
 });
