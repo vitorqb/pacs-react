@@ -1,7 +1,7 @@
 import React from 'react';
 import * as R from 'ramda';
 import { lens as AppLens } from '../../Lens.js';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
+import { CurrencyFactory } from '../../../testUtils';
 import { mount } from 'enzyme';
 import CurrencyTableInstance from '../CurrencyTable.jsx';
 

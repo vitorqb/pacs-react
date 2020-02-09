@@ -367,8 +367,8 @@ export const StrUtil = {
    * @param sep - The separator (defaults to comma).
    */
   joinList(lst, sep) {
-    const sep_ = sep || ",";
-    return lst.join(sep);
+    const sep_ = R.isNil(sep) ? "," : sep;
+    return lst.join(sep_);
   }
   
 };

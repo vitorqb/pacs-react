@@ -4,19 +4,10 @@ import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import * as R from 'ramda';
 import { mount } from 'enzyme';
 import * as sut from '../App';
-import App from '../App';
 import { makeLink, makeRoute, makeRouter } from '../App/Router';
 import * as Lens from '../App/Lens';
-import TransactionTable from '../components/TransactionTable';
-import CurrencyTable from '../components/CurrencyTable';
-import AccountTree from '../components/AccountTree';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../testUtils';
-import TransactionForm from '../components/TransactionForm';
-import AccountForm from '../components/AccountForm';
-import EditTransactionComponent from '../components/EditTransactionComponent';
 import SecretsLens from '../domain/Secrets/Lens';
 import * as RU from '../ramda-utils';
-import sinon from 'sinon';
 
 describe('App.test.jsx', () => {
 

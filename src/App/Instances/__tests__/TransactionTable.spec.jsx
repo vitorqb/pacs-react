@@ -1,6 +1,5 @@
 import React from 'react';
 import AppLens from '../../Lens';
-import { lens as AjaxLenses } from '../../Ajax';
 import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
 import * as R from 'ramda';
 import * as RU from '../../../ramda-utils';

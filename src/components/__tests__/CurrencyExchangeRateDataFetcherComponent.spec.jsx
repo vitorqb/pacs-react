@@ -100,9 +100,7 @@ describe('_submitHandler', () => {
 
     it('Calls _handleValidSubmit if submit is valid', () => {
       const handleValidSubmit = sinon.stub(sut._submitHandler, '_handleValidSubmit');
-      const isValidStateForSubmission = sinon
-            .stub(sut._submitHandler, '_isValidStateForSubmission')
-            .returns(true);
+      sinon.stub(sut._submitHandler, '_isValidStateForSubmission').returns(true);
       sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, e);
       expect(handleValidSubmit.args).toHaveLength(1);
       expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent]);
@@ -153,9 +151,7 @@ describe('_submitHandler', () => {
   describe('_handleInvalidSubmit', () => {
 
     it('Sets error message', () => {
-      const getErrorMessage = sinon
-            .stub(sut._submitHandler, '_getErrorMessage')
-            .returns("FOO");
+      sinon.stub(sut._submitHandler, '_getErrorMessage').returns("FOO");
       const value = {};
       const newValue = sut._submitHandler._handleInvalidSubmit(value, x => x);
       expect(R.view(sut.valueLens._errorMessage, newValue)).toEqual("FOO");
@@ -225,5 +221,5 @@ describe('_submitHandler', () => {
 /**
  * Check if an element has the label props equal to `x`.
  */
-const labelInPropsEqual = R.curry((x, element) => element.props().label == x);
+const labelInPropsEqual = R.curry((x, element) => element.props().label === x);
   

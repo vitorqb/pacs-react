@@ -1,5 +1,3 @@
-import * as R from 'ramda';
-import * as RU from '../../ramda-utils';
 import * as utils from '../../utils';
 
 /**

@@ -1,7 +1,6 @@
 import sinon from 'sinon';
 import * as R from 'ramda';
 import * as RU from '../../../ramda-utils';
-import { lens as AppLens } from '../../Lens';
 import { lens as AjaxInjectionsLens } from '../../Ajax';
 import { lens as EventsLens } from '../../Events';
 import { AccountFactory } from '../../../testUtils';

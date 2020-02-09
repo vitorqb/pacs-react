@@ -63,7 +63,6 @@ describe('EditAccountComponent', () => {
   it('Calls refetchState on submit', async () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[0];
-    const accountSpec = getSpecFromAccount(account);
     editAccComponent.find('AccountInput').props().onChange(account);
     editAccComponent.update();
 

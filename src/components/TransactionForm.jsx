@@ -286,7 +286,7 @@ export function getCurrencyActionButtonsOpts(movementSpec, index, movements, onC
   return result;
 }
 
-export function isLastMovement(index, movements) { return (index + 1) == movements.length; }
+export function isLastMovement(index, movements) { return (index + 1) === movements.length; }
 
 /**
  * Copies the Currency from `movementSpec` to the next movement spec in the list.

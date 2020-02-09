@@ -1,15 +1,14 @@
 import { createElement } from 'react';
 import { mount } from 'enzyme';
-import AccountBalanceEvolutionComponent, { makeMonthPickers, validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS } from '../AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponent, { validateMonths, MONTH_VALIDATION_ERRORS, validateAccounts, ACCOUNT_VALIDATION_ERRORS } from '../AccountBalanceEvolutionComponent';
 import * as sut from '../AccountBalanceEvolutionComponent';
 import { AccountFactory, CurrencyFactory, MonthFactory, MoneyFactory } from '../../testUtils';
 import { newGetter, MonthUtil } from '../../utils';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
 import sinon from 'sinon';
-import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
+import { propLens as InputWrapperLens } from '../InputWrapper';
 import * as utils from '../../utils';
-import * as PortifolioFilePicker from '../PortifolioFilePicker';
 import { Success, Fail } from 'monet';
 
 function getExampleDataItem() {
@@ -56,21 +55,8 @@ function mountAccountBalanceEvolutionComponent(customProps={}) {
   return mount(createElement(AccountBalanceEvolutionComponent, props));
 }
 
-function findMonthPicker(comp, i) {
-  const found = comp.find("MonthPicker");
-  return R.isNil(i) ? found : found.at(i);
-}
-
 function findMultipleAccSelect(comp) {
   return comp.find('MultipleAccountsSelector');
-}
-
-function pickMonth(comp, month) {
-  comp.props().onPicked(month);
-}
-
-function selectAccounts(comp, accs) {
-  findMultipleAccSelect(comp).props().onSelectedAccountsChange(accs);
 }
 
 describe('viewTableData', () => {
@@ -243,28 +229,10 @@ describe('AccountBalanceEvolutionComponent', () => {
   });
 
   describe('handleSubmit', () => {
-    let component, validateMonths, validateAccounts, inject, getAccountBalanceEvolutionData, dataPromise, account, dataPromiseValue, months;
+    let account, months;
     beforeEach(() => {
       months = [{month: "February", year: 2018}, {month: "April", year: 2018}];
       account = AccountFactory.build();
-      dataPromiseValue = {data: [getExampleData(account)], months};
-      dataPromise = Promise.resolve(dataPromiseValue);
-      getAccountBalanceEvolutionData = sinon.fake.returns(dataPromise);
-      const value = RU.objFromPairs(
-        sut.valueLens.data, null,
-        sut.valueLens.pickedMonths, dataPromiseValue.months,
-        sut.valueLens.pickedAccounts, [1, 2]
-      );
-      const props = RU.objFromPairs(
-        sut.propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
-        sut.propsLens.accounts, [account],
-        sut.propsLens.value, value,
-      );
-      component = mountAccountBalanceEvolutionComponent(props);
-      validateMonths = sinon.fake();
-      validateAccounts = sinon.fake();
-      inject = { validateMonths, validateAccounts };
-
       sinon.stub(window, 'alert').callsFake(()=>{});
     });
 
