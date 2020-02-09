@@ -37,7 +37,7 @@ export function _handleChange(setValue, event) {
  * Converts between the raw input value and the value.
  */
 export function _inputValueToValue(inputValue) {
-  if (R.isNil(inputValue) || inputValue == "") {
+  if (R.isNil(inputValue) || inputValue === "") {
     return [];
   } else {
     return inputValue.replace(/ /g, "").split(",");

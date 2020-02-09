@@ -1,4 +1,4 @@
-import DateDistanceVisualizer, { getDaysBetween, getColor, propsLens } from '../DateDistanceVisualizer';
+import { getDaysBetween, getColor, propsLens } from '../DateDistanceVisualizer';
 import moment from 'moment';
 import * as RU from '../../ramda-utils';
 

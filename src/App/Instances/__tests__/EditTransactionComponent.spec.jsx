@@ -2,7 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import * as RU from '../../../ramda-utils';
 import { lens as AppLens } from '../../Lens.js';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
+import { AccountFactory, CurrencyFactory } from '../../../testUtils';
 import { mount } from 'enzyme';
 import renderEditTransactionComponent from '../EditTransactionComponent.jsx';
 

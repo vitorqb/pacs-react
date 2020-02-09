@@ -1,6 +1,5 @@
-import { mount } from 'enzyme';
 import { AccountFlowFactory } from '../../testUtils';
-import AccountFlowEvolutionTable, { getMonthLabelFromAccountFlow, AccountFlowEvolutionTH } from '../AccountFlowEvolutionTable';
+import { getMonthLabelFromAccountFlow, AccountFlowEvolutionTH } from '../AccountFlowEvolutionTable';
 
 
 describe('AccountFlowEvolutionTable', () => {
@@ -9,7 +8,6 @@ describe('AccountFlowEvolutionTable', () => {
 
     it('base', () => {
       let period = ['2018-01-01', '2018-01-31'];
-      let month = {year: 2018, month: 'January'};
       let accountFlow = AccountFlowFactory.build({ period });
       expect(getMonthLabelFromAccountFlow(accountFlow)).toEqual('January/2018');
     });

@@ -1,7 +1,7 @@
-import React, { Component, createElement } from 'react';
+import React, { createElement } from 'react';
 import MonthPicker from './MonthPicker';
 import MultipleAccountsSelector from './MultipleAccountsSelector';
-import { MonthUtil, newGetter } from '../utils';
+import { MonthUtil } from '../utils';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
@@ -127,7 +127,6 @@ export const handlePickedTargetCurrencyChange = handleChange(valueLens.pickedTar
  * Returns a promise with the reduced value.
  */
 export const handleSubmit = R.curry(props => {
-  const value = R.view(propsLens.value, props);
   const onChange = R.view(propsLens.onChange, props);
   const getAccountBalanceEvolutionData = R.view(
     propsLens.getAccountBalanceEvolutionData,
@@ -149,11 +148,6 @@ export const handleSubmit = R.curry(props => {
 export const AccountBalanceEvolutionComponent = props => {
   const onChange = R.view(propsLens.onChange, props);
   const pickedMonths = R.view(valueLens.pickedMonths, props.value);
-  const data = R.view(valueLens.data, props.value);
-  const pickedAccounts = R.view(valueLens.pickedAccounts, props.value);
-  const accounts = R.view(propsLens.accounts, props);
-  const getCurrency = R.view(propsLens.getCurrency, props);
-  const getAccount = R.view(propsLens.getAccount, props);
   const monthPickers = makeMonthPickers(pickedMonths, handlePickedMonth(onChange));
   const simpleTableProps = RU.objFromPairs(
     SimpleTable.propsLens.data, viewTableData(props),

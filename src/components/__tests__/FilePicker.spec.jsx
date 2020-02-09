@@ -1,7 +1,5 @@
 import * as R from 'ramda';
-import React from 'react';
-import { mount } from 'enzyme';
-import FilePicker, { parseInputMsg, inputMsgFileLens, reducers, valueLens, Status } from '../FilePicker';
+import { parseInputMsg, inputMsgFileLens, reducers, valueLens, Status } from '../FilePicker';
 import sinon from 'sinon';
 
 describe('FilePicker', () => {

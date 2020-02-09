@@ -1,8 +1,7 @@
 import React from 'react';
 import * as R from 'ramda';
-import * as RU from '../../../ramda-utils';
 import { lens as AppLens } from '../../Lens';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
+import { AccountFactory } from '../../../testUtils';
 import { mount } from 'enzyme';
 import AccountTree from '../AccountTree';
 

@@ -25,9 +25,6 @@ const simulateAccountInputValueChange = (c, v) => {
   findAccountInput(c).props().onChange(v);
   c.update();
 };
-const simulateSubmit = c => {
-  c.find('form').props().onSubmit({preventDefault: sinon.fake()});
-};
 
 describe('DeleteAccountComponent', () => {
 

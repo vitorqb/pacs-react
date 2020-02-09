@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
 import React from 'react';
@@ -56,7 +55,7 @@ describe('SimpleTable', () => {
   it('Renders correct content', () => {
     const c = mountSimpleTable();
     const tds = c.find('td');
-    const selected = tds.findWhere(x => x.type() == 'td' && x.text() == '22');
+    const selected = tds.findWhere(x => x.type() === 'td' && x.text() === '22');
     expect(selected).toHaveLength(1);
   });
 
@@ -69,8 +68,8 @@ describe('SimpleTableHeader', () => {
     const c = mountSimpleTable(props);
     const ths = c.find("th");
 
-    expect(ths.findWhere(x => x.type() == 'th' && x.text() === "foo")).toHaveLength(1);
-    expect(ths.findWhere(x => x.type() == 'th' && x.text() === "bar")).toHaveLength(1);
+    expect(ths.findWhere(x => x.type() === 'th' && x.text() === "foo")).toHaveLength(1);
+    expect(ths.findWhere(x => x.type() === 'th' && x.text() === "bar")).toHaveLength(1);
   });
 
 });

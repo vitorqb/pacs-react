@@ -4,7 +4,7 @@ import DateInput from './DateInput';
 import CurrencyCodesPicker from './CurrencyCodesPicker';
 import ErrorMessage from './ErrorMessage';
 import * as utils from '../utils';
-import { DateUtil, FileUtil } from '../utils';
+import { FileUtil } from '../utils';
 import LoadingWrapper from './LoaddingWrapper';
 
 /**
