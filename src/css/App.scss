@@ -124,14 +124,25 @@
 
 .login-page {
     font-size: 1.25rem;
+
     &__label {
         display: inline-block;
-        width: 5rem;
+        width: 6rem;
         padding: 5px 2px;
         text-align: right;
     }
+
     &__btn {
         text-align: center;
+        &--secondary {
+            padding: 5px;
+            font-size: 85%;
+            shadow: none;
+        }
+    }
+
+    &__load_from_cache {
+        padding-top: 60px;
     }
 }
 

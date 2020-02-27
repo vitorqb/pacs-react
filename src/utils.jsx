@@ -442,8 +442,13 @@ export const CryptoUtil = {
    * @param password - The password used to encrypt.
    */
   decrypt(val, password) {
-    let out = CryptoJs.AES.decrypt(val, password).toString(CryptoJs.enc.Utf8);
-    return out === "" ? null : out;
+    try {
+      let out = CryptoJs.AES.decrypt(val, password).toString(CryptoJs.enc.Utf8);
+      return out === "" ? null : out;
+    } catch(e) {
+      if (!e.message === "Malformed UTF-8 data") { throw e; }
+      return null;
+    }
   },
   
 };
@@ -456,4 +461,44 @@ export const withEventPrevention = fn => e => {
   if (e.stopPropagation) { e.stopPropagation(); }
   if (e.preventDefault) { e.preventDefault(); }
   return fn(e);
+};
+
+export const LocalStorageUtil = {
+
+  /**
+   * Returns true if localStorage is implemented and available.
+   */
+  storageAvailable() {
+    var storage;
+    try {
+      storage = window['localStorage'];
+      var x = '__storage_test__';
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+    }
+    catch(e) {
+      return e instanceof DOMException && (
+        // everything except Firefox
+        e.code === 22 ||
+          // Firefox
+        e.code === 1014 ||
+          // test name field too, because code might not be present
+        // everything except Firefox
+        e.name === 'QuotaExceededError' ||
+          // Firefox
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+        // acknowledge QuotaExceededError only if there's something already stored
+      (storage && storage.length !== 0);
+    }
+  },
+
+  /**
+   * Gets a value from local storage.
+   */
+  get(key) {
+    if (! LocalStorageUtil.storageAvailable()) { return null; }
+    return window.localStorage.getItem(key);
+  },
+  
 };
