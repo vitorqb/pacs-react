@@ -2,7 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import numeral from 'numeral';
 import moment from 'moment';
-
+import CryptoJs from 'crypto-js';
 
 /**
  * @typedef Currency
@@ -362,6 +362,18 @@ export const DateUtil = {
 export const StrUtil = {
 
   /**
+   * Provides a platform agnostic text encoder.
+   */
+  newTextEncoder() {
+    if (typeof TextEncoder === 'undefined') {
+      // We are in nodejs
+      var _TextEncoder = require('util').TextEncoder;
+      return new _TextEncoder();
+    }
+    return new TextEncoder();
+  },
+
+  /**
    * Joins a list of strings with a given separator.
    * @param lst - The list.
    * @param sep - The separator (defaults to comma).
@@ -369,7 +381,14 @@ export const StrUtil = {
   joinList(lst, sep) {
     const sep_ = R.isNil(sep) ? "," : sep;
     return lst.join(sep_);
-  }
+  },
+
+  /**
+   * Checks if a stirng is ASCII only.
+   */
+  isASCII(str) {
+    return /^[\x00-\x7F]*$/.test(str);
+  },
   
 };
 
@@ -405,6 +424,28 @@ export const UrlUtil = {
       return window.location.protocol + "//" + window.location.host + "/api/";
     } catch(_) {}
   }
+};
+
+export const CryptoUtil = {
+
+  /**
+   * Symmetrically encrypts a string using a password.
+   * @param val - The value to encrypt.
+   * @param password - The password. Assumes it is ASCII only!
+   * @returns - A promise with the encrypted value (string).
+   */
+  encrypt(val, password) { return CryptoJs.AES.encrypt(val, password).toString(); },
+
+  /**
+   * Decrypts an encrypted string using a password.
+   * @param val - The value to decrypt.
+   * @param password - The password used to encrypt.
+   */
+  decrypt(val, password) {
+    let out = CryptoJs.AES.decrypt(val, password).toString(CryptoJs.enc.Utf8);
+    return out === "" ? null : out;
+  },
+  
 };
 
 

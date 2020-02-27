@@ -1,5 +1,6 @@
 import React from 'react';
 import { createTitle, remapKeys, getSourceAccsPks, getTargetAccsPks, newGetter, getSpecFromTransaction, extractMoneysForAccount, isDescendant, memoizeSimple, moneysToRepr, MonthUtil, DateUtil, StrUtil } from '../utils';
+import * as sut from '../utils';
 import { AccountFactory, CurrencyFactory } from '../testUtils.jsx';
 import * as R from 'ramda';
 import moment from 'moment';
@@ -268,6 +269,28 @@ describe('StrUtils', () => {
     expect(StrUtil.joinList(["1", "FOO"], ".")).toEqual("1.FOO");
     expect(StrUtil.joinList(["1", "FOO"], "")).toEqual("1FOO");
     expect(StrUtil.joinList(["1", "FOO"])).toEqual("1,FOO");
+  });
+
+  it('isASCII', () => {
+    expect(StrUtil.isASCII("")).toEqual(true);
+    expect(StrUtil.isASCII("foo ")).toEqual(true);
+    expect(StrUtil.isASCII("_)((*&^%$##@!")).toEqual(true);
+    expect(StrUtil.isASCII("α adsaklsadjklas")).toEqual(false);
+  });
+  
+});
+
+describe('CryptoUtil', () => {
+
+  it('Encrypt and Decrypt string', () => {
+    let encrypted = sut.CryptoUtil.encrypt("FOOBARBAZ___", "password");
+    let decrypted = sut.CryptoUtil.decrypt(encrypted, "password");
+    expect(decrypted).toEqual("FOOBARBAZ___");
+  });
+
+  it('With wrong password returns null', () => {
+    let encrypted = sut.CryptoUtil.encrypt("FOO", "AAAAAAA");
+    expect(sut.CryptoUtil.decrypt(encrypted, "BBBBBBBBB")).toEqual(null);
   });
   
 });
