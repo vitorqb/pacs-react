@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
 import { mkAxiosWrapper } from "./ajax";
-import LoginPage from './components/LoginPage';
+import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPage';
 import * as SecretsValidation from './domain/Secrets/Validation';
 import ErrorMessage from './components/ErrorMessage';
 import { makeRouter } from './App/Router';
@@ -23,6 +23,7 @@ import AccountFlowEvolutionReportComponentInstance from './App/Instances/Account
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
+import { UrlUtil } from './utils';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
   R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.uninitialized),
@@ -94,13 +95,12 @@ class App extends Component {
       return this.setState(reducerFn);
     };
     const onLoginPageChange = v => this.setState(R.set(lens.loginPageValue, v));
-    const loginPageValue = R.view(lens.loginPageValue, this.state);
     return (
       <div className="login-page-wrapper">
         <LoginPage
           onChange={onLoginPageChange}
           onSubmit={onLoginPageSubmit}
-          value={loginPageValue}
+          value={viewLoginPageValue(UrlUtil.guessBackendUrl, this.state)}
         />
         <ErrorMessage value={R.view(lens.loginPageErrors, this.state)} />
       </div>
@@ -254,5 +254,18 @@ class App extends Component {
     ];
   }
 }
+
+// Helpers
+/**
+ * Reads the LoginPage Value from the state. Applies defaults.
+ * @param guessBackendUrlFn - 0-arg function returning current url.
+ * @param state - The App state from where the login state with be queried.
+ */
+export const viewLoginPageValue = R.curry((guessBackendUrlFn, state) => {
+  return R.pipe(
+    R.view(lens.loginPageValue),
+    R.over(loginPageValueLens.host, x => R.isNil(x) ? guessBackendUrlFn() : x)
+  )(state);
+});
 
 export default App;

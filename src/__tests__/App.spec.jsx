@@ -8,6 +8,7 @@ import { makeLink, makeRoute, makeRouter } from '../App/Router';
 import * as Lens from '../App/Lens';
 import SecretsLens from '../domain/Secrets/Lens';
 import * as RU from '../ramda-utils';
+import LoginPage, { valueLens as loginPageValueLens } from '../components/LoginPage';
 
 describe('App.test.jsx', () => {
 
@@ -89,5 +90,22 @@ describe('App.test.jsx', () => {
       expect(router.html()).toEqual(exp.html());
     });
   });
+});
 
+describe('viewLoginPageValue', () => {
+
+  it('Host not set -> Use function', () => {
+    let loginPageValue = {};
+    let appState = RU.objFromPairs(Lens.lens.loginPageValue, loginPageValue);
+    expect(sut.viewLoginPageValue(() => "foo", appState)).toEqual(RU.objFromPairs(
+      loginPageValueLens.host, "foo"
+    ));
+  });
+
+  it('Host set -> keep it', () => {
+    let loginPageValue = RU.objFromPairs(loginPageValueLens.host, "foo");
+    let appState = RU.objFromPairs(Lens.lens.loginPageValue, loginPageValue);
+    expect(sut.viewLoginPageValue(() => "", appState)).toEqual(loginPageValue);
+  });
+  
 });
