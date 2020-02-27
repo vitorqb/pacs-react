@@ -395,6 +395,19 @@ export const FileUtil = {
   
 };
 
+export const UrlUtil = {
+
+  /**
+   * Guesses the BE url based on the page current url.
+   */
+  guessBackendUrl() {
+    try {
+      return window.location.protocol + "//" + window.location.host + "/api/";
+    } catch(_) {}
+  }
+};
+
+
 /**
  * Passes the event to a function after calling preventDefault and stopPropagation on the event.
  */
