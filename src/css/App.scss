@@ -118,18 +118,25 @@
 .login-page-wrapper {
     position: absolute;
     top: 30vh;
-    left: 50vw;
+    left: 45vw;
     transform: translate(-50%, 0);    
 }
 
 .login-page {
     font-size: 1.25rem;
 
+    &__options {
+        padding-top: 20px;
+    }
+
     &__label {
         display: inline-block;
-        width: 6rem;
+        width: 6.5rem;
         padding: 5px 2px;
         text-align: right;
+        &--small {
+            font-size: 75%;
+        }
     }
 
     &__btn {
@@ -204,4 +211,23 @@
 /* CurrencyExchangeRateDataFetcherComponent */
 .currency-exchange-rate-data-fetcher {
     position: relative;
+}
+
+.yes-no-button {
+    border: none;
+    color: white;
+    padding: 2px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 2.5px;
+
+    &--yes {
+        background-color: #4CAF50; /* Green */
+    }
+
+    &--no {
+        background-color: darkred;
+    }
 }

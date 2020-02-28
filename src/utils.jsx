@@ -500,5 +500,13 @@ export const LocalStorageUtil = {
     if (! LocalStorageUtil.storageAvailable()) { return null; }
     return window.localStorage.getItem(key);
   },
+
+  /**
+   * Set's a value from local storage.
+   */
+  set(key, value) {
+    if (! LocalStorageUtil.storageAvailable()) { return null; }
+    return window.localStorage.setItem(key, value);
+  }
   
 };

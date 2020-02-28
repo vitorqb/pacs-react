@@ -49,6 +49,27 @@ describe('LoginPage', () => {
 
 });
 
+describe('SaveToCachePasswordInput', () => {
+
+  it('Does not render if should not save to cache', () => {
+    let props = {
+      value: RU.objFromPairs(sut.valueLens.saveToCacheYesNoButtonValue, false)
+    };
+    let c = mount(<sut.SaveToCachePasswordInput {...props} />);
+    expect(c.html()).toEqual(null);
+    expect(c.text()).toEqual("");
+  });
+
+  it('Renders if save to cache', () => {
+    let props = {
+      value: RU.objFromPairs(sut.valueLens.saveToCacheYesNoButtonValue, true)
+    };
+    let c = mount(<sut.SaveToCachePasswordInput {...props} />);
+    expect(c.html()).toContain("<input");
+    expect(c.find("div").at(0).props().className).toEqual("login-page__input");    
+  });
+});
+
 describe('LocalStorageToken', () => {
 
   afterEach(() => {
@@ -97,8 +118,26 @@ describe('LocalStorageToken', () => {
       sinon.stub(LocalStorageUtil, 'storageAvailable').returns(true);
       sinon.stub(LocalStorageUtil, 'get').returns(encrypted);
       expect(sut.LocalStorageToken.getAndDecrypt("SECRET"))
-        .toEqual(Either.left("TOKEN"));
+        .toEqual(Either.right("TOKEN"));
     });
+  });
+
+  describe('encryptAndSetFromProps', () => {
+
+    it('Does not run if should not save to cache', () => {
+      sinon.stub(sut.LocalStorageToken, 'encryptAndSet').throws("FOO");
+      let props = { value: RU.objFromPairs(sut.valueLens.saveToCacheYesNoButtonValue, false) };
+      expect(sut.LocalStorageToken.encryptAndSetFromProps(props)).toEqual(Either.right(null));
+    });
+
+    it('Dispatches to encryptAndSet', () => {
+      sinon.stub(sut.LocalStorageToken, 'encryptAndSet').callsFake((x, y) => [x, y]);
+      let props = { value: RU.objFromPairs(sut.valueLens.saveToCacheYesNoButtonValue, true,
+                                           sut.valueLens.token, "TOKEN",
+                                           sut.valueLens.saveToCachePassword, "PASSWORD") };
+      expect(sut.LocalStorageToken.encryptAndSetFromProps(props)).toEqual(["TOKEN", "PASSWORD"]);
+    });
+
   });
   
 });
