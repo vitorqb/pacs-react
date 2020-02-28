@@ -2,7 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import numeral from 'numeral';
 import moment from 'moment';
-
+import CryptoJs from 'crypto-js';
 
 /**
  * @typedef Currency
@@ -362,6 +362,18 @@ export const DateUtil = {
 export const StrUtil = {
 
   /**
+   * Provides a platform agnostic text encoder.
+   */
+  newTextEncoder() {
+    if (typeof TextEncoder === 'undefined') {
+      // We are in nodejs
+      var _TextEncoder = require('util').TextEncoder;
+      return new _TextEncoder();
+    }
+    return new TextEncoder();
+  },
+
+  /**
    * Joins a list of strings with a given separator.
    * @param lst - The list.
    * @param sep - The separator (defaults to comma).
@@ -369,7 +381,14 @@ export const StrUtil = {
   joinList(lst, sep) {
     const sep_ = R.isNil(sep) ? "," : sep;
     return lst.join(sep_);
-  }
+  },
+
+  /**
+   * Checks if a stirng is ASCII only.
+   */
+  isASCII(str) {
+    return /^[\x00-\x7F]*$/.test(str);
+  },
   
 };
 
@@ -407,6 +426,33 @@ export const UrlUtil = {
   }
 };
 
+export const CryptoUtil = {
+
+  /**
+   * Symmetrically encrypts a string using a password.
+   * @param val - The value to encrypt.
+   * @param password - The password. Assumes it is ASCII only!
+   * @returns - A promise with the encrypted value (string).
+   */
+  encrypt(val, password) { return CryptoJs.AES.encrypt(val, password).toString(); },
+
+  /**
+   * Decrypts an encrypted string using a password.
+   * @param val - The value to decrypt.
+   * @param password - The password used to encrypt.
+   */
+  decrypt(val, password) {
+    try {
+      let out = CryptoJs.AES.decrypt(val, password).toString(CryptoJs.enc.Utf8);
+      return out === "" ? null : out;
+    } catch(e) {
+      if (!e.message === "Malformed UTF-8 data") { throw e; }
+      return null;
+    }
+  },
+  
+};
+
 
 /**
  * Passes the event to a function after calling preventDefault and stopPropagation on the event.
@@ -415,4 +461,52 @@ export const withEventPrevention = fn => e => {
   if (e.stopPropagation) { e.stopPropagation(); }
   if (e.preventDefault) { e.preventDefault(); }
   return fn(e);
+};
+
+export const LocalStorageUtil = {
+
+  /**
+   * Returns true if localStorage is implemented and available.
+   */
+  storageAvailable() {
+    var storage;
+    try {
+      storage = window['localStorage'];
+      var x = '__storage_test__';
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+    }
+    catch(e) {
+      return e instanceof DOMException && (
+        // everything except Firefox
+        e.code === 22 ||
+          // Firefox
+        e.code === 1014 ||
+          // test name field too, because code might not be present
+        // everything except Firefox
+        e.name === 'QuotaExceededError' ||
+          // Firefox
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+        // acknowledge QuotaExceededError only if there's something already stored
+      (storage && storage.length !== 0);
+    }
+  },
+
+  /**
+   * Gets a value from local storage.
+   */
+  get(key) {
+    if (! LocalStorageUtil.storageAvailable()) { return null; }
+    return window.localStorage.getItem(key);
+  },
+
+  /**
+   * Set's a value from local storage.
+   */
+  set(key, value) {
+    if (! LocalStorageUtil.storageAvailable()) { return null; }
+    return window.localStorage.setItem(key, value);
+  }
+  
 };
