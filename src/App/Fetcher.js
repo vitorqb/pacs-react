@@ -14,10 +14,6 @@ export const fetcherSpecs = [
     AppLens.accounts,
   ],
   [
-    RU.viewAndCallWithoutArgs(Ajax.lens.getTransactions),
-    AppLens.transactions,
-  ],
-  [
     RU.viewAndCallWithoutArgs(Ajax.lens.getCurrencies),
     AppLens.currencies,
   ],

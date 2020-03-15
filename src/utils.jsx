@@ -510,3 +510,15 @@ export const LocalStorageUtil = {
   }
   
 };
+
+/**
+ * Utilities for pagination.
+ */
+export const PaginationUtils = {
+
+  /**
+   * Returns the number of page given a count of items and a pageSize.
+   */
+  getPageCount: ({count, pageSize}) => Math.ceil(count / pageSize),
+
+};

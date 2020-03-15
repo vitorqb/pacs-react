@@ -17,7 +17,7 @@ describe('Testing TransactionTable', () => {
     getAccount = getAccount || (() => AccountFactory.build());
     return mount(
       <TransactionTable
-        transactions={transactions}
+        transactions_={transactions}
         getCurrency={getCurrency}
         getAccount={getAccount} />
     );
@@ -32,14 +32,12 @@ describe('Testing TransactionTable', () => {
   });
 
   it('Renders a ReactTable with props from ReactTableProps', () => {
-    let transactions = [TransactionFactory.build()];
-    let fakeGen = ({getCurrency, getAccount}, transactions) => {
-      return {columns: [], data: transactions};
-    };
+    let fakeGen = ({getCurrency, getAccount}, transactions) => { return {columns: []}; };
     sinon.stub(sut.ReactTableProps, 'gen').callsFake(fakeGen);
 
-    let component = mountTransactionTable(transactions);
-    expect(component.find(ReactTable).props().data).toBe(transactions);
+    let component = mountTransactionTable();
+    
+    expect(component.find(ReactTable).props().data).toEqual([]);
     expect(component.find(ReactTable).props().columns).toEqual([]);
   });
 
@@ -148,6 +146,63 @@ describe('Testing ReactTableProps', () => {
       expect(col.Header).toEqual("Accounts");
       expect(col.accessor({movements})).toEqual(sut.extractAccountsRepr(getAccount, movements));
     });
+
+    it('Reads pages from paginatedTransactions', () => {
+      const result = sut.ReactTableProps.gen({}, {pageCount: 10});
+      expect(result.pages).toEqual(10);
+    });
+
+    it('Defaults pages to -1', () => {
+      const result = sut.ReactTableProps.gen({}, {});
+      expect(result.pages).toEqual(-1);
+    });
+
+    it('Reads data from paginatedTransactions', () => {
+      const result = sut.ReactTableProps.gen({}, {items: [{id: 1}]});
+      expect(result.data).toEqual([{id: 1}]);
+    });
+
+    it('Defaults data to empty array', () => {
+      const result = sut.ReactTableProps.gen({}, {});
+      expect(result.data).toEqual([]);
+    });
+  });
+  
+});
+
+describe('TransactionFetcher', () => {
+
+  beforeEach(() => { sinon.restore(); });
+  afterEach(() => { sinon.restore(); });
+
+  describe('fetch', () => {
+
+    it('getPaginatedTransactions and returns', () => {
+      const opts = {page: 1, pageSize: 2};
+      const getPaginatedTransactions = R.identity;
+      const result = sut.TransactionFetcher.fetch({getPaginatedTransactions})(opts);
+      expect(result).toEqual(opts);
+    });
+    
+  });
+
+  describe('fetchFromReactTableState', () => {
+
+    it('Calls fetch with page and pageSize', () => {
+      const fetchStub = sinon.stub(sut.TransactionFetcher, 'fetch').callsFake(() => "FOO");
+      const getPaginatedTransactions = R.identity;
+      const reactTableState = {page: 1, pageSize: 2};
+
+      const result = sut.TransactionFetcher.fetchFromReactTableState(
+        {getPaginatedTransactions},
+        reactTableState
+      );
+      
+      expect(result).toEqual("FOO");
+      expect(fetchStub.args).toHaveLength(1);
+      expect(fetchStub.args[0]).toEqual([{getPaginatedTransactions}, {page: 1, pageSize: 2}]);
+    });
+    
   });
   
 });

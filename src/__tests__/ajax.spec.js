@@ -1,9 +1,9 @@
 import sinon from 'sinon';
-import { ajaxGetRecentTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount, parseAccountBalanceEvolutionResponse } from '../ajax';
+import { AjaxGetPaginatedTransactions, ajaxCreateAcc, ajaxCreateTransaction, makeRequest, extractDataFromAxiosError, REQUEST_ERROR_MSG, ajaxGetAccounts, parsePaginatedJournalResponse, parseTransactionResponseData, makeUrlPaginatedJournalForAccount, parseAccountBalanceEvolutionResponse } from '../ajax';
 import * as sut from '../ajax';
 import * as R from 'ramda';
 import { AccountFactory, TransactionFactory, CurrencyFactory, MonthFactory, PriceFactory } from '../testUtils';
-import { remapKeys, getSpecFromTransaction, MonthUtil } from '../utils';
+import { remapKeys, getSpecFromTransaction, MonthUtil, PaginationUtils } from '../utils';
 import paginatedJournalResponse from './example_responses/paginated_journal';
 
 describe('Test ajax', () => {
@@ -53,28 +53,38 @@ describe('Test ajax', () => {
   });
 
   describe('Transactions...', () => {
-    const url = "/transactions/";
+
+    function getAxiosMock(opts) {
+      // Returns an Axios mock for get transactions
+      const {
+        transactions = [],
+        count = 0,
+      } = opts || {};
+      const respMock = { results: transactions, count };
+      return sinon.fake.resolves(respMock);
+    }
+
+    function assertCalledWithUrl(axiosMock, url) {
+      // Asserts an axios mock was called with `url`
+      expect(axiosMock.lastArg.url).toEqual(url);
+    }
     
-    describe('Test ajaxGetRecentTransactions', () => {
+    describe('Test AjaxGetPaginatedTransactions', () => {
       
-      function getAxiosMock(opts) {
-        // Returns an Axios mock for get transactions
-        const { transactions = [] } = opts || {};
-        const respMock = { data: transactions };
-        return sinon.fake.resolves(respMock);
-      }
-
-      function assertCalledWithUrl(axiosMock) {
-        // Asserts an axios mock was called with `url`
-        expect(axiosMock.lastArg.url).toEqual(url);
-      }
-
       it('Get empty array', async () => {
-        const axiosMock = getAxiosMock();
-        const result = await ajaxGetRecentTransactions(axiosMock)();
+        const responseOpts = {transactions: [], count: 10};
+        const axiosMock = getAxiosMock(responseOpts);
+        const paginationOpts = {page: 2, pageSize: 2};
+        const result = await AjaxGetPaginatedTransactions.run(axiosMock)(paginationOpts);
         expect.assertions(2);
-        assertCalledWithUrl(axiosMock);
-        expect(result).toEqual([]);
+        assertCalledWithUrl(axiosMock, "/transactions/?page=3&page_size=2");
+        expect(result).toEqual({
+          itemCount: 10,
+          items: [],
+          pageCount: 5,
+          page: 2,
+          pageSize: 2
+        });
       });
 
       it('Get two long', async () => {
@@ -84,11 +94,57 @@ describe('Test ajax', () => {
           R.map(R.evolve({date: d => d.format("YYYY-MM-DD")}))
         )(transactions);
         const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
-        const result = await ajaxGetRecentTransactions(axiosMock)();
-        expect(result).toEqual(transactions);
-        assertCalledWithUrl(axiosMock);
+        const result = await AjaxGetPaginatedTransactions.run(axiosMock)({});
+        assertCalledWithUrl(axiosMock, "/transactions/?page=1&page_size=20");
+        expect(result.items).toEqual(transactions);
       });
 
+    });
+
+    describe('AjaxGetPaginatedTransactions', () => {
+
+      it('_makeUrl', () => {
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({}))
+          .toEqual("/transactions/?page=1&page_size=20");
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({page: 9}))
+          .toEqual("/transactions/?page=10&page_size=20");
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({pageSize: 100}))
+          .toEqual("/transactions/?page=1&page_size=100");
+      });
+
+      describe('_parseResponse', () => {
+
+        it('Adds page', () => {
+          expect(sut.AjaxGetPaginatedTransactions._parseResponse({page: 1}, {}).page).toEqual(1);
+        }),
+
+        it('Adds pageSize', () => {
+          expect(sut.AjaxGetPaginatedTransactions._parseResponse({pageSize: 2}, {}).pageSize)
+            .toEqual(2);
+        }),
+
+        it('Adds pageCount', () => {
+          const pageSize = 2;
+          const count = 100;
+          expect(sut.AjaxGetPaginatedTransactions._parseResponse({pageSize}, {count}).pageCount)
+            .toEqual(PaginationUtils.getPageCount({pageSize, count}));
+        });
+
+        it('Remaps count -> itemCount', () => {
+          expect(sut.AjaxGetPaginatedTransactions._parseResponse({}, {count: 22}).itemCount)
+            .toEqual(22);
+        });
+
+        it('Parses transactions', () => {
+          const transaction = {date: "2019-01-01", movements_specs: []};
+          const resp = sut
+                .AjaxGetPaginatedTransactions
+                ._parseResponse({}, {results: [transaction]});
+          expect(resp.items).toEqual([parseTransactionResponseData(transaction)]);
+        });
+        
+      });
+      
     });
 
     describe('Test ajaxCreateTransaction', () => {
@@ -106,7 +162,7 @@ describe('Test ajax', () => {
           };
           const axiosMock = sinon.fake.resolves({data: ""});
           ajaxCreateTransaction(axiosMock)(transactionSpec);
-          expect(axiosMock.lastArg.url).toEqual(url);
+          assertCalledWithUrl(axiosMock, "/transactions/");
           expect(axiosMock.lastArg.data).toEqual(expectedParams);
         });
         it('Parses response data', () => {

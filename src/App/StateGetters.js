@@ -15,5 +15,4 @@ const memoizedPkGetter = (applens, appState) => {
 export const makeGetters = appState => RU.objFromPairs(
   AppLens.accounts, memoizedPkGetter(AppLens.accounts, appState),
   AppLens.currencies, memoizedPkGetter(AppLens.currencies, appState),
-  AppLens.transactions, memoizedPkGetter(AppLens.transactions, appState),
 );

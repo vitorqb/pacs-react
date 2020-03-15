@@ -1,28 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as R from 'ramda';
 import { getTargetAccsPks, getSourceAccsPks } from '../utils';
 import { DateUtil } from '../utils';
 import ReactTable from 'react-table';
 
-// !!!! TODO -> Remove all unused fns
-// !!!! TODO -> Use pagination
-
 const movementCurrencyLens = R.lensPath(["money", "currency"]);
 const quantityCurrencyLens = R.lensPath(["money", "quantity"]);
 
-
 /**
   * A React Component that is a table of transactions
-  * @param props.transactions - The transactions to render.
   * @param props.getCurrency - A function that maps a pk to a Currency.
+  * @param props.getAccount - A function that maps a pk to an Account.
+  * @param props.getPaginatedTransactions - A function that is used to get paginated transactions.
   */
-export function TransactionTable(
-  { transactions=[], getCurrency, getAccount }
-) {
+export function TransactionTable({ getCurrency, getAccount, getPaginatedTransactions }) {
+  const [paginatedTransactions, setPaginatedTransactions] = useState({items: [], page: -1});
+  const onFetchTransactionsHandler = R.pipe(
+    TransactionFetcher.fetchFromReactTableState({getPaginatedTransactions}),
+    R.then(setPaginatedTransactions)
+  );
+  const opts = {getCurrency, getAccount, onFetchTransactionsHandler};
   return (
     <div className="transactions-table">
       <h3>{"Transactions Table"}</h3>
-      <ReactTable {...ReactTableProps.gen({getCurrency, getAccount}, transactions)} />
+      <ReactTable {...ReactTableProps.gen(opts, paginatedTransactions)} />
     </div>
   );
 }
@@ -80,7 +81,7 @@ export const ReactTableProps = {
   /**
    * Generates props for the react table.
    */
-  gen({getAccount, getCurrency}, transactions) {
+  gen({getAccount, getCurrency, onFetchTransactionsHandler}, paginatedTransactions) {
     return {
       columns: [
         {
@@ -116,9 +117,12 @@ export const ReactTableProps = {
           accessor: R.pipe(R.path(["movements"]), extractAccountsRepr(getAccount))
         }
       ],
+      manual: true,
+      onFetchData: onFetchTransactionsHandler,
       sortable: false,
       filterable: false,
-      data: transactions
+      data: paginatedTransactions.items || [],
+      pages: paginatedTransactions.pageCount || -1,
     };
   },
 };
@@ -129,4 +133,31 @@ export const ReactTableProps = {
 export const WIDTHS = {
   smaller: 75,
   small: 125,
+};
+
+/**
+ * Service responsible to fetch the paginated transactions on demand.
+ */
+export const TransactionFetcher = {
+
+  /**
+   * Fetches the data. Returns a promise with the fetched data.
+   */
+  fetch: R.curry(({getPaginatedTransactions}, {page, pageSize}) => {
+    return getPaginatedTransactions({page, pageSize});
+  }),
+
+  /**
+   * Fetches from the ReactTable state.
+   */
+  fetchFromReactTableState: R.curry(({getPaginatedTransactions}, reactTableState) => {
+    return TransactionFetcher.fetch(
+      {getPaginatedTransactions},
+      {
+        page: reactTableState.page,
+        pageSize: reactTableState.pageSize
+      }
+    );
+  }),
+  
 };
