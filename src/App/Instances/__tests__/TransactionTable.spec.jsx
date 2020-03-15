@@ -13,62 +13,53 @@ describe('TransactionTable', () => {
   it('Still loading', () => {
     const state = {};
     const stateGetters = {};
-    const ajaxInjections = {};
+    const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
     const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Still loading if currencies not loaded', () => {
     const state = RU.objFromPairs(
-      AppLens.transactions, TransactionFactory.buildList(2),
       AppLens.accounts, AccountFactory.buildList(2),
     );
     const stateGetters = {};
-    const ajaxInjections = {};
+    const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
     const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Still loading if accounts not loaded', () => {
     const state = RU.objFromPairs(
-      AppLens.transactions, TransactionFactory.buildList(2),
       AppLens.currencies, CurrencyFactory.buildList(2),
     );
     const stateGetters = {};
-    const ajaxInjections = {};
+    const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
     const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Finished loading', () => {
-    const transactions = TransactionFactory.buildList(3);
-    const movements = R.flatten(R.map(R.prop("movements"), transactions));
-    const currenciesPks = R.pipe(
-      R.map(R.path(["money", "currency"])),
-      R.uniq
-    )(movements);
-    const currencies = R.map(pk => CurrencyFactory.build({pk}), currenciesPks);
-    const accountsPks = R.map(R.prop("account"), movements);
-    const accounts = R.map(pk => AccountFactory.build({pk}), accountsPks);
+    const currencies = CurrencyFactory.buildList(2);
+    const accounts = AccountFactory.buildList(2);
     const state = RU.objFromPairs(
-      AppLens.transactions, transactions,
       AppLens.currencies, currencies,
       AppLens.accounts, accounts,
     );
     const getCurrency = sinon.fake();
     const getAccount = sinon.fake();
+    const getPaginatedTransactions = () => Promise.resolve({});
     const stateGetters = RU.objFromPairs(
       AppLens.accounts, getAccount,
       AppLens.currencies, getCurrency,
     );
-    const ajaxInjections = {};
+    const ajaxInjections = {getPaginatedTransactions};
     const resp = mount(TransactionTableInstance({ state, stateGetters, ajaxInjections }));
     const transTable = resp.find("TransactionTable");
 
     expect(transTable).toHaveLength(1);
-    expect(transTable.props().title).toBe("Recent Transactions");
-    expect(transTable.props().transactions).toEqual(transactions);
     expect(transTable.props().getCurrency).toBe(getCurrency);
+    expect(transTable.props().getAccount).toBe(getAccount);
+    expect(transTable.props().getPaginatedTransactions).toBe(getPaginatedTransactions);
   });
 
 });

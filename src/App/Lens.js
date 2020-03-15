@@ -39,7 +39,6 @@ export const RemoteFetchingStatusEnum = {
  */
 export const lens = {
 
-  transactions: R.lensPath(['transactions']),
   accounts: R.lensPath(['accounts']),
   currencies: R.lensPath(['currencies']),
 

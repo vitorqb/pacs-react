@@ -1,100 +1,44 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import TransactionTable, { formatTransaction, extractQuantityMoved, extractAccountsRepr } from '../TransactionTable';
+import TransactionTable, { extractQuantityMoved, extractAccountsRepr } from '../TransactionTable';
+import * as sut from '../TransactionTable';
 import { MovementFactory, TransactionFactory, CurrencyFactory, AccountFactory } from '../../testUtils';
 import * as R from 'ramda';
+import * as RU from '../../ramda-utils';
 import { getSourceAccsPks, getTargetAccsPks, newGetter, memoizeSimple } from '../../utils';
+import sinon from 'sinon';
+import ReactTable from 'react-table';
+import moment from 'moment';
 
 describe('Testing TransactionTable', () => {
-  let mountTransactionTable = (title, transactions, getCurrency, getAccount) => {
+
+  let mountTransactionTable = (transactions, getCurrency, getAccount) => {
     getCurrency = getCurrency || (() => CurrencyFactory.build());
     getAccount = getAccount || (() => AccountFactory.build());
     return mount(
       <TransactionTable
-        title={title}
-        transactions={transactions}
+        transactions_={transactions}
         getCurrency={getCurrency}
         getAccount={getAccount} />
     );
   };
-  it('Renders with correct prop title', () => {
-    const title = "My Title";
-    const list = mountTransactionTable(title);
-    expect(list.props().title).toEqual(title);
-  });
-  it('Renders with correct title in dom', () => {
-    const title = "Another Title";
-    const list = mountTransactionTable(title);
-    expect(list.find('span.titleSpan').html()).toContain(title);
-  });
-  it('Mounts with a table', () => {
-    const list = mountTransactionTable();
-    expect(list.find("table")).toHaveLength(1);
-  });
-  it('Mounts with correct list of transactions', () => {
-    const transactions = TransactionFactory.buildList(3);
-    const list = mountTransactionTable("", transactions);
-    expect(list.props().transactions).toEqual(transactions);
-  });
-  it('Renders the transactions in the dom', () => {
-    const transactions = TransactionFactory.buildList(10);
-    const getCurrency = R.memoizeWith(
-      R.identity,
-      (pk) => CurrencyFactory.build({pk})
-    );
-    const table = mountTransactionTable("", transactions, getCurrency);
-    expect.assertions(transactions.length);
-    for (var i=0; i<transactions.length; i++) {
-      const formattedTransaction = formatTransaction(getCurrency, transactions[i]);
-      expect(table.contains(formattedTransaction)).toBe(true);
-    }
-  });
-  describe('formatTransaction()', () => {
 
-    describe('Construct correct elements...', () => {
-      const movements = MovementFactory.buildBalancedPair();
-      const transaction = TransactionFactory.build({movements});
-      const getCurrency = memoizeSimple((pk) => CurrencyFactory.build({pk}));
-      const getAccount = memoizeSimple((pk) => AccountFactory.build({pk}));
-      const resp = mount(
-        <table><tbody>
-            {formatTransaction(getCurrency, getAccount, transaction)}
-        </tbody></table>
-      );
-      
-      it('pk', () => {
-        expect(resp).toContainReact(<td>{transaction.pk}</td>);
-      });
-      it('description', () => {
-        expect(resp).toContainReact(<td>{transaction.description}</td>);
-      });
-      it('date', () => {
-        expect(resp).toContainReact(<td>{transaction.date.format("YYYY-MM-DD")}</td>);
-      });
-      it('quantityMoved', () => {
-        const quantityMoved = extractQuantityMoved(getCurrency, movements);
-        expect(resp).toContainReact(<td>{quantityMoved}</td>);
-      });
-      it('accountsRepr', () => {
-        const accountsRepr = extractAccountsRepr(getAccount, movements);
-        expect(resp).toContainReact(<td>{accountsRepr}</td>);
-      });
-    });
-    it('Multiple currencies dont print quantity moved...', () => {
-      const transaction = TransactionFactory.build();
-      const getCurrency = memoizeSimple(pk => CurrencyFactory.build({pk}));
-      const getAccount = memoizeSimple(pk => AccountFactory.build({pk}));
-      // Ensures different currencies
-      transaction.movements[0].currency =
-        transaction.movements[1].currency + 1;
-      const exp = <td>(Multiple Currencies)</td>;
-      const res = mount(
-        <table><tbody>
-            {formatTransaction(getCurrency, getAccount, transaction)}
-        </tbody></table>
-      );
-      expect(res).toContainReact(exp);
-    });
+  beforeEach(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('Renders a ReactTable with props from ReactTableProps', () => {
+    let fakeGen = ({getCurrency, getAccount}, transactions) => { return {columns: []}; };
+    sinon.stub(sut.ReactTableProps, 'gen').callsFake(fakeGen);
+
+    let component = mountTransactionTable();
+    
+    expect(component.find(ReactTable).props().data).toEqual([]);
+    expect(component.find(ReactTable).props().columns).toEqual([]);
   });
 
   describe('extractQuantityMoved', () => {
@@ -147,4 +91,118 @@ describe('Testing TransactionTable', () => {
       expect(resp).toEqual(exp);
     });
   });
+});
+
+describe('Testing ReactTableProps', () => {
+
+  /**
+   * Helpers that selects the column with a specific id from the props.
+   */
+  const selectColumnById = (id, props) => RU.findFirst(x => x.id == id, props.columns);
+
+  describe('.gen()', () => {
+
+    it('id column', () => {
+      const idCol = selectColumnById("pk", sut.ReactTableProps.gen({}, []));
+      expect(idCol.id).toEqual("pk");
+      expect(idCol.Header).toEqual("Pk");
+      expect(idCol.accessor({"pk": 222})).toEqual(222);
+      expect(idCol.width).toEqual(sut.WIDTHS.smaller);
+    });
+
+    it('description column', () => {
+      const col = selectColumnById("description", sut.ReactTableProps.gen({}, []));
+      expect(col.id).toEqual("description");
+      expect(col.Header).toEqual("Description");
+      expect(col.accessor({description: "FOO"})).toEqual("FOO");
+    });
+
+    it('date column', () => {
+      const col = selectColumnById("date", sut.ReactTableProps.gen({}, []));
+      expect(col.id).toEqual("date");
+      expect(col.Header).toEqual("Date");
+      expect(col.accessor({date: moment("2019-01-01")})).toEqual("2019-01-01");
+      expect(col.width).toEqual(sut.WIDTHS.small);
+    });
+
+    it('quantity column', () => {
+      const getCurrency = () => CurrencyFactory.build();
+      const movements = MovementFactory.buildList(2);
+      const col = selectColumnById("quantity", sut.ReactTableProps.gen({getCurrency}, []));
+
+      expect(col.id).toEqual("quantity");
+      expect(col.Header).toEqual("Quantity");
+      expect(col.accessor({movements})).toEqual(sut.extractQuantityMoved(getCurrency, movements));
+      expect(col.width).toEqual(sut.WIDTHS.small);
+    });
+
+    it('account column', () => {
+      const movements = MovementFactory.buildList(2);
+      const account = AccountFactory.build();
+      const getAccount = () => account;
+      const col = selectColumnById("accounts", sut.ReactTableProps.gen({getAccount}, []));
+
+      expect(col.id).toEqual("accounts");
+      expect(col.Header).toEqual("Accounts");
+      expect(col.accessor({movements})).toEqual(sut.extractAccountsRepr(getAccount, movements));
+    });
+
+    it('Reads pages from paginatedTransactions', () => {
+      const result = sut.ReactTableProps.gen({}, {pageCount: 10});
+      expect(result.pages).toEqual(10);
+    });
+
+    it('Defaults pages to -1', () => {
+      const result = sut.ReactTableProps.gen({}, {});
+      expect(result.pages).toEqual(-1);
+    });
+
+    it('Reads data from paginatedTransactions', () => {
+      const result = sut.ReactTableProps.gen({}, {items: [{id: 1}]});
+      expect(result.data).toEqual([{id: 1}]);
+    });
+
+    it('Defaults data to empty array', () => {
+      const result = sut.ReactTableProps.gen({}, {});
+      expect(result.data).toEqual([]);
+    });
+  });
+  
+});
+
+describe('TransactionFetcher', () => {
+
+  beforeEach(() => { sinon.restore(); });
+  afterEach(() => { sinon.restore(); });
+
+  describe('fetch', () => {
+
+    it('getPaginatedTransactions and returns', () => {
+      const opts = {page: 1, pageSize: 2};
+      const getPaginatedTransactions = R.identity;
+      const result = sut.TransactionFetcher.fetch({getPaginatedTransactions})(opts);
+      expect(result).toEqual(opts);
+    });
+    
+  });
+
+  describe('fetchFromReactTableState', () => {
+
+    it('Calls fetch with page and pageSize', () => {
+      const fetchStub = sinon.stub(sut.TransactionFetcher, 'fetch').callsFake(() => "FOO");
+      const getPaginatedTransactions = R.identity;
+      const reactTableState = {page: 1, pageSize: 2};
+
+      const result = sut.TransactionFetcher.fetchFromReactTableState(
+        {getPaginatedTransactions},
+        reactTableState
+      );
+      
+      expect(result).toEqual("FOO");
+      expect(fetchStub.args).toHaveLength(1);
+      expect(fetchStub.args[0]).toEqual([{getPaginatedTransactions}, {page: 1, pageSize: 2}]);
+    });
+    
+  });
+  
 });

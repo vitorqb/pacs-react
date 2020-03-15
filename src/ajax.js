@@ -2,7 +2,7 @@
 import moment from 'moment';
 import axios from 'axios';
 import * as R from 'ramda';
-import { remapKeys, MonthUtil, DateUtil, StrUtil } from './utils';
+import { remapKeys, MonthUtil, DateUtil, StrUtil, PaginationUtils } from './utils';
 import SecretsLens from './domain/Secrets/Lens';
 import * as PricePortifolio from './domain/PricePortifolio/Core';
 
@@ -23,7 +23,10 @@ export const extractDataFromAxiosError =
 /**
  * Extracts relevant data from an axios response.
  */
-export const extractDataFromAxiosResponse = R.prop("data");
+export const extractDataFromAxiosResponse = r => {
+  if (! R.isNil(r.data)) { return r.data; };
+  return r;
+};
 
 /**
  * Runs an http request.
@@ -80,16 +83,36 @@ export const transactionSpecToRequestParams = R.pipe(
   remapKeys({movements: "movements_specs"})
 );
 
+
 /**
- * Get all recent transactions.
+ * Ns to get a paginated list of transactions.
  */
-export function ajaxGetRecentTransactions(axios) {
-  return () => makeRequest({
+export const AjaxGetPaginatedTransactions = {
+
+  run: (axios) => ({page=0, pageSize=20}) => makeRequest({
     axios,
-    url: "/transactions/",
-    parseResponseData: R.map(parseTransactionResponseData)
-  });
-}
+    url: AjaxGetPaginatedTransactions._makeUrl({page, pageSize}),
+    parseResponseData: AjaxGetPaginatedTransactions._parseResponse({page, pageSize})
+  }),
+
+  /**
+   * Enriches the response from the call.
+   */
+  _parseResponse: R.curry(({page, pageSize}, response) => R.pipe(
+    remapKeys({count: "itemCount"}),
+    remapKeys({results: "items"}),
+    R.assoc('pageCount', PaginationUtils.getPageCount({count: response.count, pageSize})),
+    R.assoc('pageSize', pageSize),
+    R.assoc('page', page),
+    R.evolve({items: R.map(parseTransactionResponseData)}),
+  )(response)),
+
+  /**
+   * Makes an url given some pagination options.
+   */
+  _makeUrl: ({page, pageSize}) => `/transactions/?page=${page+1||1}&page_size=${pageSize||20}`,
+  
+};
 
 /**
  * @function
