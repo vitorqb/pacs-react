@@ -13,7 +13,6 @@ export default function TransactionTableInstance({ state, stateGetters, ajaxInje
   return (
     <div className="transaction-table-instance">
       <TransactionTable
-        title="Recent Transactions"
         transactions={transactions}
         getCurrency={R.view(AppLens.currencies, stateGetters)}
         getAccount={R.view(AppLens.accounts, stateGetters)} />

@@ -66,7 +66,6 @@ describe('TransactionTable', () => {
     const transTable = resp.find("TransactionTable");
 
     expect(transTable).toHaveLength(1);
-    expect(transTable.props().title).toBe("Recent Transactions");
     expect(transTable.props().transactions).toEqual(transactions);
     expect(transTable.props().getCurrency).toBe(getCurrency);
   });
