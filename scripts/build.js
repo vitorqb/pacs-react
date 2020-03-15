@@ -27,6 +27,7 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
+const child_process = require('child_process');
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -118,6 +119,12 @@ checkBrowsers(paths.appPath, isInteractive)
       console.log(err.message);
     }
     process.exit(1);
+  })
+  .then((_) => {
+    console.log("Preparing the .tar.gz artifact...");
+    const cmd = `cd '${paths.appBuild}' && tar -vzcf ${tarArtifactName()} ./*`;
+    console.log(`Executing: ${cmd}`);
+    child_process.execSync(cmd);
   });
 
 // Create the production build and print the deployment instructions.
@@ -186,4 +193,12 @@ function copyPublicFolder() {
     dereference: true,
     filter: file => file !== paths.appHtml,
   });
+}
+
+/**
+ * Returns the name to be given for the .tar.gz artifact.
+ */
+function tarArtifactName() {
+  const gitref = child_process.execSync("git describe --tags").toString().trim();
+  return `pacs-react-${gitref}.tar.gz`;
 }
