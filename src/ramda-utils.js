@@ -72,3 +72,13 @@ export const findFirst = R.curry((pred, col) => {
   }
   return null;
 });
+
+/**
+ * Try to view a lenses from an object, and returns the default if the viewed value
+ * is R.isNil.
+ */
+export const viewOr = R.curry((_default, lens, obj) => {
+  const value = R.view(lens, obj);
+  if (R.isNil(value)) return _default;
+  return value;
+});
