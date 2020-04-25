@@ -67,26 +67,28 @@ describe('App.test.jsx', () => {
 
   describe('makeRouter()', () => {
     it('base', () => {
-      const path = "/c/d/";
       const text = "A";
-      const component = () => (<h1>Hola</h1>);
-      const data = { path, text, component };
-      const link = makeLink(data);
-      const route = makeRoute(data);
+      const listOfLinkData = [];
+      const listOfGroups = [{text, listOfLinkData}];
 
       const exp = mount(
         <Router>
-          <div>
-            <ul>
-              {link}
-            </ul>
-            {route}
+          <div className="router__groups">
+            <div className="router__group">
+              <div className="router-group">
+                <span className="router-group__label">
+                  A
+                </span>
+                <div className="router-group__children">
+                </div>
+              </div>              
+            </div>
           </div>
+          <div className="router__routes"></div>
         </Router>
       );
 
-      const router = mount(makeRouter([data]));
-      expect(router.find(Route).equals(route)).toBe(true);
+      const router = mount(makeRouter(listOfGroups));
       expect(router.html()).toEqual(exp.html());
     });
   });

@@ -192,64 +192,84 @@ class App extends Component {
   }) {
     return [
       {
-        path: "/create-transaction/",
-        text: "Create Transaction",
-        component: () => createTransactionForm,
+        text: "Transaction",
+        listOfLinkData: [
+          {
+            path: "/create-transaction/",
+            text: "Create",
+            component: () => createTransactionForm,
+          },
+          {
+            path: "/edit-transaction/",
+            text: "Edit",
+            component: () => editTransactionComponent,
+          },
+          {
+            path: "/transaction-table/",
+            text: "Table",
+            component: () => transactionTable
+          }
+        ]
       },
       {
-        path: "/edit-transaction/",
-        text: "Edit Transaction",
-        component: () => editTransactionComponent,
+        text: "Account",
+        listOfLinkData: [
+          {
+            path: "/create-account/",
+            text: "Create",
+            component: () => createAccForm
+          },
+          {
+            path: "/edit-account/",
+            text: "Edit",
+            component: () => editAccountComponent
+          },
+          {
+            path: "/delete-account/",
+            text: "Delete",
+            component: () => DeleteAccountComponent
+          },
+          {
+            path: "/account-tree/",
+            text: "Tree",
+            component: () => accountTree
+          },
+          {
+            path: "/account-journal/",
+            text: "Journal",
+            component: () => journalComponent
+          },
+        ]
       },
       {
-        path: "/transaction-table/",
-        text: "Transaction Table",
-        component: () => transactionTable
+        text: "Reports",
+        listOfLinkData: [
+          {
+            path: "/account-balance-evolution-report/",
+            text: "Balance Evolution Report",
+            component: () => accountBalanceEvolutionComponent,
+          },
+          {
+            path: "/account-flow-evolution-report/",
+            text: "Flow Evolution Report",
+            component: () => accountFlowEvolutionReportComponent
+          }
+        ]
       },
       {
-        path: "/create-account/",
-        text: "Create Account",
-        component: () => createAccForm
-      },
-      {
-        path: "/edit-account/",
-        text: "Edit Account",
-        component: () => editAccountComponent
-      },
-      {
-        path: "/delete-account/",
-        text: "Delete Account",
-        component: () => DeleteAccountComponent
-      },
-      {
-        path: "/account-tree/",
-        text: "Account Tree",
-        component: () => accountTree
-      },
-      {
-        path: "/currency-table/",
-        text: "Currency Table",
-        component: () => currencyTable
-      },
-      {
-        path: "/account-journal/",
-        text: "Account Journal",
-        component: () => journalComponent
-      },
-      {
-        path: "/account-balance-evolution-report/",
-        text: "Account Balance Evolution Report",
-        component: () => accountBalanceEvolutionComponent,
-      },
-      {
-        path: "/account-flow-evolution-report/",
-        text: "Account Flow Evolution Report",
-        component: () => accountFlowEvolutionReportComponent
-      },
-      {
-        path: "/exchange-rate-data/fetch/",
-        text: "Currency Exchange Rate Data Fetcher",
-        component: () => fetchCurrencyExchangeRateDataComponent
+        text: "Currency",
+        listOfLinkData: [
+          {
+            path: "/currency-table/",
+            text: "Table",
+            component: () => currencyTable
+          },
+          {
+            path: "/exchange-rate-data/fetch/",
+            text: "Exchange Rate Data Fetcher",
+            component: () => fetchCurrencyExchangeRateDataComponent
+          }
+        ]
       }
     ];
   }
