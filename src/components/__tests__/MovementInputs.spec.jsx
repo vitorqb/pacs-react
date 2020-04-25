@@ -88,18 +88,20 @@ describe('MovementInputs', () => {
 
     let movementInput;
     let onChangeHandler;
-    let baseState = {
-      account: "",
-      money: {
-        currency: "",
-        quantity: ""
-      }
-    };
+    let baseState = sut.getDefaultMovementSpec();
 
     beforeEach(() => {
       onChangeHandler = sinon.fake();
       movementInput = mount(<MovementInputs onChange={onChangeHandler}/>);
     });
+
+    /**
+     * Expands the `comment` input for the input.
+     */
+    function expandComment() {
+      const button = movementInput.find('CommentInput').find('button');
+      button.simulate('click');
+    }
 
     it('Change account calls handler', () => {
       const accounts = AccountFactory.buildList(5);
@@ -145,6 +147,19 @@ describe('MovementInputs', () => {
       expect(onChangeHandler.calledWith(expectedEmittedState)).toBe(true);
     });
 
+    it('Set comment', () => {
+
+      expandComment();
+
+      const value = "foo";
+      const commentTextArea = movementInput.find('textarea[name="comment"]');
+      const expectedEmittedState = R.mergeDeepRight(baseState, {comment: value});
+
+      commentTextArea.simulate("change", { target: { value } });
+
+      expect(onChangeHandler.args[0][0]).toEqual(expectedEmittedState);
+    });
+
   });
 });
 
@@ -159,7 +174,7 @@ describe('renderCurrencyActionButtons', () => {
     const result = mount(sut.CurrencyActionButtons({currencyActionButtonsOpts}));
     expect(result.find(".currency-action-buttons")).toHaveLength(1);
   });
-  
+
 });
 
 describe('QuantityActionButton', () => {
@@ -189,5 +204,53 @@ describe('QuantityActionButtons', () => {
     expect(result.find(".currency-action-button")).toHaveLength(1);
     expect(result.find(".currency-action-button").at(0).text()).toEqual(label);
   });
-  
+
+});
+
+describe('CommentInput', () => {
+
+  let value, onChange, component;
+
+  beforeEach(() => {
+    value = "FOO";
+    onChange = sinon.fake();
+    component = mount(<sut.CommentInput value={value} onChange={onChange} />);
+  });
+
+  /**
+   * Expands the `comment` input for the input.
+   */
+  function expandComment() { component.find('button').simulate('click'); }
+
+  /**
+   * Counts the number of textarea found inside the component.
+   */
+  function countTextareas() { return component.find('textarea').length; }
+
+  /**
+   * Simulates a user typing on the textarea.
+   */
+  function simulateUserType(typedVal) {
+    component.find('textarea').simulate('change', {target: {value: typedVal}});
+  };
+
+  it('Textarea is collapsed by default', () => {
+    expect(countTextareas()).toEqual(0);
+  });
+
+  it('Textarea is expanded by button click', () => {
+    expandComment();
+    expect(countTextareas()).toEqual(1);
+  });
+
+  it('Passes value', () => {
+    expect(component.props().value).toEqual(value);
+  });
+
+  it('Calls onChange when the value change', () => {
+    expandComment();
+    simulateUserType('BAR');
+    expect(onChange.args[0][0]).toEqual('BAR');
+  });
+
 });

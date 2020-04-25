@@ -112,3 +112,20 @@ describe('findFirst', () => {
     expect(sut.findFirst(pred)([2])).toEqual(null);    
   });
 });
+
+describe('viewOr', () => {
+
+  const obj = {foo: {bar: 1}};
+  const lens = R.lensPath(['foo', 'bar']);
+
+  it('Found', () => {
+    expect(sut.viewOr("", lens, obj)).toEqual(1);
+  });
+
+
+  it('Not Found', () => {
+    const lens = R.lensPath(['foooo', 'baaaar']);
+    expect(sut.viewOr("FOO", lens, obj)).toEqual("FOO");
+  });
+  
+});

@@ -18,12 +18,8 @@ export default class MovementInputs extends Component{
    */
   accountCanHaveMovement = (account) => account.accType === ACC_TYPES.LEAF;
 
-  getDefaultMovementSpec() {
-    return {account: "", money: { currency: "", quantity: ""} };
-  }
-
   getMovementSpec() {
-    return R.mergeDeepRight(this.getDefaultMovementSpec(), this.props.value || {});
+    return R.mergeDeepRight(getDefaultMovementSpec(), this.props.value || {});
   }
 
   handleChange = R.curry((lens, parseEvent, eventData) => {
@@ -36,7 +32,7 @@ export default class MovementInputs extends Component{
     const accounts = this.props.accounts || [];
     const filteredAccounts = R.filter(this.accountCanHaveMovement, accounts);
     const getAccount = newGetter(R.prop("pk"), filteredAccounts);
-    const movementSpec = this.props.value || {};
+    const movementSpec = this.getMovementSpec();
     const onChange = this.handleChange(R.lensProp("account"), R.prop("pk"));
     const value = getAccount(movementSpec.account);
     const input = (
@@ -50,7 +46,7 @@ export default class MovementInputs extends Component{
   }
 
   renderCurrencyInput = () => {
-    const movementSpec = this.props.value || {};
+    const movementSpec = this.getMovementSpec();
     const currencies = this.props.currencies || [];
     const getCurrency = newGetter(R.prop("pk"), currencies);
     const onChange = this.handleChange(R.lensPath(["money", "currency"]), R.prop("pk"));
@@ -69,7 +65,7 @@ export default class MovementInputs extends Component{
   }
 
   renderQuantityInput = () => {
-    const movementSpec = this.props.value || {};
+    const movementSpec = this.getMovementSpec();
     const value = R.pathOr("", ["money", "quantity"], movementSpec);
     const onChange = this.handleChange(
       R.lensPath(["money", "quantity"]),
@@ -88,12 +84,20 @@ export default class MovementInputs extends Component{
     return <InputWrapper {...props} />;        
   }
 
+  renderCommentInput = () => {
+    const lens = R.lensPath(["comment"]);
+    const value = RU.viewOr("", lens, this.getMovementSpec());
+    const onChange = this.handleChange(lens, x => x);
+    return (<CommentInput value={value} onChange={onChange} />);
+  }
+
   render() {
     const { title } = this.props;
     const accountInput = this.renderAccountInput();
     const currencyRow = this.renderCurrencyInput();
     const quantityRow = this.renderQuantityInput();
-    const inputs = <div>{accountInput}{currencyRow}{quantityRow}</div>;
+    const commentRow = this.renderCommentInput();
+    const inputs = <div>{accountInput}{currencyRow}{quantityRow}{commentRow}</div>;
     const inputWrapperProps = RU.objFromPairs(
       InputWrapperLens.content, inputs,
       InputWrapperLens.label, title,
@@ -136,10 +140,37 @@ export function QuantityActionButton({ label, onClick }) {
   ); 
 }
 
+/**
+ * A component for inputting Comments.
+ */
+export function CommentInput({ value, onChange }) {
+  const [isCollapsed, setIsCollapsed] = React.useState("isCollapsed", false);
+  const toggleIsCollapsed = utils.withEventPrevention( _ => setIsCollapsed(!isCollapsed));
+  const collapseBtn = (<button onClick={toggleIsCollapsed}>&darr;</button>);
+  const label = (<span>{`Comment(${value.length})  `}{collapseBtn}</span>);
+  const textarea = !isCollapsed && (
+    <textarea
+      className="u-width-bigger"
+      name="comment"
+      onChange={e => onChange(e.target.value)}
+      value={value}
+      autoFocus />
+  );
+  const props = RU.objFromPairs(
+    InputWrapperLens.label, label,
+    InputWrapperLens.content, textarea
+  );
+  return <InputWrapper {...props} />;
+}
+
 export function QuantityActionButtons({ quantityActionButtonsOpts }) {
   const quantityActionButtons = R.map(
     x => <QuantityActionButton {...x} key={x.label} />,
     quantityActionButtonsOpts || []
   );
   return <div className="quantity-action-buttons">{quantityActionButtons}</div>;
+}
+
+export function getDefaultMovementSpec() {
+  return {account: "", money: { currency: "", quantity: ""}, comment: "" }; 
 }
