@@ -235,3 +235,28 @@
 .transactions-table {
     text-align: center;
 }
+
+
+/* Router thingies */
+.router__groups {
+    display: flex;
+    margin: 10px 30px;
+}
+
+.router__group {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.router__group:first-child {
+    margin-left: 0px;
+}
+
+.router__group:last-child {
+    margin-right: 0px;
+}
+
+.router-group__label {
+    font-weight: bold;
+    text-transform: uppercase;
+}
