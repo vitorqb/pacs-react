@@ -88,6 +88,9 @@ checkBrowsers(paths.appPath, isInteractive)
       proxyConfig,
       urls.lanUrlForConfig
     );
+    // Let's also ignore files that begin with \.
+    serverConfig.watchOptions.ignored = [serverConfig.watchOptions.ignored, '**/.*'];
+    console.log("serverConfig", serverConfig);
     const devServer = new WebpackDevServer(compiler, serverConfig);
     // Launch WebpackDevServer.
     devServer.listen(port, HOST, err => {

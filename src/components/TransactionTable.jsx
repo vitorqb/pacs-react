@@ -17,7 +17,7 @@ export function TransactionTable({ getCurrency, getAccount, getPaginatedTransact
   const [paginatedTransactions, setPaginatedTransactions] = useState({items: [], page: -1});
   const onFetchTransactionsHandler = R.pipe(
     TransactionFetcher.fetchFromReactTableState({getPaginatedTransactions}),
-    R.then(setPaginatedTransactions)
+    R.andThen(setPaginatedTransactions)
   );
   const opts = {getCurrency, getAccount, onFetchTransactionsHandler};
   return (
