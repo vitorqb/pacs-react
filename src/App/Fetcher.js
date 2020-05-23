@@ -27,7 +27,7 @@ export const _fetch = R.curry((specs, ajaxInjections) => R.pipe(
   R.map(([ajaxFn, l]) => [ajaxFn(ajaxInjections), l]), // Execute ajaxFn with injections
   R.map(([prom, l]) => prom.then(R.set(l))),           // Promise Fn that set's l to x
   x => Promise.all(x),                                 // Joins into one promise
-  R.then(R.apply(R.compose))                           // Composes all fns into one
+  R.andThen(R.apply(R.compose))                           // Composes all fns into one
 )(specs));
 
 export const fetch = _fetch(fetcherSpecs);
