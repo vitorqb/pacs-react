@@ -3,7 +3,8 @@ import TransactionPicker from './TransactionPicker';
 import TransactionForm from './TransactionForm';
 import ErrorMessage from './ErrorMessage.jsx';
 import SuccessMessage from './SuccessMessage.jsx';
-import { getSpecFromTransaction } from '../utils.jsx';
+import { getSpecFromTransaction, createTitle } from '../utils.jsx';
+
 
 /**
  * A component used to edit a transaction.
@@ -71,8 +72,10 @@ export default class EditTransactionComponent extends Component {
 
   render() {
     const { getTransaction } = this.props;
+    const {title="Edit Transaction Form"} = this.props;
     return (
       <div>
+        {createTitle(title)}
         <TransactionPicker
           getTransaction={getTransaction}
           onPicked={this.setTransaction} />

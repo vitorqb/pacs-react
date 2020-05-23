@@ -9,10 +9,6 @@ describe('TransactionPicker', () => {
   describe('Rendering...', () => {
     const titleStr = "Edit Transaction!";
     const picker = mount(<TransactionPicker title={titleStr} />);;
-    it('Renders with title', () => {
-      const span = picker.find('span.titleSpan');
-      expect(span.html()).toContain(titleStr);
-    });
     it('Renders input for pk', () => {
       const inp = picker.find('input[name="pk"]');
       expect(inp).toHaveLength(1);

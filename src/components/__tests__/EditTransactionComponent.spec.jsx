@@ -23,13 +23,15 @@ function mountEditTransactionComponent({
   updateTransaction = (() => Promise.resolve({})),
   accounts=[],
   currencies=[],
+  title=""
 }) {
   return mount(
     <EditTransactionComponent
       getTransaction={getTransaction}
       updateTransaction={updateTransaction}
       accounts={accounts}
-      currencies={currencies} />
+      currencies={currencies}
+      title={title} />
   );
 }
 
@@ -37,6 +39,8 @@ describe('EditTransactionComponent()', () => {
 
   let transaction, transactionPromise, getTransaction, editTransactionComponent,
       updateTransaction, accounts, currencies;
+
+  const title = "Title!";
 
   beforeEach(() => {
     accounts = AccountFactory.buildList(3);
@@ -46,10 +50,15 @@ describe('EditTransactionComponent()', () => {
     getTransaction = () => transactionPromise;
     updateTransaction = sinon.fake.resolves();
     editTransactionComponent = mountEditTransactionComponent(
-      { getTransaction, updateTransaction, accounts, currencies }
+      { getTransaction, updateTransaction, accounts, currencies, title }
     );
   });
 
+  it('Renders with title', () => {
+    const span = editTransactionComponent.find('span.titleSpan');
+    expect(span.html()).toContain(title);
+  });
+  
   describe('TransactionPicker child...', () => {
     it('Pass getTransaction function as prop', () => {
       expect(editTransactionComponent.find(TransactionPicker).props().getTransaction)

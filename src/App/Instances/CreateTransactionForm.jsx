@@ -6,6 +6,7 @@ import CreateTransactionComponent from '../../components/CreateTransactionCompon
 
 export default function CreateTransactionComponentInstance({state, ajaxInjections}) {
   const createTransaction = R.view(AjaxInjectionsLens.createTransaction, ajaxInjections);
+  const getTransaction = R.view(AjaxInjectionsLens.getTransaction, ajaxInjections);
   const accounts = R.view(AppLens.accounts, state);
   const currencies = R.view(AppLens.currencies, state);
   if (R.isNil(accounts) || R.isNil(currencies)) {
@@ -14,6 +15,7 @@ export default function CreateTransactionComponentInstance({state, ajaxInjection
   return (
     <CreateTransactionComponent
       createTransaction={createTransaction}
+      getTransaction={getTransaction}
       accounts={accounts}
       currencies={currencies} />
   );

@@ -1,10 +1,12 @@
 import React from 'react';
 import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../testUtils.jsx';
 import { mount } from 'enzyme';
-import CreateTransactionComponent from '../CreateTransactionComponent';
+import CreateTransactionComponent, * as sut from '../CreateTransactionComponent';
 import TransactionForm from '../TransactionForm.jsx';
 import { getSpecFromTransaction } from '../../utils.jsx';
 import sinon from 'sinon';
+import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
+import * as R from 'ramda';
 
 function mountCreateTransactionComponent(opts) {
   const { accounts=AccountFactory.buildList(3) } = opts;
@@ -39,6 +41,10 @@ describe('CreateTransactionComponent', () => {
       component.update();
       expect(component.state().transactionSpec).toBe(transactionSpec);
     });
+    it('Passes an instance of TemplatePicker to TransactionForm', () => {
+      expect(component.find(TransactionForm).props().templatePicker.type.name)
+        .toEqual('TemplatePicker');
+    });
   });
 
   describe('Submitting...', () => {
@@ -55,4 +61,32 @@ describe('CreateTransactionComponent', () => {
     });
   });
 
+});
+
+
+describe('TemplatePicker', () => {
+
+  let onPicked, component;
+
+  beforeEach(() => {
+    onPicked = sinon.fake();
+    component = mount(<sut.TemplatePicker onPicked={onPicked} />);
+  });
+
+  afterEach(() => {
+    sinon.reset();
+  });
+
+  it('Renders an InputWrapper with label', () => {
+    expect(R.view(InputWrapperLens.label, component.find(InputWrapper).props()))
+      .toEqual(sut.TEMPLATE_PICKER_LABEL);
+  });
+
+  it('Calls onPicked after transforming to template spec', () => {
+    const transaction = {date: "2020-01-01"};
+    component.find('TransactionPicker').props().onPicked(transaction);
+    expect(onPicked.args).toHaveLength(1);
+    expect(onPicked.args[0]).toEqual([{}]);
+  });
+  
 });
