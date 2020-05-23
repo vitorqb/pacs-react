@@ -27,6 +27,7 @@ function mountTransactionForm(
     onSubmit=(()=>Promise.resolve({})),
     onChange=sinon.fake(),
     accounts=[],
+    templatePicker=undefined
   }={}
 ) {
   return mount(
@@ -35,7 +36,9 @@ function mountTransactionForm(
       title={title}
       onSubmit={onSubmit}
       onChange={onChange}
-      accounts={accounts} />
+      accounts={accounts}
+      templatePicker={templatePicker}
+    />
   );
 }
 
@@ -67,6 +70,12 @@ describe('TransactionForm', () => {
       const title = "aloha";
       const formComponent = mountTransactionForm({title});
       expect(formComponent.find("span.titleSpan").first().html()).toContain(title);
+    });
+
+    it('Mounts with templatePicker if given', () => {
+      function TemplatePicker() { return <span>{"FOO"}</span>; };
+      const formComponent = mountTransactionForm({templatePicker: <TemplatePicker />});
+      expect(formComponent.find(TemplatePicker)).toHaveLength(1);
     });
 
     it('Mounts with all inputs and empty strings if no value', () => {

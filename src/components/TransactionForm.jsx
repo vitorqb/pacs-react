@@ -21,6 +21,9 @@ export default class TransactionForm extends Component {
    *   transaction data and performs the action. Must return an
    *   axios-like Promise.
    * @param {string} props.title
+   * @param templatePicker - An optional component that is displayed to the user so it can
+   *                         select a template. This component is rendered as-is, and any
+   *                         logic must be implemented by the parent.
    * @param {Account[]} props.accounts - An array with all accounts.
    * @param {Currency[]} props.currencies - An array with all currencies.
    * @param {TransactionSpec} [props.value] - The value.
@@ -88,11 +91,12 @@ export default class TransactionForm extends Component {
   }
 
   render() {
-    const { title="" } = this.props;
+    const { title="", templatePicker } = this.props;
     return (
       <div className="form-div">
+        {createTitle(title)}
+        {templatePicker}
         <form onSubmit={this.handleSubmit}>
-          {createTitle(title)}
           {this.renderReferenceInput()}
           {this.renderDescriptionInput()}
           {this.renderDateInput()}
