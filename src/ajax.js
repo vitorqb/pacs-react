@@ -89,9 +89,9 @@ export const transactionSpecToRequestParams = R.pipe(
  */
 export const AjaxGetPaginatedTransactions = {
 
-  run: (axios) => ({page=0, pageSize=20}) => makeRequest({
+  run: (axios) => ({page=0, pageSize=20, description=null, reference=null}) => makeRequest({
     axios,
-    url: AjaxGetPaginatedTransactions._makeUrl({page, pageSize}),
+    url: AjaxGetPaginatedTransactions._makeUrl({page, pageSize, description, reference}),
     parseResponseData: AjaxGetPaginatedTransactions._parseResponse({page, pageSize})
   }),
 
@@ -110,7 +110,12 @@ export const AjaxGetPaginatedTransactions = {
   /**
    * Makes an url given some pagination options.
    */
-  _makeUrl: ({page, pageSize}) => `/transactions/?page=${page+1||1}&page_size=${pageSize||20}`,
+  _makeUrl: ({page, pageSize, description, reference}) => {
+    let result = `/transactions/?page=${page+1||1}&page_size=${pageSize||20}`;
+    if (description) { result = `${result}&description=${description}`; }
+    if (reference) { result = `${result}&reference=${reference}`; }
+    return result;
+  }
   
 };
 
