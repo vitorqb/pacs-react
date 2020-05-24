@@ -99,6 +99,18 @@ describe('Test ajax', () => {
         expect(result.items).toEqual(transactions);
       });
 
+      it('With description and reference', async () => {
+        const transactions = TransactionFactory.buildList(2);
+        const rawTransactionsResponse = R.pipe(
+          R.map(remapKeys({movements: "movements_specs"})),
+          R.map(R.evolve({date: d => d.format("YYYY-MM-DD")}))
+        )(transactions);
+        const axiosMock = getAxiosMock({ transactions: rawTransactionsResponse });
+        const args = {description: "Foo", reference: "Bar"};
+        const result = await AjaxGetPaginatedTransactions.run(axiosMock)(args);
+        assertCalledWithUrl(axiosMock, "/transactions/?page=1&page_size=20&description=Foo&reference=Bar");
+        expect(result.items).toEqual(transactions);
+      });
     });
 
     describe('AjaxGetPaginatedTransactions', () => {
@@ -110,6 +122,12 @@ describe('Test ajax', () => {
           .toEqual("/transactions/?page=10&page_size=20");
         expect(sut.AjaxGetPaginatedTransactions._makeUrl({pageSize: 100}))
           .toEqual("/transactions/?page=1&page_size=100");
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({description: "Foo"}))
+          .toEqual("/transactions/?page=1&page_size=20&description=Foo");
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({reference: "Foo"}))
+          .toEqual("/transactions/?page=1&page_size=20&reference=Foo");
+        expect(sut.AjaxGetPaginatedTransactions._makeUrl({reference: "A", description: "B"}))
+          .toEqual("/transactions/?page=1&page_size=20&description=B&reference=A");
       });
 
       describe('_parseResponse', () => {

@@ -4,6 +4,8 @@ import { getTargetAccsPks, getSourceAccsPks } from '../utils';
 import { DateUtil } from '../utils';
 import ReactTable from 'react-table';
 
+import "../css/components/_transaction-table.scss";
+
 const movementCurrencyLens = R.lensPath(["money", "currency"]);
 const quantityCurrencyLens = R.lensPath(["money", "quantity"]);
 
@@ -14,21 +16,78 @@ const quantityCurrencyLens = R.lensPath(["money", "quantity"]);
   * @param props.getPaginatedTransactions - A function that is used to get paginated transactions.
   */
 export function TransactionTable({ getCurrency, getAccount, getPaginatedTransactions }) {
+
+  // State
   const [paginatedTransactions, setPaginatedTransactions] = useState({items: [], page: -1});
+  const pageState = useState(0);
+  const pageSizeState = useState(100);
+  const searchTermInputState = useState("");
+  const committedSearchTermState = useState("");
+
+  // Helpers
+  const getAndSetPaginatedTransactions = args => {
+    return getPaginatedTransactions(args).then(setPaginatedTransactions);
+  };
+
+  // Handler for user committing to a search term
+  const onSearchTermCommitted = (newSearchTerm) => {
+    const args = {page: 0, pageSize: pageSizeState[0], description: newSearchTerm};
+    committedSearchTermState[1](newSearchTerm);
+    pageState[1](0);
+    return getAndSetPaginatedTransactions(args);
+  };
+
+  // Header with search term
+  const headerOpts = {searchTermState: searchTermInputState, onSearchTermCommitted};
+  const header = transactionTableHeader.genElement(headerOpts);
+
+  // Handle transaction fetching
   const onFetchTransactionsHandler = R.pipe(
-    TransactionFetcher.fetchFromReactTableState({getPaginatedTransactions}),
+    TransactionFetcher.extractArgsFromReactTableState,
+    TransactionFetcher.withSearchTerm(committedSearchTermState[0]),
+    getPaginatedTransactions,
     R.andThen(setPaginatedTransactions)
   );
-  const opts = {getCurrency, getAccount, onFetchTransactionsHandler};
+
+  // Mounts
   return (
-    <div className="transactions-table">
-      <h3>{"Transactions Table"}</h3>
-      <ReactTable {...ReactTableProps.gen(opts, paginatedTransactions)} />
-    </div>
+    <TransactionTableCore
+      getCurrency={getCurrency}
+      getAccount={getAccount}
+      onFetchTransactionsHandler={onFetchTransactionsHandler}
+      paginatedTransactions={paginatedTransactions}
+      header={header}
+      pageState={pageState}
+      pageSizeState={pageSizeState}
+    />
   );
 }
 
 export default TransactionTable;
+
+/**
+ * "Pure" version of TransactionTable, without state management. Simply receive options,
+ * parse them to the ReactTable columns and render.
+ */
+export function TransactionTableCore(
+  {getCurrency,
+   getAccount,
+   onFetchTransactionsHandler,
+   paginatedTransactions,
+   header,
+   pageState,
+   pageSizeState}
+) {
+  const opts = {getCurrency, getAccount, onFetchTransactionsHandler, pageState, pageSizeState, header};
+  const reactTableProps = ReactTableProps.gen(opts, paginatedTransactions);
+  return (
+    <div className="transactions-table">
+      <h3>{"Transactions Table"}</h3>
+      <div className="transaction-table__header">{header}</div>
+      <ReactTable {...reactTableProps} />
+    </div>
+  );
+}
 
 /**
  * Given an array of transactions, extracts a string representing the quantity
@@ -81,7 +140,7 @@ export const ReactTableProps = {
   /**
    * Generates props for the react table.
    */
-  gen({getAccount, getCurrency, onFetchTransactionsHandler}, paginatedTransactions) {
+  gen({getAccount, getCurrency, onFetchTransactionsHandler, pageState, pageSizeState}, paginatedTransactions) {
     return {
       columns: [
         {
@@ -123,6 +182,10 @@ export const ReactTableProps = {
       filterable: false,
       data: paginatedTransactions.items || [],
       pages: paginatedTransactions.pageCount || -1,
+      page: pageState[0],
+      onPageChange: pageState[1],
+      pageSize: pageSizeState[0],
+      onPageSizeChange: pageSizeState[1]
     };
   },
 };
@@ -141,23 +204,60 @@ export const WIDTHS = {
 export const TransactionFetcher = {
 
   /**
-   * Fetches the data. Returns a promise with the fetched data.
+   * Extracts arguments from the ReactTable state.
    */
-  fetch: R.curry(({getPaginatedTransactions}, {page, pageSize}) => {
-    return getPaginatedTransactions({page, pageSize});
-  }),
+  extractArgsFromReactTableState: ({page, pageSize}) => {
+    return { page, pageSize };
+  },
 
   /**
-   * Fetches from the ReactTable state.
+   * Adds a SearchTerm to the arguments, if any.
    */
-  fetchFromReactTableState: R.curry(({getPaginatedTransactions}, reactTableState) => {
-    return TransactionFetcher.fetch(
-      {getPaginatedTransactions},
-      {
-        page: reactTableState.page,
-        pageSize: reactTableState.pageSize
-      }
-    );
-  }),
+  withSearchTerm: (searchTerm) => R.unless(
+    () => searchTerm === "",
+    R.assoc("description", searchTerm)
+  ),
   
+};
+
+
+/**
+ * Helper functionality to generate the header 
+ */
+export const transactionTableHeader = {
+
+  /**
+   * Generates a header element.
+   */
+  genElement({searchTermState, onSearchTermCommitted}) {
+    const [searchTerm, setSearchTerm] = searchTermState;
+    const handleChange = transactionTableHeader._searchTermChangeHandler(setSearchTerm);
+    return (
+      <div className="transaction-table-header">
+        <form onSubmit={e => { e.preventDefault(); onSearchTermCommitted(searchTerm); }}>
+          <input
+            className="transaction-table-header__input"
+            placeholder="SearchTerm"
+            type="text"
+            value={searchTerm}
+            onChange={handleChange}
+          />
+          <button className="transaction-table-header__button">
+            {"Search"}
+          </button>
+        </form>
+      </div>
+    );
+  },
+  
+  /**
+   * Handles changes on the `input` of the search term.
+   * @param setSearchTerm - A function that set's the search term into some state.
+   * @param event - The input change event.
+   */
+  _searchTermChangeHandler: R.curry((setSearchTerm, event) => {
+    event.preventDefault();
+    setSearchTerm(event.target.value);
+  }),
+
 };

@@ -6,6 +6,7 @@ import * as RU from '../../../ramda-utils';
 import TransactionTableInstance from '../TransactionTable';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
+import ReactTestUtils from 'react-dom/test-utils';
 
 
 describe('TransactionTable', () => {
@@ -38,7 +39,7 @@ describe('TransactionTable', () => {
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
-  it('Finished loading', () => {
+  it('Finished loading', async () => {
     const currencies = CurrencyFactory.buildList(2);
     const accounts = AccountFactory.buildList(2);
     const state = RU.objFromPairs(
@@ -53,13 +54,16 @@ describe('TransactionTable', () => {
       AppLens.currencies, getCurrency,
     );
     const ajaxInjections = {getPaginatedTransactions};
-    const resp = mount(TransactionTableInstance({ state, stateGetters, ajaxInjections }));
-    const transTable = resp.find("TransactionTable");
 
-    expect(transTable).toHaveLength(1);
-    expect(transTable.props().getCurrency).toBe(getCurrency);
-    expect(transTable.props().getAccount).toBe(getAccount);
-    expect(transTable.props().getPaginatedTransactions).toBe(getPaginatedTransactions);
+    await ReactTestUtils.act(async () => {
+      const resp = mount(TransactionTableInstance({ state, stateGetters, ajaxInjections }));
+      const transTable = resp.find("TransactionTable");
+
+      expect(transTable).toHaveLength(1);
+      expect(transTable.props().getCurrency).toBe(getCurrency);
+      expect(transTable.props().getAccount).toBe(getAccount);
+      expect(transTable.props().getPaginatedTransactions).toBe(getPaginatedTransactions);
+    });
   });
 
 });
