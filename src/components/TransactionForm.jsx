@@ -114,11 +114,11 @@ export default class TransactionForm extends Component {
    * Renders an input for date.
    */
   renderDateInput() {
-    const date = this.getValue().date || "";
     const onChange = this.handleUpdate(R.lensProp("date"), R.identity);
+    const value = R.pathOr("", ["date", "userInput"], this.getValue());
     const input = (
       <span>
-        <DateInput key="date" value={date} onChange={onChange} />
+        <DateInput key="date" value={value} onChange={onChange} />
         {this.renderDistanceVisualizer()}
       </span>
     );
@@ -131,7 +131,7 @@ export default class TransactionForm extends Component {
 
   renderDistanceVisualizer() {
     // Don't render if no date
-    const date = this.getValue().date;
+    const date = R.path(["date", "pickedDate"], this.getValue());
     if (! date) return null;
 
     const today = DateUtil.today();

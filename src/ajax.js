@@ -77,9 +77,7 @@ export const parseTransactionResponseData = R.pipe(
 );
 
 export const transactionSpecToRequestParams = R.pipe(
-  R.evolve({
-    date: x => x.format("YYYY-MM-DD")
-  }),
+  R.evolve({date: x => x.pickedDate.format("YYYY-MM-DD")}),
   remapKeys({movements: "movements_specs"})
 );
 

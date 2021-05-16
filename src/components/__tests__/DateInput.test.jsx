@@ -3,6 +3,9 @@ import {mount} from 'enzyme';
 import DateInput from '../DateInput.jsx';
 import sinon from 'sinon';
 import moment from 'moment';
+import * as sut from '../DateInput.jsx';
+import * as R from 'ramda';
+import { act } from 'react-dom/test-utils';
 
 describe('DateInput', () => {
 
@@ -18,44 +21,90 @@ describe('DateInput', () => {
     dateInput.update();
   }
 
-  describe('Synchronizes rawValue with date input', () => {
+  describe('Synchronizes value with date input', () => {
 
-    it('Input changes => rawValue changes', () => {
-      const newRawValue = "2018-01-04";
-      simulateRawInput(dateInput, newRawValue);
-      expect(dateInput.state().rawValue).toBe(newRawValue);
+    it('Value prop appears on input', () => {
+      const value = "2020-01-01";
+      dateInput = mount(<DateInput onChange={() => {}} value={value}/>);
+      expect(dateInput.find('input[name="date"]').props().value).toBe(value);
     });
 
-    it('RawValue chanes => input changes', () => {
-      const newRawValue = "1993-11-23";
-      dateInput.setState({rawValue: newRawValue});
-      dateInput.update();
-      expect(dateInput.find('input[name="date"]').props().value).toBe(newRawValue);
-    });
-
-    it('Value prop => rawValue changes', () => {
-      const value = moment.utc("1997-12-23");
-      dateInput = mount(<DateInput onChange={()=>{}} value={value} />);
-      expect(dateInput.state().rawValue).toBe(value.format("YYYY-MM-DD"));
-    });
   });
 
-  describe('Calling onChange callback', () => {
+  describe('Calls onChange callback', () => {
 
-    it('Calls with null on incorrect date', () => {
-      simulateRawInput(dateInput, "not a valid date");
-      expect(onChange.calledOnce).toBe(true);
-      expect(onChange.lastCall.args).toEqual([null]);
-    });
-
-    it('Calls with moment object on correct date', () => {
+    it('Calls with a date if valid entry', () => {
       simulateRawInput(dateInput, "2018-01-01");
       expect(onChange.calledOnce).toBe(true);
       expect(onChange.lastCall.args).toEqual(
-        [moment.utc("2018-01-01", "YYYY-MM-DD", true)]
+        [{userInput: "2018-01-01", pickedDate: moment.utc("2018-01-01", "YYYY-MM-DD", true)}]
       );
     });
 
+    it('Calls without a date if not a valid entry', () => {
+      simulateRawInput(dateInput, "2018-01-");
+      expect(onChange.calledOnce).toBe(true);
+      expect(onChange.lastCall.args).toEqual(
+        [{userInput: "2018-01-", pickedDate: null}]
+      );
+    });
+
+  });
+  
+});
+
+describe('DateInputStateHandler', () => {
+
+  const mountComponent = props => {
+    const defaultProps = {onDatePicked: ()=>{}};
+    const finalProps = R.mergeDeepRight(defaultProps, props);
+    return mount(
+      <sut.DateInputStateHandler {...finalProps}>
+        {dateInputProps =>
+          <DateInput {...dateInputProps}/>
+        }
+      </sut.DateInputStateHandler>
+    );
+  };
+
+  it('Renders a DateInput with value', () => {
+    const date = moment.utc("2020-01-01");
+    const comp = mountComponent({});
+
+    act(() => {
+      comp.find(DateInput).props().onChange({userInput: "2020"});
+    });
+    comp.update();
+    
+    expect(comp.find(DateInput).props().value).toEqual("2020");
+  });
+
+  it('Calls onDatePicked with new date when underlying DateInput changes', () => {
+    const onDatePicked = sinon.stub();
+    const userInput = "2020-01-01";
+    const pickedDate = moment.utc(userInput);
+    const onChangeEvent = {userInput, pickedDate};
+    const comp = mountComponent({onDatePicked});
+
+    act(() => {
+      comp.find(DateInput).props().onChange(onChangeEvent);
+    });
+
+    expect(onDatePicked.args).toEqual([[pickedDate]]);
+  });
+
+  it('Calls onDatePicked with new date when underlying DateInput changes (null value)', () => {
+    const onDatePicked = sinon.stub();
+    const userInput = "2020-01-";
+    const pickedDate = null;
+    const onChangeEvent = {userInput, pickedDate};
+    const comp = mountComponent({onDatePicked});
+
+    act(() => {
+      comp.find(DateInput).props().onChange(onChangeEvent);
+    });
+
+    expect(onDatePicked.args).toEqual([[pickedDate]]);
   });
   
 });

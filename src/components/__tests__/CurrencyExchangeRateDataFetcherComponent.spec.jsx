@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import * as sut from '../CurrencyExchangeRateDataFetcherComponent';
 import * as R from 'ramda';
 import DateInput from '../../components/DateInput';
+import {DateInputStateHandler} from '../../components/DateInput';
 import * as RU from '../../ramda-utils';
 import moment from 'moment';
 import sinon from 'sinon';
@@ -72,11 +73,10 @@ describe('_DatePicker', () => {
     });
 
     it('With correct value', () => {
-      expect(component.find(DateInput).props().value).toEqual(value);
+      expect(component.find(DateInput).props().value).toEqual(value.format("YYYY-MM-DD"));
     });
-
     it('onChange calls reducer', () => {
-      const onChangeProp = component.find(DateInput).props().onChange;
+      const onChangeProp = component.find(DateInputStateHandler).props().onDatePicked;
       const newInput = moment("1993-11-23");
       const newValue = onChangeProp(newInput);
       expect(newValue).toEqual(newInput);

@@ -68,7 +68,7 @@ describe('getSpecFromTransaction()', () => {
     reference: "bye",
     description: "hola",
     movements: [],
-    date: moment.utc("1922-21-22")
+    date: moment.utc("1922-12-22")
   };
   const transactionSpec = getSpecFromTransaction(transaction);
   it('No pk copied', () => {
@@ -80,8 +80,10 @@ describe('getSpecFromTransaction()', () => {
   it('Same movements', () => {
     expect(transactionSpec.movements).toBe(transaction.movements);
   });
-  it('Same date', () => {
-    expect(transactionSpec.date).toBe(transaction.date);
+  it('Parses date to dateInput', () => {
+    expect(transactionSpec.date).toEqual(
+      {pickedDate: transaction.date, userInput: "1922-12-22"}
+    );
   });
   it('Same reference', () => {
     expect(transactionSpec.reference).toBe(transaction.reference);
