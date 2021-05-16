@@ -1,6 +1,7 @@
 import React from 'react';
 import * as R from 'ramda';
 import DateInput from './DateInput';
+import {DateInputStateHandler} from './DateInput';
 import CurrencyCodesPicker from './CurrencyCodesPicker';
 import ErrorMessage from './ErrorMessage';
 import * as utils from '../utils';
@@ -74,10 +75,9 @@ export function _DatePicker({ label, value, onChange }) {
   return (
     <_InputWrapper>
       <span>{label}</span>
-      <DateInput
-        value={value}
-        onChange={onChange}
-      />
+      <DateInputStateHandler value={value} onDatePicked={onChange}>
+        {props => <DateInput {...props}/>}
+      </DateInputStateHandler>
     </_InputWrapper>
   );
 }

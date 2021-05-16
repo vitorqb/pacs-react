@@ -31,6 +31,10 @@ export default class TransactionForm extends Component {
   constructor(props) {
     super(props);
     this.state = { errorMessage: "", successMessage: "" };
+    // !!!! TODO Remove dateUserInput from state (should be part of TransactionSpec)
+    if (this.props.value && this.props.value.date) {
+      this.state.dateUserInput = this.props.value.date.format("YYYY-MM-DD");
+    }
   }
 
   /**
@@ -114,11 +118,13 @@ export default class TransactionForm extends Component {
    * Renders an input for date.
    */
   renderDateInput() {
-    const date = this.getValue().date || "";
-    const onChange = this.handleUpdate(R.lensProp("date"), R.identity);
+    const onChange = ({userInput, pickedDate}) => {
+      this.state.dateUserInput = userInput;
+      this.handleUpdate(R.lensProp("date"), R.identity, pickedDate);
+    };
     const input = (
       <span>
-        <DateInput key="date" value={date} onChange={onChange} />
+        <DateInput key="date" value={this.state.dateUserInput} onChange={onChange} />
         {this.renderDistanceVisualizer()}
       </span>
     );

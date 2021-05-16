@@ -123,7 +123,7 @@ describe('TransactionForm', () => {
       });
       it('Passes date to date input...', () => {
         expect(formComponent.find('DateInput').props().value)
-          .toEqual(transaction.date);
+          .toEqual(transaction.date.format("YYYY-MM-DD"));
       });
       it('Passes movements to movements inputs...', () => {
         const movementInputsArray = formComponent.find(MovementInputs);
@@ -164,9 +164,19 @@ describe('TransactionForm', () => {
     });
 
     it('Calls onChange when date changes...', () => {
-      const newDate = moment.utc("2022-01-01");
-      formComponent.find('DateInput').props().onChange(newDate);
+      const newUserInput = "2022-01-01";
+      const newDate = moment.utc(newUserInput);
+      const changeEvent = {userInput: newUserInput, pickedDate: newDate};
+      formComponent.find('DateInput').props().onChange(changeEvent);
       expect(onChange.lastArg.date).toEqual(newDate);
+    });
+
+    it('Calls onChange when date changes (null value)...', () => {
+      const newUserInput = "2022-01-";
+      const newDate = null;
+      const changeEvent = {userInput: newUserInput, pickedDate: newDate};
+      formComponent.find('DateInput').props().onChange(changeEvent);
+      expect(onChange.lastArg.date).toEqual(null);
     });
 
     it('Calls onChange when reference changes...', () => {
