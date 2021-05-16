@@ -85,9 +85,16 @@ import CryptoJs from 'crypto-js';
  * @function
  * Maps a Transaction to a TransactionSpec.
  */
-export const getSpecFromTransaction = R.pick(
-  ["description", "date", "movements", "reference"]
+export const getSpecFromTransaction = R.pipe(
+  R.pick(["description", "date", "movements", "reference"]),
+  R.evolve({
+    date: date => ({
+      pickedDate: date,
+      userInput: date && date.isValid() ? date.format("YYYY-MM-DD") : null
+    })
+  })
 );
+  
 
 /**
  * @function

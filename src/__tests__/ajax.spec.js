@@ -173,10 +173,10 @@ describe('Test ajax', () => {
           const transaction = TransactionFactory.build();
           const transactionSpec = getSpecFromTransaction(transaction);
           const expectedParams = {
-            description: transactionSpec.description,
-            date: transactionSpec.date.format("YYYY-MM-DD"),
-            movements_specs: transactionSpec.movements,
-            reference: transactionSpec.reference
+            description: transaction.description,
+            date: transaction.date.format("YYYY-MM-DD"),
+            movements_specs: transaction.movements,
+            reference: transaction.reference
           };
           const axiosMock = sinon.fake.resolves({data: ""});
           ajaxCreateTransaction(axiosMock)(transactionSpec);

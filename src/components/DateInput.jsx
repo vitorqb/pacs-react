@@ -44,7 +44,6 @@ export const DateInputStateHandler = ({children, value, onDatePicked}) => {
     if (value && value.isValid()) {
       const formatedValue = value.format("YYYY-MM-DD");
       if (formatedValue != userInput) {
-        console.log({value, userInput, formatedValue});
         setUserInput(formatedValue);
       }
     }

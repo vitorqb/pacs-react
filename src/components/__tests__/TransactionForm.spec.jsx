@@ -166,17 +166,17 @@ describe('TransactionForm', () => {
     it('Calls onChange when date changes...', () => {
       const newUserInput = "2022-01-01";
       const newDate = moment.utc(newUserInput);
-      const changeEvent = {userInput: newUserInput, pickedDate: newDate};
-      formComponent.find('DateInput').props().onChange(changeEvent);
-      expect(onChange.lastArg.date).toEqual(newDate);
+      const dateInput = {userInput: newUserInput, pickedDate: newDate};
+      formComponent.find('DateInput').props().onChange(dateInput);
+      expect(onChange.lastArg.date).toEqual(dateInput);
     });
 
     it('Calls onChange when date changes (null value)...', () => {
       const newUserInput = "2022-01-";
       const newDate = null;
-      const changeEvent = {userInput: newUserInput, pickedDate: newDate};
-      formComponent.find('DateInput').props().onChange(changeEvent);
-      expect(onChange.lastArg.date).toEqual(null);
+      const dateInput = {userInput: newUserInput, pickedDate: newDate};
+      formComponent.find('DateInput').props().onChange(dateInput);
+      expect(onChange.lastArg.date).toEqual(dateInput);
     });
 
     it('Calls onChange when reference changes...', () => {
