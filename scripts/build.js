@@ -122,9 +122,12 @@ checkBrowsers(paths.appPath, isInteractive)
   })
   .then((_) => {
     console.log("Preparing the .tar.gz artifact...");
-    const cmd = `cd '${paths.appBuild}' && tar -vzcf ${tarArtifactName()} ./*`;
-    console.log(`Executing: ${cmd}`);
-    child_process.execSync(cmd);
+    runCmd(`cd '${paths.appBuild}' && tar -vzcf ${tarArtifactName()} ./*`);
+  }).then((_) => {
+    console.log("Preparing docker image...");
+    runCmd(
+      `${dockerCmd()} build -t '${dockerImageName()}' --build-arg 'VERSION=${getGitRef()}' . `
+    );
   });
 
 // Create the production build and print the deployment instructions.
@@ -196,9 +199,38 @@ function copyPublicFolder() {
 }
 
 /**
+ * Returns the git reference to the current HEAD
+ */
+function getGitRef() {
+  return child_process.execSync("git describe --tags").toString().trim();
+}
+
+/**
  * Returns the name to be given for the .tar.gz artifact.
  */
 function tarArtifactName() {
-  const gitref = child_process.execSync("git describe --tags").toString().trim();
-  return `pacs-react-${gitref}.tar.gz`;
+  return `pacs-react_${getGitRef()}.tar.gz`;
+}
+
+/**
+ * Returns the name to be given for the docker image containing the artifact.
+ */
+function dockerImageName() {
+  return `pacs-react:${getGitRef()}`;
+}
+
+/**
+ * Executes a command in a new process
+ */
+function runCmd(x) {
+  console.log(`Executing: ${x}`);
+  const stdout = child_process.execSync(x);
+  console.log(stdout.toString());
+}
+
+/**
+ * Returns the docker command to use
+ */
+function dockerCmd() {
+  return process.env["DOCKER_CMD"] || "docker";
 }
