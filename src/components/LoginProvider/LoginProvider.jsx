@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './LoginProvider.module.scss';
 
-export const LoginProvider = ({ loginSvc, children }) => {
+export const LoginProvider = ({ loginSvc, renderLoginPage, children }) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [tokenValue, setTokenValue] = useState(null);
@@ -11,9 +11,20 @@ export const LoginProvider = ({ loginSvc, children }) => {
       .recoverTokenFromCookies()
       .then(x => {
         setTokenValue(x);
+      }).catch(x => {
+        
+      }).finally(_ => {
         setIsLoading(false);
       });
   }, [loginSvc]);
 
-  return isLoading ? <div className={`${styles.loading}`}/> : children(tokenValue);
+  if (isLoading) {
+    return <div className={`${styles.loading}`}/>;
+  }
+
+  if (!tokenValue) {
+    return renderLoginPage({ onTokenReceived: tokenValue => setTokenValue(tokenValue) }); 
+  }
+
+  return children(tokenValue);
 };

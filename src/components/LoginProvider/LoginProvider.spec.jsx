@@ -6,12 +6,13 @@ import styles from './LoginProvider.module.scss';
 import { act } from 'react-dom/test-utils';
 
 const TOKEN_VALUE = "123";
-
-const defaultProps = {
-  loginSvc: {recoverTokenFromCookies: () => Promise.resolve(TOKEN_VALUE)}
-};
-
 const defaultChildren = tokenValue => <div>{tokenValue}</div>;
+const FakeLoginPage = () => <div>LoginPage</div>;
+const renderFakeLoginPage = ({ onTokenReceived }) => <FakeLoginPage onTokenReceived={onTokenReceived}/>;
+const defaultProps = {
+  loginSvc: {recoverTokenFromCookies: () => Promise.resolve(TOKEN_VALUE)},
+  renderLoginPage: renderFakeLoginPage
+};
 
 const renderComponent = (props={}, children) => {
   return mount(
@@ -28,6 +29,29 @@ describe('LoginProvider', () => {
     await act(async () => {
       component = renderComponent();
       expect(component.find(`div.${styles.loading}`)).toHaveLength(1);
+    });
+  });
+
+  it("Loads login page if cant recover token", async () => {
+    const loginSvc = {recoverTokenFromCookies: () => Promise.reject()};
+    await act(async () => {
+      const component = renderComponent({ loginSvc });
+      await new Promise(setImmediate);
+      component.update();
+      expect(component.html()).toEqual(`<div>LoginPage</div>`);
+    });
+  });
+
+  it('Saves token when onTokenReceived is called for login page', async () => {
+    const loginSvc = {recoverTokenFromCookies: () => Promise.reject()};
+    await act(async () => {
+      const component = renderComponent({ loginSvc });
+      await new Promise(setImmediate);
+      component.update();
+      component.find(FakeLoginPage).props().onTokenReceived('NEW_TOKEN');
+      await new Promise(setImmediate);
+      component.update();
+      expect(component.html()).toEqual(`<div>NEW_TOKEN</div>`);
     });
   });
 

@@ -140,7 +140,6 @@ class App extends Component {
         <LoginProvider loginSvc={this.loginSvc}>
           {tokenValue => (
             <>
-              <div>{tokenValue}</div>
               <div className={loadingWrapperClassName(isLoading)}>
                 <span className="loading-wrapper__label">Loading...</span>
               </div>
