@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import * as RU from './ramda-utils';
 import { mkAxiosWrapper } from "./ajax";
 import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPage';
+import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
+import { LoginProvider } from './components/LoginProvider/LoginProvider';
 import * as SecretsValidation from './domain/Secrets/Validation';
 import ErrorMessage from './components/ErrorMessage';
 import { makeRouter } from './App/Router';
@@ -24,6 +26,7 @@ import DeleteAccountComponentInstance from './App/Instances/DeleteAccountCompone
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
 import { UrlUtil } from './utils';
+import { LoginSvc } from './services/LoginSvc';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
   R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.uninitialized),
@@ -49,6 +52,7 @@ class App extends Component {
     this.state = initialStateFromProps(props);
     this.goFetchRemoteData = this.goFetchRemoteData.bind(this);
     this.setState = this.setState.bind(this);
+    this.loginSvc = new LoginSvc({axios: this.getAxiosWrapper()});
   }
 
   /**
@@ -80,39 +84,7 @@ class App extends Component {
     if (R.view(lens.isLoggedIn, this.state)) { return this.goFetchRemoteData(); }
   }
 
-  renderLoginPage() {
-    const onLoginPageSubmit = () => {
-      const secrets = R.view(lens.secrets, this.state);
-      const reducerFn = SecretsValidation.validateSecrets(secrets).cata(
-        err => R.set(lens.loginPageErrors, err),
-        _ => {
-          this.goFetchRemoteData();
-          return RU.setLenses([
-            [lens.isLoggedIn, true],
-            [lens.loginPageErrors, null],
-          ]);
-        });
-      return this.setState(reducerFn);
-    };
-    const onLoginPageChange = v => this.setState(R.set(lens.loginPageValue, v));
-    return (
-      <div className="login-page-wrapper">
-        <LoginPage
-          onChange={onLoginPageChange}
-          onSubmit={onLoginPageSubmit}
-          value={viewLoginPageValue(UrlUtil.guessBackendUrl, this.state)}
-        />
-        <ErrorMessage value={R.view(lens.loginPageErrors, this.state)} />
-      </div>
-    );
-  }
-
   render() {
-
-    // If we are not logged in, render the log in page
-    if (! R.view(lens.isLoggedIn, this.state)) {
-      return this.renderLoginPage();
-    }
 
     // If we are logged in but the state is not ready, we are loading...
     const remoteFetchingStatus = R.view(lens.remoteFetchingStatus, this.state);
@@ -165,10 +137,17 @@ class App extends Component {
 
     return (
       <div className="App">
-        <div className={loadingWrapperClassName(isLoading)}>
-          <span className="loading-wrapper__label">Loading...</span>
-        </div>
-        {router}
+        <LoginProvider loginSvc={this.loginSvc}>
+          {tokenValue => (
+            <>
+              <div>{tokenValue}</div>
+              <div className={loadingWrapperClassName(isLoading)}>
+                <span className="loading-wrapper__label">Loading...</span>
+              </div>
+              {router}
+            </>
+          )}
+        </LoginProvider>
       </div>
     );
   }

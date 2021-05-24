@@ -1,0 +1,15 @@
+.loginPage {
+    font-size: 1.25rem;
+    & > *:not(:last-child) {
+        margin-bottom: 20px;
+    }
+}
+
+.inputLabel {
+    padding-right: 20px;
+    color: rgba(46, 49, 49, 1);
+}
+
+.buttonWrapper {
+    text-align: center;
+}

@@ -60,13 +60,15 @@ export function makeRequest({
  * Given a secrets (see domains/Secrets), returns an axios wrapper used to
  * make http requests.
  */
-export const mkAxiosWrapper =
-  secrets => axios.create({
+export const mkAxiosWrapper = secrets => {
+  const axiosOpts = {
     baseURL: R.view(SecretsLens.host, secrets),
     headers: {
       Authorization: "Token " + R.view(SecretsLens.token, secrets),
     },
-});
+  };
+  return axios.create(axiosOpts);
+};
 
 //
 // Transactions requests
