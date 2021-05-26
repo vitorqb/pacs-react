@@ -9,12 +9,12 @@ export class LoginSvc {
 
   recoverTokenFromCookies = () => {
     const request = {url: this._url, method: "GET"};
-    return this._axios(request).then(x => x["token_value"]).catch(x => null);
+    return this._axios(request).then(x => x.data["token_value"]).catch(x => null);
   };
 
   getToken = (adminToken) => {
     const request = {url: this._url, method: "POST", data: {"admin_token": adminToken}};
-    return this._axios(request).then(x => x["token_value"]);
+    return this._axios(request).then(x => x.data["token_value"]);
   }
 
 }

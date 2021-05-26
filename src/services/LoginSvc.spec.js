@@ -12,7 +12,7 @@ describe('LoginSvc', () => {
   describe('recoverTokenFromCookies', () => {
 
     it('Returns the token', async () => {
-      const axios = sinon.fake.resolves({"token_value": TOKEN_VALUE});
+      const axios = sinon.fake.resolves({data: {"token_value": TOKEN_VALUE}});
       const response = await mkLoginSvc({axios}).recoverTokenFromCookies();
       expect(response).toEqual(TOKEN_VALUE);
       expect(axios.args).toEqual([[{url: URL, method: "GET"}]]);
@@ -29,7 +29,7 @@ describe('LoginSvc', () => {
   describe('getToken', () => {
 
     it('Returns the token', async () => {
-      const axios = sinon.fake.resolves({"token_value": TOKEN_VALUE});
+      const axios = sinon.fake.resolves({data: {"token_value": TOKEN_VALUE}});
       const response = await mkLoginSvc({axios}).getToken(ADMINT_TOKEN);
       expect(response).toEqual(TOKEN_VALUE);
       expect(axios.args).toEqual([[{url: URL, method: "POST", data: {"admin_token": ADMINT_TOKEN}}]]);

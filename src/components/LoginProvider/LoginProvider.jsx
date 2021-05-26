@@ -6,6 +6,8 @@ export const LoginProvider = ({ loginSvc, renderLoginPage, children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [tokenValue, setTokenValue] = useState(null);
 
+  const onGetToken = admintToken => loginSvc.getToken(admintToken).then(setTokenValue);
+
   useEffect(() => {
     loginSvc
       .recoverTokenFromCookies()
@@ -23,7 +25,7 @@ export const LoginProvider = ({ loginSvc, renderLoginPage, children }) => {
   }
 
   if (!tokenValue) {
-    return renderLoginPage({ onTokenReceived: tokenValue => setTokenValue(tokenValue) }); 
+    return renderLoginPage({ onGetToken }); 
   }
 
   return children(tokenValue);

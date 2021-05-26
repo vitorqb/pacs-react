@@ -4,7 +4,7 @@ import * as sut from "./LoginPageV2";
 import sinon from 'sinon';
 
 const defaultProps = {
-  onSubmit: () => {},
+  onGetToken: () => {},
 };
 
 
@@ -15,10 +15,10 @@ const render = (props={}) => {
 
 describe('LoginPage', () => {
   it('Set token and submit fires callback', () => {
-    const onSubmit = sinon.spy();
-    const component = render({onSubmit});
+    const onGetToken = sinon.spy();
+    const component = render({onGetToken});
     component.find("input").simulate("change", {target: {value: "123"}});
     component.find('button[type="submit"]').simulate("click");
-    expect(onSubmit.args).toEqual([["123"]]);
+    expect(onGetToken.args).toEqual([["123"]]);
   });
 });

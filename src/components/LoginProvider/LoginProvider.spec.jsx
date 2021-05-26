@@ -8,7 +8,7 @@ import { act } from 'react-dom/test-utils';
 const TOKEN_VALUE = "123";
 const defaultChildren = tokenValue => <div>{tokenValue}</div>;
 const FakeLoginPage = () => <div>LoginPage</div>;
-const renderFakeLoginPage = ({ onTokenReceived }) => <FakeLoginPage onTokenReceived={onTokenReceived}/>;
+const renderFakeLoginPage = ({ onGetToken }) => <FakeLoginPage onGetToken={onGetToken}/>;
 const defaultProps = {
   loginSvc: {recoverTokenFromCookies: () => Promise.resolve(TOKEN_VALUE)},
   renderLoginPage: renderFakeLoginPage
@@ -42,23 +42,26 @@ describe('LoginProvider', () => {
     });
   });
 
-  it('Saves token when onTokenReceived is called for login page', async () => {
-    const loginSvc = {recoverTokenFromCookies: () => Promise.reject()};
+  it('Queries for token when onGetToken', async () => {
+    const loginSvc = {
+      recoverTokenFromCookies: () => Promise.reject(),
+      getToken: sinon.fake.resolves("123"),
+    };
     await act(async () => {
       const component = renderComponent({ loginSvc });
       await new Promise(setImmediate);
       component.update();
-      component.find(FakeLoginPage).props().onTokenReceived('NEW_TOKEN');
+      component.find(FakeLoginPage).props().onGetToken('NEW_TOKEN');
       await new Promise(setImmediate);
       component.update();
-      expect(component.html()).toEqual(`<div>NEW_TOKEN</div>`);
+      expect(component.html()).toEqual(`<div>123</div>`);
+      expect(loginSvc.getToken.args).toEqual([["NEW_TOKEN"]]);
     });
   });
 
   it('Provides token to children', async () => {
-    var component;
     await act(async () => {
-      component = renderComponent();
+      const component = renderComponent();
       await new Promise(setImmediate);
       component.update();
       expect(component.html()).toEqual(`<div>${TOKEN_VALUE}</div>`);

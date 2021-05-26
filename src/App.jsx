@@ -137,7 +137,12 @@ class App extends Component {
 
     return (
       <div className="App">
-        <LoginProvider loginSvc={this.loginSvc}>
+        <LoginProvider
+          loginSvc={this.loginSvc}
+          renderLoginPage={renderProps => (
+            <LoginPageV2 {...renderProps} />
+          )}
+        >
           {tokenValue => (
             <>
               <div className={loadingWrapperClassName(isLoading)}>
