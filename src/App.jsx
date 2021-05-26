@@ -10,7 +10,7 @@ import SecretLens from './domain/Secrets/Lens.js';
 import ErrorMessage from './components/ErrorMessage';
 import { makeRouter } from './App/Router';
 import lens, { RemoteFetchingStatusEnum } from './App/Lens';
-import * as Ajax from './App/Ajax';
+import * as Ajax from './App/Ajax.jsx';
 import * as Fetcher from './App/Fetcher';
 import * as StateGetters from './App/StateGetters';
 import TransactionTableInstace from './App/Instances/TransactionTable';
@@ -90,18 +90,15 @@ class App extends Component {
 
     // Prepares the state, stateGetters and ajax functions
     const state = this.state;
-    const ajaxInjections = this.getAjaxInjections();
     const stateGetters = StateGetters.makeGetters(state);
     const events = RU.objFromPairs(
       EventsLens.refetchState, () => this.goFetchRemoteData(),
       EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
       EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
     );
-    const renderArgs = { state, stateGetters, ajaxInjections, events };
 
     // Prepares the router
-    const renderRouter = (axios) => {
-      const ajaxInjections = Ajax.ajaxInjections(axios);
+    const renderRouter = ({axios, ajaxInjections}) => {
       const renderArgs = { state, stateGetters, ajaxInjections, events };
       return makeRouter(this.getRoutesData({
         transactionTable: TransactionTableInstace(renderArgs),
@@ -136,12 +133,16 @@ class App extends Component {
           {tokenValue => (
             <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
               {axios => (
-                <>
-                  <div className={loadingWrapperClassName(isLoading)}>
-                    <span className="loading-wrapper__label">Loading...</span>
-                  </div>
-                  {renderRouter(axios)}
-                </>
+                <Ajax.AjaxInjectionsProvider axios={axios}>
+                  {ajaxInjections => (
+                    <>
+                      <div className={loadingWrapperClassName(isLoading)}>
+                        <span className="loading-wrapper__label">Loading...</span>
+                      </div>
+                      {renderRouter({axios, ajaxInjections})}
+                    </>
+                  )}
+                </Ajax.AjaxInjectionsProvider>
               )}
             </AxiosProvider>
           )}

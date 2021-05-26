@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import * as ajax from "../ajax";
 import * as R from 'ramda';
 
@@ -47,3 +48,14 @@ export const ajaxInjections = axiosWrapper => R.reduce(
   (acc, [l, fn]) => R.set(l, fn(axiosWrapper), acc),
   {},
 )(ajaxInjectionSpec);
+
+/**
+ * A component that provides an instance of AjaxInjections
+ */
+export const AjaxInjectionsProvider = ({axios, children}) => {
+  const [injections, setInjections] = useState(null);
+  useEffect(() => {
+    setInjections(() => ajaxInjections(axios));
+  });
+  return injections ? children(injections) : <div/>;
+};
