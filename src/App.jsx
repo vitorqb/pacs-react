@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
-import { mkAxiosWrapperFromSecrets } from "./axios";
+import { mkAxiosWrapperFromSecrets, AxiosProvider } from "./axios.jsx";
 import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPage';
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
@@ -99,46 +99,34 @@ class App extends Component {
     );
     const renderArgs = { state, stateGetters, ajaxInjections, events };
 
-    // Prepares the instances
-    const transactionTable = TransactionTableInstace(renderArgs);
-    const createAccForm = CreateAccountComponentInstance(renderArgs);
-    const editAccountComponent = EditAccountComponentInstance(renderArgs);
-    const createTransactionForm = CreateTransactionFormInstance(renderArgs);
-    const editTransactionComponent = EditTransactionComponentInstance(renderArgs);
-    const accountTree = AccountTreeInstance(renderArgs);
-    const currencyTable = CurrencyTableInstance(renderArgs);
-    const journalComponent = JournalComponentInstance(renderArgs);
-    const accountBalanceEvolutionComponent =
-          AccountBalanceEvolutionComponentInstance(renderArgs);
-    const accountFlowEvolutionReportComponent =
-          AccountFlowEvolutionReportComponentInstance(renderArgs);
-    const DeleteAccountComponent = DeleteAccountComponentInstance(renderArgs);
-    const fetchCurrencyExchangeRateDataComponent =
-          CurrencyExchangeRateDataFetcherComponentInstance(renderArgs);
-
     // Prepares the router
-    const router = makeRouter(this.getRoutesData({
-      transactionTable,
-      createAccForm,
-      editAccountComponent,
-      createTransactionForm,
-      accountTree,
-      currencyTable,
-      editTransactionComponent,
-      journalComponent,
-      accountBalanceEvolutionComponent,
-      accountFlowEvolutionReportComponent,
-      DeleteAccountComponent,
-      fetchCurrencyExchangeRateDataComponent
-    }));
+    const renderRouter = (axios) => {
+      const ajaxInjections = Ajax.ajaxInjections(axios);
+      const renderArgs = { state, stateGetters, ajaxInjections, events };
+      return makeRouter(this.getRoutesData({
+        transactionTable: TransactionTableInstace(renderArgs),
+        createAccForm: CreateAccountComponentInstance(renderArgs),
+        editAccountComponent: EditAccountComponentInstance(renderArgs),
+        createTransactionForm: CreateTransactionFormInstance(renderArgs),
+        accountTree: AccountTreeInstance(renderArgs),
+        currencyTable: CurrencyTableInstance(renderArgs),
+        editTransactionComponent: EditTransactionComponentInstance(renderArgs),
+        journalComponent: JournalComponentInstance(renderArgs),
+        accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
+        accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
+        DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
+        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs)
+      }));
+    };
+
+    const baseUrl = R.view(R.compose(lens.secrets, SecretLens.host), this.state);
 
     return (
       <div className="App">
+
         <LoginProvider
           loginSvc={this.loginSvc}
-          renderLoginPage={renderProps => (
-            <LoginPageV2 {...renderProps} />
-          )}
+          renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
           onLoggedIn={(tokenValue) => {
             // !!!! TODO Remove this ugliness
             this.setState(R.over(lens.secrets, R.set(SecretLens.token, tokenValue)));
@@ -146,12 +134,16 @@ class App extends Component {
           }}
         >
           {tokenValue => (
-            <>
-              <div className={loadingWrapperClassName(isLoading)}>
-                <span className="loading-wrapper__label">Loading...</span>
-              </div>
-              {router}
-            </>
+            <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
+              {axios => (
+                <>
+                  <div className={loadingWrapperClassName(isLoading)}>
+                    <span className="loading-wrapper__label">Loading...</span>
+                  </div>
+                  {renderRouter(axios)}
+                </>
+              )}
+            </AxiosProvider>
           )}
         </LoginProvider>
       </div>
