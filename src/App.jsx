@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
-import { mkAxiosWrapper } from "./ajax";
+import { mkAxiosWrapperFromSecrets } from "./axios";
 import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPage';
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
@@ -59,7 +59,7 @@ class App extends Component {
   /**
    * Returns an axiosWrapper to use, based on the secrets lens of the state.
    */
-  getAxiosWrapper = () => mkAxiosWrapper(R.view(lens.secrets, this.state))
+  getAxiosWrapper = () => mkAxiosWrapperFromSecrets(R.view(lens.secrets, this.state));
 
   /**
    * Returns the ajax injections for the app.
