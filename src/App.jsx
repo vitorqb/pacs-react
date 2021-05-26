@@ -6,6 +6,7 @@ import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPa
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
 import * as SecretsValidation from './domain/Secrets/Validation';
+import SecretLens from './domain/Secrets/Lens.js';
 import ErrorMessage from './components/ErrorMessage';
 import { makeRouter } from './App/Router';
 import lens, { RemoteFetchingStatusEnum } from './App/Lens';
@@ -68,6 +69,7 @@ class App extends Component {
   // Setters
   setRemoteFetchingStatus = x => this.setState(R.set(lens.remoteFetchingStatus, x))
 
+  // !!!! TODO ADD RemoteDataProvider instead of doing this here
   /**
    * Fetches all remote data that has to be fetched during initialization.
    * Assumes we have valid secrets stored in the state.
@@ -77,11 +79,6 @@ class App extends Component {
     const reducer = await Fetcher.fetch(this.getAjaxInjections());
     this.setState(reducer);
     this.setRemoteFetchingStatus(RemoteFetchingStatusEnum.finished);
-  }
-
-  componentDidMount() {
-    // If we are already logged in when we are mounted, fetches the remote info.
-    if (R.view(lens.isLoggedIn, this.state)) { return this.goFetchRemoteData(); }
   }
 
   render() {
@@ -142,6 +139,11 @@ class App extends Component {
           renderLoginPage={renderProps => (
             <LoginPageV2 {...renderProps} />
           )}
+          onLoggedIn={(tokenValue) => {
+            // !!!! TODO Remove this ugliness
+            this.setState(R.over(lens.secrets, R.set(SecretLens.token, tokenValue)));
+            this.goFetchRemoteData();
+          }}
         >
           {tokenValue => (
             <>

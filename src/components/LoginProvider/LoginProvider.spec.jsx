@@ -4,6 +4,7 @@ import * as sut from './LoginProvider';
 import sinon from 'sinon';
 import styles from './LoginProvider.module.scss';
 import { act } from 'react-dom/test-utils';
+import { waitFor } from '../../testUtils.jsx';
 
 const TOKEN_VALUE = "123";
 const defaultChildren = tokenValue => <div>{tokenValue}</div>;
@@ -11,7 +12,8 @@ const FakeLoginPage = () => <div>LoginPage</div>;
 const renderFakeLoginPage = ({ onGetToken }) => <FakeLoginPage onGetToken={onGetToken}/>;
 const defaultProps = {
   loginSvc: {recoverTokenFromCookies: () => Promise.resolve(TOKEN_VALUE)},
-  renderLoginPage: renderFakeLoginPage
+  renderLoginPage: renderFakeLoginPage,
+  onLoggedIn: () => {}
 };
 
 const renderComponent = (props={}, children) => {
@@ -36,8 +38,10 @@ describe('LoginProvider', () => {
     const loginSvc = {recoverTokenFromCookies: () => Promise.reject()};
     await act(async () => {
       const component = renderComponent({ loginSvc });
-      await new Promise(setImmediate);
-      component.update();
+      await waitFor(() => {
+        component.update();
+        return component.html().includes('LoginPage');
+      });
       expect(component.html()).toEqual(`<div>LoginPage</div>`);
     });
   });
@@ -49,24 +53,58 @@ describe('LoginProvider', () => {
     };
     await act(async () => {
       const component = renderComponent({ loginSvc });
-      await new Promise(setImmediate);
-      component.update();
-      component.find(FakeLoginPage).props().onGetToken('NEW_TOKEN');
-      await new Promise(setImmediate);
-      component.update();
+
+      await waitFor(() => {
+        component.update();
+        return component.find(FakeLoginPage).length > 0;
+      });
+
+      component.find(FakeLoginPage).props().onGetToken('ADMIN_TOKEN');
+
+      await waitFor(() => {
+        component.update();
+        return component.html().includes('123');
+      });
+
       expect(component.html()).toEqual(`<div>123</div>`);
-      expect(loginSvc.getToken.args).toEqual([["NEW_TOKEN"]]);
+      expect(loginSvc.getToken.args).toEqual([["ADMIN_TOKEN"]]);
     });
   });
 
   it('Provides token to children', async () => {
     await act(async () => {
       const component = renderComponent();
-      await new Promise(setImmediate);
+      await waitFor(() => component.html().includes(TOKEN_VALUE));
       component.update();
       expect(component.html()).toEqual(`<div>${TOKEN_VALUE}</div>`);
       expect(component.find(`div.${styles.loading}`)).toHaveLength(0);
     });
+  });
+
+  it('Calls onLoggedIn after login from cookie', async () => {
+    const onLoggedIn = sinon.spy();
+    await act(async () => {
+      const component = renderComponent({ onLoggedIn });
+      await waitFor(() => onLoggedIn.args.length > 0);
+      expect(onLoggedIn.args).toEqual([[TOKEN_VALUE]]);
+    });    
+  });
+
+  it('Calls onLoggedIn after login from callback', async () => {
+    const loginSvc = {
+      recoverTokenFromCookies: () => Promise.reject(),
+      getToken: sinon.fake.resolves("123"),
+    };
+    const onLoggedIn = sinon.spy();
+    await act(async () => {
+      const component = renderComponent({ loginSvc, onLoggedIn });
+      await waitFor(() => {
+        component.update();
+        return component.find(FakeLoginPage).length > 0;
+      });
+      await component.find(FakeLoginPage).props().onGetToken('ADMIN_TOKEN');
+      expect(onLoggedIn.args).toEqual([["123"]]);
+    });    
   });
 
 });
