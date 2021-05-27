@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './LoginProvider.module.scss';
 
-export const LoginProvider = ({ loginSvc, renderLoginPage, children, onLoggedIn }) => {
+export const LoginProvider = ({ loginSvc, renderLoginPage, children, onLoggedIn = () => {} }) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [tokenValue, setTokenValue] = useState(null);

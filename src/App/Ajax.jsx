@@ -56,6 +56,6 @@ export const AjaxInjectionsProvider = ({axios, children}) => {
   const [injections, setInjections] = useState(null);
   useEffect(() => {
     setInjections(() => ajaxInjections(axios));
-  });
+  }, [axios]);
   return injections ? children(injections) : <div/>;
 };

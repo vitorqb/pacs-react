@@ -1,17 +1,16 @@
 import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
+import * as Routes from './App/Routes.jsx';
 import { mkAxiosWrapperFromSecrets, AxiosProvider } from "./axios.jsx";
-import LoginPage, { valueLens as loginPageValueLens } from './components/LoginPage';
+import { valueLens as loginPageValueLens } from './components/LoginPage';
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
-import * as SecretsValidation from './domain/Secrets/Validation';
 import SecretLens from './domain/Secrets/Lens.js';
-import ErrorMessage from './components/ErrorMessage';
 import { makeRouter } from './App/Router';
-import lens, { RemoteFetchingStatusEnum } from './App/Lens';
+import lens from './App/Lens';
 import * as Ajax from './App/Ajax.jsx';
-import * as Fetcher from './App/Fetcher';
+import * as Fetcher from './App/Fetcher.jsx';
 import * as StateGetters from './App/StateGetters';
 import TransactionTableInstace from './App/Instances/TransactionTable';
 import CreateAccountComponentInstance from './App/Instances/CreateAccountComponent';
@@ -26,24 +25,14 @@ import AccountFlowEvolutionReportComponentInstance from './App/Instances/Account
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
-import { UrlUtil } from './utils';
 import { LoginSvc } from './services/LoginSvc';
 
 export const initialStateFromProps = ({ secrets }) => R.pipe(
-  R.set(lens.remoteFetchingStatus, RemoteFetchingStatusEnum.uninitialized),
-  R.when(
-    _ => secrets,
-    RU.setLenses([[lens.secrets, secrets], [lens.isLoggedIn, true]]),
-  ),
   R.set(
     lens.accountBalanceEvolutionInstanceValue,
     AccountBalanceEvolutionComponentInstanceInitialSatate,
   )
 )({});
-
-export const loadingWrapperClassName = isLoading => {
-  return `loading-wrapper loading-wrapper--${isLoading ? "active" : "deactive"}`;
-};
 
 class App extends Component {
 
@@ -51,56 +40,26 @@ class App extends Component {
     // Defines the initial state, depending on whether `secrets` have been given as props
     super(props);
     this.state = initialStateFromProps(props);
-    this.goFetchRemoteData = this.goFetchRemoteData.bind(this);
     this.setState = this.setState.bind(this);
-    this.loginSvc = new LoginSvc({axios: this.getAxiosWrapper()});
-  }
-
-  /**
-   * Returns an axiosWrapper to use, based on the secrets lens of the state.
-   */
-  getAxiosWrapper = () => mkAxiosWrapperFromSecrets(R.view(lens.secrets, this.state));
-
-  /**
-   * Returns the ajax injections for the app.
-   */
-  getAjaxInjections = () => Ajax.ajaxInjections(this.getAxiosWrapper());
-
-  // Setters
-  setRemoteFetchingStatus = x => this.setState(R.set(lens.remoteFetchingStatus, x))
-
-  // !!!! TODO ADD RemoteDataProvider instead of doing this here
-  /**
-   * Fetches all remote data that has to be fetched during initialization.
-   * Assumes we have valid secrets stored in the state.
-   */
-  async goFetchRemoteData() {
-    this.setRemoteFetchingStatus(RemoteFetchingStatusEnum.loading);
-    const reducer = await Fetcher.fetch(this.getAjaxInjections());
-    this.setState(reducer);
-    this.setRemoteFetchingStatus(RemoteFetchingStatusEnum.finished);
+    this.loginSvc = new LoginSvc({axios: mkAxiosWrapperFromSecrets(this.props.secrets)});
   }
 
   render() {
 
-    // If we are logged in but the state is not ready, we are loading...
-    const remoteFetchingStatus = R.view(lens.remoteFetchingStatus, this.state);
-    const isLoading = remoteFetchingStatus === RemoteFetchingStatusEnum.uninitialized
-          || remoteFetchingStatus === RemoteFetchingStatusEnum.loading;
-
     // Prepares the state, stateGetters and ajax functions
     const state = this.state;
-    const stateGetters = StateGetters.makeGetters(state);
-    const events = RU.objFromPairs(
-      EventsLens.refetchState, () => this.goFetchRemoteData(),
-      EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
-      EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
-    );
 
     // Prepares the router
-    const renderRouter = ({axios, ajaxInjections}) => {
-      const renderArgs = { state, stateGetters, ajaxInjections, events };
-      return makeRouter(this.getRoutesData({
+    const renderRouter = ({remoteData, refreshRemoteData, axios, ajaxInjections}) => {
+      const fullState = {...state, ...remoteData};
+      const stateGetters = StateGetters.makeGetters(fullState);
+      const events = RU.objFromPairs(
+        EventsLens.refetchState, () => refreshRemoteData(),
+        EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
+        EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
+      );
+      const renderArgs = { state: fullState, stateGetters, ajaxInjections, events };
+      const routeData = Routes.getRoutesData({
         transactionTable: TransactionTableInstace(renderArgs),
         createAccForm: CreateAccountComponentInstance(renderArgs),
         editAccountComponent: EditAccountComponentInstance(renderArgs),
@@ -113,10 +72,11 @@ class App extends Component {
         accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
         DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
         fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs)
-      }));
+      });
+      return makeRouter(routeData);
     };
 
-    const baseUrl = R.view(R.compose(lens.secrets, SecretLens.host), this.state);
+    const baseUrl = R.view(SecretLens.host, this.props.secrets);
 
     return (
       <div className="App">
@@ -124,23 +84,17 @@ class App extends Component {
         <LoginProvider
           loginSvc={this.loginSvc}
           renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-          onLoggedIn={(tokenValue) => {
-            // !!!! TODO Remove this ugliness
-            this.setState(R.over(lens.secrets, R.set(SecretLens.token, tokenValue)));
-            this.goFetchRemoteData();
-          }}
         >
           {tokenValue => (
             <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
               {axios => (
                 <Ajax.AjaxInjectionsProvider axios={axios}>
                   {ajaxInjections => (
-                    <>
-                      <div className={loadingWrapperClassName(isLoading)}>
-                        <span className="loading-wrapper__label">Loading...</span>
-                      </div>
-                      {renderRouter({axios, ajaxInjections})}
-                    </>
+                    <Fetcher.FetcherProvider ajaxInjections={ajaxInjections}>
+                      {({remoteData, refreshRemoteData}) => (
+                        renderRouter({remoteData, refreshRemoteData, axios, ajaxInjections})
+                      )}
+                    </Fetcher.FetcherProvider>
                   )}
                 </Ajax.AjaxInjectionsProvider>
               )}
@@ -150,120 +104,6 @@ class App extends Component {
       </div>
     );
   }
-
-  /**
-   * Returns the data for the routes of the App.
-   */
-  getRoutesData({
-    transactionTable,
-    createAccForm,
-    editAccountComponent,
-    createTransactionForm,
-    accountTree,
-    currencyTable,
-    editTransactionComponent,
-    journalComponent,
-    accountBalanceEvolutionComponent,
-    accountFlowEvolutionReportComponent,
-    DeleteAccountComponent,
-    fetchCurrencyExchangeRateDataComponent
-  }) {
-    return [
-      {
-        text: "Transaction",
-        listOfLinkData: [
-          {
-            path: "/create-transaction/",
-            text: "Create",
-            component: () => createTransactionForm,
-          },
-          {
-            path: "/edit-transaction/",
-            text: "Edit",
-            component: () => editTransactionComponent,
-          },
-          {
-            path: "/transaction-table/",
-            text: "Table",
-            component: () => transactionTable
-          }
-        ]
-      },
-      {
-        text: "Account",
-        listOfLinkData: [
-          {
-            path: "/create-account/",
-            text: "Create",
-            component: () => createAccForm
-          },
-          {
-            path: "/edit-account/",
-            text: "Edit",
-            component: () => editAccountComponent
-          },
-          {
-            path: "/delete-account/",
-            text: "Delete",
-            component: () => DeleteAccountComponent
-          },
-          {
-            path: "/account-tree/",
-            text: "Tree",
-            component: () => accountTree
-          },
-          {
-            path: "/account-journal/",
-            text: "Journal",
-            component: () => journalComponent
-          },
-        ]
-      },
-      {
-        text: "Reports",
-        listOfLinkData: [
-          {
-            path: "/account-balance-evolution-report/",
-            text: "Balance Evolution Report",
-            component: () => accountBalanceEvolutionComponent,
-          },
-          {
-            path: "/account-flow-evolution-report/",
-            text: "Flow Evolution Report",
-            component: () => accountFlowEvolutionReportComponent
-          }
-        ]
-      },
-      {
-        text: "Currency",
-        listOfLinkData: [
-          {
-            path: "/currency-table/",
-            text: "Table",
-            component: () => currencyTable
-          },
-          {
-            path: "/exchange-rate-data/fetch/",
-            text: "Exchange Rate Data Fetcher",
-            component: () => fetchCurrencyExchangeRateDataComponent
-          }
-        ]
-      }
-    ];
-  }
 }
-
-// Helpers
-/**
- * Reads the LoginPage Value from the state. Applies defaults.
- * @param guessBackendUrlFn - 0-arg function returning current url.
- * @param state - The App state from where the login state with be queried.
- */
-export const viewLoginPageValue = R.curry((guessBackendUrlFn, state) => {
-  return R.pipe(
-    R.view(lens.loginPageValue),
-    R.over(loginPageValueLens.host, x => R.isNil(x) ? guessBackendUrlFn() : x)
-  )(state);
-});
 
 export default App;

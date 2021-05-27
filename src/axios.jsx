@@ -10,6 +10,7 @@ import SecretsLens from './domain/Secrets/Lens';
  * make http requests.
  */
 export const mkAxiosWrapperFromSecrets = secrets => {
+  console.log({secrets});
   return mkAxiosWrapper({
     baseUrl: R.view(SecretsLens.host, secrets),
     token: R.view(SecretsLens.token, secrets),

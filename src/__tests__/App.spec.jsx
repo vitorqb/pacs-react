@@ -12,36 +12,6 @@ import LoginPage, { valueLens as loginPageValueLens } from '../components/LoginP
 
 describe('App.test.jsx', () => {
 
-  describe('initialStateFromProps', () => {
-
-    it('No secrets', () => {
-      const props = {};
-      const res = sut.initialStateFromProps(props);
-
-      expect(R.view(Lens.lens.remoteFetchingStatus, res))
-        .toEqual(Lens.RemoteFetchingStatusEnum.uninitialized);
-    });
-    
-    it('With secrets', () => {
-      const props = {secrets: RU.objFromPairs(
-        SecretsLens.token, 'foo',
-        SecretsLens.host, 'bar',
-      )};
-      const res = sut.initialStateFromProps(props);
-
-      expect(R.view(Lens.lens.isLoggedIn, res)).toEqual(true);
-      expect(R.view(Lens.lens.host, res)).toEqual('bar');
-      expect(R.view(Lens.lens.token, res)).toEqual('foo');
-      expect(R.view(Lens.lens.remoteFetchingStatus, res))
-        .toEqual(Lens.RemoteFetchingStatusEnum.uninitialized);
-    });
-
-    it('Contains account balance evolution component instance initial state', () => {
-      
-    });
-
-  });
-
   describe('makeLink()', () => {
     it('base', () => {
       const path = "/some/path";
@@ -92,22 +62,4 @@ describe('App.test.jsx', () => {
       expect(router.html()).toEqual(exp.html());
     });
   });
-});
-
-describe('viewLoginPageValue', () => {
-
-  it('Host not set -> Use function', () => {
-    let loginPageValue = {};
-    let appState = RU.objFromPairs(Lens.lens.loginPageValue, loginPageValue);
-    expect(sut.viewLoginPageValue(() => "foo", appState)).toEqual(RU.objFromPairs(
-      loginPageValueLens.host, "foo"
-    ));
-  });
-
-  it('Host set -> keep it', () => {
-    let loginPageValue = RU.objFromPairs(loginPageValueLens.host, "foo");
-    let appState = RU.objFromPairs(Lens.lens.loginPageValue, loginPageValue);
-    expect(sut.viewLoginPageValue(() => "", appState)).toEqual(loginPageValue);
-  });
-  
 });
