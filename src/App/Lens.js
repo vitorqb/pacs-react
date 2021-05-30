@@ -15,9 +15,6 @@ export const lens = {
   // Secrets
   secrets: R.lensPath(['secrets']),
 
-  // Value for the delete account component
-  deleteAccountComponentInstanceValue: R.lensPath(['deleteAccountComponentInstanceValue']),
-
 };
 
 export default lens;
