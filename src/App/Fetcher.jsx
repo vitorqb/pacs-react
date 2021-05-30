@@ -3,6 +3,7 @@ import * as Ajax from './Ajax';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
 import { lens as AppLens } from './Lens';
+import { LoadingWrapper } from '../components/LoaddingWrapper.jsx';
 
 export const lens = {
   accounts: R.lensPath(['accounts']),
@@ -55,5 +56,9 @@ export const FetcherProvider = ({ajaxInjections, children}) => {
     refreshRemoteData();
   }, [ajaxInjections]);
 
-  return isLoading ? <div/> : children({remoteData, refreshRemoteData});
+  return (
+    <LoadingWrapper isLoading={isLoading}>
+      {children({remoteData, refreshRemoteData})}
+    </LoadingWrapper>
+  );
 };
