@@ -36,7 +36,8 @@
     "html-webpack-plugin": "4.3.0",
     "identity-obj-proxy": "3.0.0",
     "immutable": "^4.0.0-rc.12",
-    "jest": "26.0.1",
+    "jest": "26.6.3",
+    "jest-css-modules-transform": "^4.2.1",
     "jest-pnp-resolver": "1.2.1",
     "jest-resolve": "26.0.1",
     "jquery": "^3.5.1",
@@ -52,7 +53,7 @@
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "4.0.2",
     "ramda": "^0.27.0",
-    "react": "^16.13.1",
+    "react": "^16.4.0-0",
     "react-app-polyfill": "^1.0.6",
     "react-dev-utils": "^9.1.0",
     "react-dom": "^16.13.1",
@@ -104,16 +105,14 @@
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^.+\\.module\\.(css|sass|scss)$": "jest-css-modules-transform",
       "^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$"
     ],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+      "^react-native$": "react-native-web"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -139,7 +138,7 @@
   "devDependencies": {
     "@types/jest": "^25.2.3",
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-adapter-react-16": "^1.15.6",
     "eslint-plugin-jest": "^23.13.1",
     "eslint-plugin-react-hooks": "^4.0.2",
     "faker": "^4.1.0",

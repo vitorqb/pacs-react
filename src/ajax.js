@@ -1,9 +1,7 @@
 // This module contains all functions that performs ajax requests
 import moment from 'moment';
-import axios from 'axios';
 import * as R from 'ramda';
 import { remapKeys, MonthUtil, DateUtil, StrUtil, PaginationUtils } from './utils';
-import SecretsLens from './domain/Secrets/Lens';
 import * as PricePortifolio from './domain/PricePortifolio/Core';
 
 //
@@ -54,19 +52,6 @@ export function makeRequest({
     .then(handleSuccess)
     .catch(handleFailure);
 }
-
-
-/**
- * Given a secrets (see domains/Secrets), returns an axios wrapper used to
- * make http requests.
- */
-export const mkAxiosWrapper =
-  secrets => axios.create({
-    baseURL: R.view(SecretsLens.host, secrets),
-    headers: {
-      Authorization: "Token " + R.view(SecretsLens.token, secrets),
-    },
-});
 
 //
 // Transactions requests

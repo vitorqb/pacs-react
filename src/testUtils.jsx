@@ -338,3 +338,17 @@ export function expectRenderError(element, expectedError) {
   expect(topLevelErrors.length).toBe(1);
   expect(topLevelErrors[0].message).toContain(expectedError);
 }
+
+export const waitFor = async (f) => {
+  const waitPromise = () => new Promise((resolve, _) => setTimeout(resolve, 250));
+  var i = 0;
+  while (i < 10) {
+    const result = f();
+    if (result) {
+      return
+    }
+    i++;
+    await waitPromise();
+  }
+  throw new Error("Timeout inside waitFor!");
+};

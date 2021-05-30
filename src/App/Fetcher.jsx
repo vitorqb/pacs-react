@@ -1,7 +1,14 @@
+import React, {useState, useEffect} from 'react';
 import * as Ajax from './Ajax';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
 import { lens as AppLens } from './Lens';
+import { LoadingWrapper } from '../components/LoaddingWrapper.jsx';
+
+export const lens = {
+  accounts: R.lensPath(['accounts']),
+  currencies: R.lensPath(['currencies']),
+};
 
 /**
  * Specifications for data fetching. Each element is a tuple of (ajaxFn, lenses),
@@ -31,3 +38,27 @@ export const _fetch = R.curry((specs, ajaxInjections) => R.pipe(
 )(specs));
 
 export const fetch = _fetch(fetcherSpecs);
+
+/**
+ * A provider that provides the data
+ */
+export const FetcherProvider = ({ajaxInjections, children}) => {
+  const [remoteData, setRemoteData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshRemoteData = async () => {
+    setIsLoading(true);
+    setRemoteData(await fetch(ajaxInjections));
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    refreshRemoteData();
+  }, [ajaxInjections]);
+
+  return (
+    <LoadingWrapper isLoading={isLoading}>
+      {children({remoteData, refreshRemoteData})}
+    </LoadingWrapper>
+  );
+};
