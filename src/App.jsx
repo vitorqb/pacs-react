@@ -20,26 +20,18 @@ import EditTransactionComponentInstance from './App/Instances/EditTransactionCom
 import AccountTreeInstance from './App/Instances/AccountTree';
 import CurrencyTableInstance from './App/Instances/CurrencyTable';
 import JournalComponentInstance from './App/Instances/JournalComponent';
-import AccountBalanceEvolutionComponentInstance, { initialState as AccountBalanceEvolutionComponentInstanceInitialSatate } from './App/Instances/AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponentInstance from './App/Instances/AccountBalanceEvolutionComponent';
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
 
-export const initialStateFromProps = ({ secrets }) => R.pipe(
-  R.set(
-    lens.accountBalanceEvolutionInstanceValue,
-    AccountBalanceEvolutionComponentInstanceInitialSatate,
-  )
-)({});
-
 class App extends Component {
 
   constructor(props) {
     // Defines the initial state, depending on whether `secrets` have been given as props
     super(props);
-    this.state = initialStateFromProps(props);
     this.setState = this.setState.bind(this);
     this.loginSvc = new LoginSvc({axios: mkAxiosWrapperFromSecrets(this.props.secrets)});
   }
