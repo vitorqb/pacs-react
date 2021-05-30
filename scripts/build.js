@@ -134,6 +134,10 @@ checkBrowsers(paths.appPath, isInteractive)
 function build(previousFileSizes) {
   console.log('Creating an optimized production build...');
 
+  if (! fs.existsSync(paths.appSecretsJson)) {
+    fs.writeFileSync(paths.appSecretsJson, '{}');
+  }
+
   let compiler = webpack(config);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
