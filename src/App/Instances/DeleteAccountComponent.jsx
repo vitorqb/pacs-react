@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { lens as AppLens } from '../Lens';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import { lens as EventsLens } from '../Events';
@@ -42,42 +42,36 @@ export const reduceOnError = R.curry((errorMsg, value) => RU.setLenses(
 /**
  * Handles the submission for deleting an account.
  */
-export const handleSubmitDelete = R.curry((renderArgs, account) => {
+export const handleSubmitDelete = R.curry((renderArgs, setState, account) => {
   const { ajaxInjections, events } = renderArgs;
-  
+
   if (! window.confirm(confirmDeletionMsg(account))) { return null; };
-  
   const deleteAcc = R.view(AjaxInjectionsLens.deleteAcc, ajaxInjections);
-  const overState = R.view(EventsLens.overState, events);
   const refetchState = R.view(EventsLens.refetchState, events);
 
   return deleteAcc(account)
-    .then(_ => overState(
-      AppLens.deleteAccountComponentInstanceValue,
-      reduceOnSuccess(account)
-    ))
+    .then(_ => setState(reduceOnSuccess(account)))
     .then(_ => refetchState())
-    .catch(x => overState(
-      AppLens.deleteAccountComponentInstanceValue,
-      reduceOnError(x)
-    ));
+    .catch(x => setState(reduceOnError(x)));
 });
 
 /**
  * A provider for DeleteAccountComponent.
  */
-export default function DeleteAccountComponentInstance(renderArgs) {
+export function DeleteAccountComponentInstance(renderArgs) {
+  const [instanceState, setInstanceState] = useState({});
   const { state, events } = renderArgs;
   const accounts = R.view(AppLens.accounts, state);
   if (R.isNil(accounts)) {
     return null;
   }
-  const overState = R.view(EventsLens.overState, events);
   const props = RU.objFromPairs(
-    propsLens.onChange, overState(AppLens.deleteAccountComponentInstanceValue),
+    propsLens.onChange, setInstanceState,
     propsLens.accounts, accounts,
-    propsLens.onSubmitDelete, handleSubmitDelete(renderArgs),
-    propsLens.value, R.view(AppLens.deleteAccountComponentInstanceValue, state),
+    propsLens.onSubmitDelete, handleSubmitDelete(renderArgs, setInstanceState),
+    propsLens.value, instanceState,
   );
   return <DeleteAccountComponent {...props} />;
 };
+
+export default DeleteAccountComponentInstance;

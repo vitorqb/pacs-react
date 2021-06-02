@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import React, { createElement, useState } from 'react';
 import { lens as AppLens } from '../Lens';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
@@ -11,8 +11,9 @@ export const initialState = RU.objFromPairs(
   valueLens.pickedMonths, [null, null],
 );
 
-export default function AccountBalanceEvolutionComponentInstance(renderArgs){
-  const { state, events, stateGetters, ajaxInjections } = renderArgs;
+export function AccountBalanceEvolutionComponentInstance(renderArgs){
+  const [instanceState, setInstanceState] = useState(initialState);
+  const { state, stateGetters, ajaxInjections } = renderArgs;
   const accounts = R.view(AppLens.accounts, state);
   const currencies = R.view(AppLens.currencies, state);
 
@@ -24,16 +25,16 @@ export default function AccountBalanceEvolutionComponentInstance(renderArgs){
     AjaxInjectionsLens.getAccountBalanceEvolutionData,
     ajaxInjections
   );
-  const overState = R.view(EventsLens.overState, events);
-  const instanceLens = AppLens.accountBalanceEvolutionInstanceValue;
   const props = RU.objFromPairs(
-    propsLens.onChange, overState(instanceLens),
+    propsLens.onChange, setInstanceState,
     propsLens.accounts, accounts,
     propsLens.currencies, currencies,
     propsLens.getCurrency, R.view(AppLens.currencies, stateGetters),
     propsLens.getAccount, R.view(AppLens.accounts, stateGetters),
     propsLens.getAccountBalanceEvolutionData, getAccountBalanceEvolutionData,
-    R.lensPath(['value']), R.view(instanceLens, state),
+    R.lensPath(['value']), instanceState,
   );
   return createElement(AccountBalanceEvolutionComponent, props);
 }
+
+export default AccountBalanceEvolutionComponentInstance;
