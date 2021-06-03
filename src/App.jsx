@@ -42,7 +42,7 @@ class App extends Component {
     const state = this.state;
 
     // Prepares the router
-    const renderRouter = ({remoteData, refreshRemoteData, axios, ajaxInjections}) => {
+    const renderRouter = ({remoteData, refreshRemoteData, ajaxInjections}) => {
       const fullState = {...state, ...remoteData};
       const stateGetters = StateGetters.makeGetters(fullState);
       const events = RU.objFromPairs(
@@ -84,7 +84,7 @@ class App extends Component {
                   {ajaxInjections => (
                     <Fetcher.FetcherProvider ajaxInjections={ajaxInjections}>
                       {({remoteData, refreshRemoteData}) => (
-                        renderRouter({remoteData, refreshRemoteData, axios, ajaxInjections})
+                        renderRouter({remoteData, refreshRemoteData, ajaxInjections})
                       )}
                     </Fetcher.FetcherProvider>
                   )}
