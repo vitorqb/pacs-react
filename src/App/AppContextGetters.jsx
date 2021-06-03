@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
-import { lens as AppLens } from './Lens';
+import { lens as AppContextLens } from './AppContext';
 import { newGetter, memoizeSimple } from '../utils';
 
 const memoizedPkGetter = (applens, appState) => {
@@ -13,6 +13,6 @@ const memoizedPkGetter = (applens, appState) => {
  * Returns memoized getters from 
  */
 export const makeGetters = appState => RU.objFromPairs(
-  AppLens.accounts, memoizedPkGetter(AppLens.accounts, appState),
-  AppLens.currencies, memoizedPkGetter(AppLens.currencies, appState),
+  AppContextLens.accounts, memoizedPkGetter(AppContextLens.accounts, appState),
+  AppContextLens.currencies, memoizedPkGetter(AppContextLens.currencies, appState),
 );

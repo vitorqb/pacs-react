@@ -1,5 +1,5 @@
 import React, { createElement } from 'react';
-import { lens as AppLens } from '../Lens';
+import { lens as AppContextLens } from '../AppContext';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
 import AccountFlowEvolutionReportComponent from '../../components/AccountFlowEvolutionReportComponent';
@@ -7,8 +7,8 @@ import AccountFlowEvolutionReportComponent from '../../components/AccountFlowEvo
 export default function AccountFlowEvolutionReportComponentInstance(
   { appContext, appContextGetters, ajaxInjections}
 ){
-  const accounts = R.view(AppLens.accounts, appContext);
-  const currencies = R.view(AppLens.currencies, appContext);
+  const accounts = R.view(AppContextLens.accounts, appContext);
+  const currencies = R.view(AppContextLens.currencies, appContext);
   const getAccountsFlowsEvolutionData = R.view(
     AjaxInjectionsLens.getAccountsFlowsEvolutionData,
     ajaxInjections,
@@ -22,8 +22,8 @@ export default function AccountFlowEvolutionReportComponentInstance(
       getAccountsFlowsEvolutionData,
       accounts,
       currencies,
-      getCurrency: R.view(AppLens.currencies, appContextGetters),
-      getAccount: R.view(AppLens.accounts, appContextGetters),
+      getCurrency: R.view(AppContextLens.currencies, appContextGetters),
+      getAccount: R.view(AppContextLens.accounts, appContextGetters),
     }
   );
 }

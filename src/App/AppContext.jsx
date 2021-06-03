@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import * as Ajax from './Ajax';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
-import { lens as AppLens } from './Lens';
+import { lens as AppContextLens } from './AppContext';
 import { LoadingWrapper } from '../components/LoaddingWrapper.jsx';
 
 export const lens = {
@@ -18,11 +18,11 @@ export const lens = {
 export const fetcherSpecs = [
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getAccounts),
-    AppLens.accounts,
+    AppContextLens.accounts,
   ],
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getCurrencies),
-    AppLens.currencies,
+    AppContextLens.currencies,
   ],
 ];
 

@@ -8,7 +8,7 @@ import { lens as EventsLens } from '../../Events';
 import { AccountFactory } from '../../../testUtils';
 import * as sut from '../DeleteAccountComponent';
 import DeleteAccountComponent, { propsLens, valueLens } from '../../../components/DeleteAccountComponent';
-import { lens as AppLens } from '../../Lens';
+import { lens as AppContextLens } from '../../AppContext';
 import * as testUtils from '../../../testUtils.jsx';
 
 describe('reduceOnSuccess', () => {
@@ -87,7 +87,7 @@ describe('DeleteAccountComponentInstance', () => {
 
   const defaultProps = {
     appContext: RU.objFromPairs(
-      AppLens.accounts, [account],
+      AppContextLens.accounts, [account],
     ),
   };
 

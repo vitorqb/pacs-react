@@ -1,5 +1,5 @@
 import React from 'react';
-import { lens as AppLens } from '../Lens';
+import { lens as AppContextLens } from '../AppContext';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
 import JournalComponent from '../../components/JournalComponent.jsx';
@@ -9,8 +9,8 @@ import { isDescendant } from '../../utils';
 export default function JournalComponentInstance(
   { appContext, appContextGetters, ajaxInjections }
 ) {
-  const currencies = R.view(AppLens.currencies, appContext);
-  const accounts = R.view(AppLens.accounts, appContext);
+  const currencies = R.view(AppContextLens.currencies, appContext);
+  const accounts = R.view(AppContextLens.accounts, appContext);
   const getPaginatedJournalDataForAccount = R.view(
     AjaxInjectionsLens.getPaginatedJournalDataForAccount,
     ajaxInjections,
@@ -22,7 +22,7 @@ export default function JournalComponentInstance(
     <JournalComponent
       accounts={accounts}
       isDescendant={isDescendant(accounts)}
-      getCurrency={R.view(AppLens.currencies, appContextGetters)}
+      getCurrency={R.view(AppContextLens.currencies, appContextGetters)}
       columnMakers={defaultColumnMakers}
       getPaginatedJournalDataForAccount={getPaginatedJournalDataForAccount} />
   );  

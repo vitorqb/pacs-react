@@ -1,5 +1,5 @@
 import React from 'react';
-import { lens as AppLens } from '../Lens';
+import { lens as AppContextLens } from '../AppContext';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
 import CreateTransactionComponent from '../../components/CreateTransactionComponent';
@@ -7,8 +7,8 @@ import CreateTransactionComponent from '../../components/CreateTransactionCompon
 export default function CreateTransactionComponentInstance({appContext, ajaxInjections}) {
   const createTransaction = R.view(AjaxInjectionsLens.createTransaction, ajaxInjections);
   const getTransaction = R.view(AjaxInjectionsLens.getTransaction, ajaxInjections);
-  const accounts = R.view(AppLens.accounts, appContext);
-  const currencies = R.view(AppLens.currencies, appContext);
+  const accounts = R.view(AppContextLens.accounts, appContext);
+  const currencies = R.view(AppContextLens.currencies, appContext);
   if (R.isNil(accounts) || R.isNil(currencies)) {
     return <p>Loading...</p>;
   }

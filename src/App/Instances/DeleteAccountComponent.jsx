@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { lens as AppLens } from '../Lens';
+import { lens as AppContextLens } from '../AppContext';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import { lens as EventsLens } from '../Events';
 import * as R from 'ramda';
@@ -61,7 +61,7 @@ export const handleSubmitDelete = R.curry((renderArgs, setState, account) => {
 export function DeleteAccountComponentInstance(renderArgs) {
   const [instanceState, setInstanceState] = useState({});
   const { appContext, events } = renderArgs;
-  const accounts = R.view(AppLens.accounts, appContext);
+  const accounts = R.view(AppContextLens.accounts, appContext);
   if (R.isNil(accounts)) {
     return null;
   }

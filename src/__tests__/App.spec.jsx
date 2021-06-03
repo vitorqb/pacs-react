@@ -5,7 +5,6 @@ import * as R from 'ramda';
 import { mount } from 'enzyme';
 import * as sut from '../App';
 import { makeLink, makeRoute, makeRouter } from '../App/Router';
-import * as Lens from '../App/Lens';
 import SecretsLens from '../domain/Secrets/Lens';
 import * as RU from '../ramda-utils';
 import LoginPage, { valueLens as loginPageValueLens } from '../components/LoginPage';

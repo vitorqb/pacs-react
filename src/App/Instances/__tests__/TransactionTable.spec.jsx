@@ -1,5 +1,5 @@
 import React from 'react';
-import AppLens from '../../Lens';
+import { lens as AppContextLens } from '../../AppContext';
 import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
 import * as R from 'ramda';
 import * as RU from '../../../ramda-utils';
@@ -21,7 +21,7 @@ describe('TransactionTable', () => {
 
   it('Still loading if currencies not loaded', () => {
     const appContext = RU.objFromPairs(
-      AppLens.accounts, AccountFactory.buildList(2),
+      AppContextLens.accounts, AccountFactory.buildList(2),
     );
     const appContextGetters = {};
     const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
@@ -31,7 +31,7 @@ describe('TransactionTable', () => {
 
   it('Still loading if accounts not loaded', () => {
     const appContext = RU.objFromPairs(
-      AppLens.currencies, CurrencyFactory.buildList(2),
+      AppContextLens.currencies, CurrencyFactory.buildList(2),
     );
     const appContextGetters = {};
     const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
@@ -43,15 +43,15 @@ describe('TransactionTable', () => {
     const currencies = CurrencyFactory.buildList(2);
     const accounts = AccountFactory.buildList(2);
     const appContext = RU.objFromPairs(
-      AppLens.currencies, currencies,
-      AppLens.accounts, accounts,
+      AppContextLens.currencies, currencies,
+      AppContextLens.accounts, accounts,
     );
     const getCurrency = sinon.fake();
     const getAccount = sinon.fake();
     const getPaginatedTransactions = () => Promise.resolve({});
     const appContextGetters = RU.objFromPairs(
-      AppLens.accounts, getAccount,
-      AppLens.currencies, getCurrency,
+      AppContextLens.accounts, getAccount,
+      AppContextLens.currencies, getCurrency,
     );
     const ajaxInjections = {getPaginatedTransactions};
 

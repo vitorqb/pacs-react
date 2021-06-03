@@ -1,6 +1,6 @@
 import React from 'react';
 import * as RU from '../../../ramda-utils';
-import { lens as AppLens } from '../../Lens';
+import { lens as AppContextLens } from '../../AppContext';
 import { AccountFactory, CurrencyFactory } from '../../../testUtils';
 import { mount } from 'enzyme';
 import CreateTransactionComponentInstance from '../CreateTransactionForm';
@@ -17,8 +17,8 @@ describe('CreateTransactionComponent...', () => {
     const accounts = AccountFactory.buildList(2);
     const currencies = CurrencyFactory.buildList(2);
     const appContext = RU.objFromPairs(
-      AppLens.accounts, accounts,
-      AppLens.currencies, currencies,
+      AppContextLens.accounts, accounts,
+      AppContextLens.currencies, currencies,
     );
     const form = mount(CreateTransactionComponentInstance({ appContext }));
     expect(form.find('CreateTransactionComponent')).toHaveLength(1);
