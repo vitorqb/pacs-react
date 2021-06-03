@@ -1,21 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CurrencyExchangeRateDataFetcherComponent from '../../components/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
-import { lens as EventsLens } from '../Events';
 
 export default function CurrencyExchangeRateDataFetcherComponentInstance(renderArgs) {
-  const { appContext, events, ajaxInjections } = renderArgs;
-  const lens = R.lensPath(["CurrencyExchangeRateDataFetcherComponentInstance"]);
-  const onChange = R.view(EventsLens.setState, events);
-  const value = R.view(lens, appContext);
-  const fetchCurrencyExchangeRateData = R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData,
-                                               ajaxInjections);
-
+  const { ajaxInjections } = renderArgs;
+  const [ state, setState ] = useState({});
+  const fetchCurrencyExchangeRateData =
+        R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData, ajaxInjections);
   return (
     <CurrencyExchangeRateDataFetcherComponent
-      onChange={onChange(lens)}
-      value={value}
+      onChange={setState}
+      value={state}
       fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
   );
 }
