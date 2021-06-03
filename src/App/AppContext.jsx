@@ -2,12 +2,13 @@ import React, {useState, useEffect} from 'react';
 import * as Ajax from './Ajax';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
-import { lens as AppContextLens } from './AppContext';
+import * as FeatureFlags from './FeatureFlags';
 import { LoadingWrapper } from '../components/LoaddingWrapper.jsx';
 
 export const lens = {
   accounts: R.lensPath(['accounts']),
   currencies: R.lensPath(['currencies']),
+  featureFlags: R.lensPath(['featureFlags']),
 };
 
 /**
@@ -18,11 +19,15 @@ export const lens = {
 export const fetcherSpecs = [
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getAccounts),
-    AppContextLens.accounts,
+    lens.accounts,
   ],
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getCurrencies),
-    AppContextLens.currencies,
+    lens.currencies,
+  ],
+  [
+    () => Promise.resolve(FeatureFlags.defaultFlags),
+    lens.featureFlags
   ],
 ];
 

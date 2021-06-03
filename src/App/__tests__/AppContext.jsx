@@ -1,5 +1,9 @@
 import * as R from 'ramda';
+import * as RU from '../../ramda-utils.js';
 import * as sut from '../AppContext.jsx';
+import * as Ajax from '../Ajax.jsx';
+import { AccountFactory, CurrencyFactory } from '../../testUtils.jsx';
+import { defaultFlags } from '../FeatureFlags.js';
 
 describe('_fetch', () => {
 
@@ -13,6 +17,30 @@ describe('_fetch', () => {
     const ajaxInjections = {two: 2, three: 3};
     const reducer = await sut._fetch(specs, ajaxInjections);
     expect(reducer(state)).toEqual({a: 1, b: 2, c: 3});
+  });
+
+});
+
+describe('fetch', () => {
+
+  const accounts = [AccountFactory.build()];
+  const currencies = [CurrencyFactory.build()];
+
+  const ajaxInjections = RU.objFromPairs(
+    Ajax.lens.getAccounts, () => Promise.resolve(accounts),
+    Ajax.lens.getCurrencies, () => Promise.resolve(currencies),
+  );
+
+  const initialState = {};
+
+  it('fetches currencies, accounts and set feature flags', async () => {
+    const reducer = await sut.fetch(ajaxInjections);
+    const result = reducer(initialState);
+    expect(result).toEqual(RU.objFromPairs(
+      sut.lens.accounts, accounts,
+      sut.lens.currencies, currencies,
+      sut.lens.featureFlags, defaultFlags
+    ));
   });
 
 });
