@@ -42,7 +42,7 @@ export const fetch = _fetch(fetcherSpecs);
 /**
  * A provider that provides the data
  */
-export const FetcherProvider = ({ajaxInjections, children}) => {
+export const AppContextFetcherProvider = ({ajaxInjections, children}) => {
   const [remoteData, setRemoteData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 

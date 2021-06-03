@@ -10,7 +10,7 @@ import SecretLens from './domain/Secrets/Lens.js';
 import { makeRouter } from './App/Router';
 import lens from './App/Lens';
 import * as Ajax from './App/Ajax.jsx';
-import * as Fetcher from './App/Fetcher.jsx';
+import * as AppContext from './App/AppContext.jsx';
 import * as StateGetters from './App/StateGetters';
 import TransactionTableInstace from './App/Instances/TransactionTable';
 import CreateAccountComponentInstance from './App/Instances/CreateAccountComponent';
@@ -82,11 +82,11 @@ class App extends Component {
               {axios => (
                 <Ajax.AjaxInjectionsProvider axios={axios}>
                   {ajaxInjections => (
-                    <Fetcher.FetcherProvider ajaxInjections={ajaxInjections}>
+                    <AppContext.AppContextFetcherProvider ajaxInjections={ajaxInjections}>
                       {({remoteData, refreshRemoteData}) => (
                         renderRouter({remoteData, refreshRemoteData, ajaxInjections})
                       )}
-                    </Fetcher.FetcherProvider>
+                    </AppContext.AppContextFetcherProvider>
                   )}
                 </Ajax.AjaxInjectionsProvider>
               )}

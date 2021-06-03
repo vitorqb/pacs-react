@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import * as sut from '../Fetcher';
+import * as sut from '../AppContext.jsx';
 
 describe('_fetch', () => {
 
