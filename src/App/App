@@ -1,0 +1,14 @@
+  /home/vitor/mygit/pacs-react/src/App:
+  total used in directory 48K available 21.7 GiB
+  drwxr-xr-x 5 vitor vitor 4.0K Jun  3 23:42 .
+  drwxr-xr-x 8 vitor vitor 4.0K Jun  3 23:40 ..
+  -rw-r--r-- 1 vitor vitor 2.4K May 30 12:53 Ajax.jsx
+  -rw-r--r-- 1 vitor vitor 2.0K Jun  3 23:40 AppContext.jsx
+  -rw-r--r-- 1 vitor vitor  178 May 21 00:05 Events.js
+  drwxr-xr-x 3 vitor vitor 4.0K Jun  2 23:08 Instances
+  -rw-r--r-- 1 vitor vitor  316 Jun  2 23:08 Lens.js
+  drwxr-xr-x 2 vitor vitor 4.0K May 21 00:05 Router
+  -rw-r--r-- 1 vitor vitor 2.0K May 26 23:44 Router.jsx
+  -rw-r--r-- 1 vitor vitor 2.2K May 30 12:53 Routes.jsx
+  -rw-r--r-- 1 vitor vitor 589 May 21 00:05 AppContextGetters.jsx
+  drwxr-xr-x 2 vitor vitor 4.0K Jun  3 23:42 __tests__

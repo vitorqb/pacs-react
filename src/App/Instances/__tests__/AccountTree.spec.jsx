@@ -15,8 +15,8 @@ describe('AccountTree', () => {
 
   it('Shows accounts if parsed', () => {
     const accounts = AccountFactory.buildRootAndChildren(2);
-    const state = R.set(AppLens.accounts, accounts, {});
-    const accountTree = mount(AccountTree({ state }));
+    const appContext = R.set(AppLens.accounts, accounts, {});
+    const accountTree = mount(AccountTree({ appContext }));
     expect(accountTree.find('AccountTree')).toHaveLength(1);
     expect(accountTree.find('AccountTree').props().accounts).toBe(accounts);
   });

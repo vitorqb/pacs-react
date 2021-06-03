@@ -39,24 +39,25 @@ describe('reduceOnError', () => {
 
 describe('handleSubmitDelete', () => {
 
-  let sandbox, state, refetchState, deleteAcc, props;
+  let sandbox, appContext, refetchAppContext, deleteAcc, props;
   const account = AccountFactory.build();
 
   beforeEach(() => {
-    state = {};
+    appContext = {};
     sandbox = sinon.createSandbox();
     sandbox.stub(window, 'confirm');
-    refetchState = sinon.fake.resolves();
+    refetchAppContext = sinon.fake.resolves();
     deleteAcc = sinon.fake.resolves();
-    const events = RU.objFromPairs(EventsLens.refetchState, refetchState);
+    const events = RU.objFromPairs(EventsLens.refetchAppContext, refetchAppContext);
     const ajaxInjections = RU.objFromPairs(AjaxInjectionsLens.deleteAcc, deleteAcc);
     props = { ajaxInjections, events };
   });
 
   afterEach(() => { sandbox.restore(); });
 
+  // !!!! RENAME?
   const setState = R.curry(f => {
-    state = f(state);
+    appContext = f(appContext);
   });
   
   it('Calls window confirmation and deleteAcc', async () => {
@@ -66,10 +67,10 @@ describe('handleSubmitDelete', () => {
     expect(deleteAcc.args).toEqual([[account]]);
   });
 
-  it('Calls refetchState on success', async () => {
+  it('Calls refetchAppContext on success', async () => {
     window.confirm.returns(true);
     await sut.handleSubmitDelete(props, setState, account);
-    expect(refetchState.args).toEqual([[]]);
+    expect(refetchAppContext.args).toEqual([[]]);
   });
 
   it('Does not call deleteAcc if window confirm is false', async () => {
@@ -85,7 +86,7 @@ describe('DeleteAccountComponentInstance', () => {
   const account = testUtils.AccountFactory.build();
 
   const defaultProps = {
-    state: RU.objFromPairs(
+    appContext: RU.objFromPairs(
       AppLens.accounts, [account],
     ),
   };

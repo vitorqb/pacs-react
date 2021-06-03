@@ -13,8 +13,8 @@ describe('CreateAccountComponentInstance...', () => {
   });
   it('Rendered when accounts is not null...', () => {
     const accounts = AccountFactory.buildList(2);
-    const state = R.set(AppLens.accounts, accounts, {});
-    const form = mount(CreateAccountComponentInstance({ state }));
+    const appContext = R.set(AppLens.accounts, accounts, {});
+    const form = mount(CreateAccountComponentInstance({ appContext }));
     expect(form.find('AccountForm')).toHaveLength(1);
     expect(form.find('AccountForm').props().accounts).toEqual(accounts);
   });

@@ -12,14 +12,14 @@ const account = testUtils.AccountFactory.build();
 const currency = testUtils.CurrencyFactory.build();
 
 const defaultProps = {
-  state: RU.objFromPairs(
+  appContext: RU.objFromPairs(
     AppLens.accounts, [account],
     AppLens.currencies, [currency],
   ),
   events: RU.objFromPairs(
     EventsLens.overState, () => () => {},
   ),
-  stateGetters: RU.objFromPairs(
+  appContextGetters: RU.objFromPairs(
     AppLens.accounts, () => account,
     AppLens.currencies, () => currency,
   )

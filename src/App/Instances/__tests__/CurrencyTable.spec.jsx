@@ -14,8 +14,8 @@ describe('CurrencyTableInstance...', () => {
 
   it('Rendered when currencies not null...', () => {
     const currencies = CurrencyFactory.buildList(3);
-    const state = R.set(AppLens.currencies, currencies, {});
-    const table = mount(CurrencyTableInstance({ state }));
+    const appContext = R.set(AppLens.currencies, currencies, {});
+    const table = mount(CurrencyTableInstance({ appContext }));
     expect(table.find('CurrencyTable')).toHaveLength(1);
     expect(table.find('CurrencyTable').props().currencies).toEqual(currencies);
   });

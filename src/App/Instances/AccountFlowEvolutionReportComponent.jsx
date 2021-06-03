@@ -5,10 +5,10 @@ import * as R from 'ramda';
 import AccountFlowEvolutionReportComponent from '../../components/AccountFlowEvolutionReportComponent';
 
 export default function AccountFlowEvolutionReportComponentInstance(
-  { state, stateGetters, ajaxInjections}
+  { appContext, appContextGetters, ajaxInjections}
 ){
-  const accounts = R.view(AppLens.accounts, state);
-  const currencies = R.view(AppLens.currencies, state);
+  const accounts = R.view(AppLens.accounts, appContext);
+  const currencies = R.view(AppLens.currencies, appContext);
   const getAccountsFlowsEvolutionData = R.view(
     AjaxInjectionsLens.getAccountsFlowsEvolutionData,
     ajaxInjections,
@@ -22,8 +22,8 @@ export default function AccountFlowEvolutionReportComponentInstance(
       getAccountsFlowsEvolutionData,
       accounts,
       currencies,
-      getCurrency: R.view(AppLens.currencies, stateGetters),
-      getAccount: R.view(AppLens.accounts, stateGetters),
+      getCurrency: R.view(AppLens.currencies, appContextGetters),
+      getAccount: R.view(AppLens.accounts, appContextGetters),
     }
   );
 }

@@ -9,7 +9,7 @@ import SecretLens from './domain/Secrets/Lens.js';
 import { makeRouter } from './App/Router';
 import * as Ajax from './App/Ajax.jsx';
 import * as AppContext from './App/AppContext.jsx';
-import * as StateGetters from './App/StateGetters';
+import * as AppContextGetters from './App/AppContextGetters';
 import TransactionTableInstace from './App/Instances/TransactionTable';
 import CreateAccountComponentInstance from './App/Instances/CreateAccountComponent';
 import EditAccountComponentInstance from './App/Instances/EditAccountComponent';
@@ -36,19 +36,18 @@ class App extends Component {
 
   render() {
 
-    // Prepares the state, stateGetters and ajax functions
+    // Prepares the state, appContextGetters and ajax functions
     const state = this.state;
 
     // Prepares the router
-    const renderRouter = ({remoteData, refreshRemoteData, ajaxInjections}) => {
-      const fullState = {...state, ...remoteData};
-      const stateGetters = StateGetters.makeGetters(fullState);
+    const renderRouter = ({appContext, refreshAppContext, ajaxInjections}) => {
+      const appContextGetters = AppContextGetters.makeGetters(appContext);
       const events = RU.objFromPairs(
-        EventsLens.refetchState, () => refreshRemoteData(),
+        EventsLens.refetchAppContext, () => refreshAppContext(),
         EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
         EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
       );
-      const renderArgs = { state: fullState, stateGetters, ajaxInjections, events };
+      const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
       const routeData = Routes.getRoutesData({
         transactionTable: TransactionTableInstace(renderArgs),
         createAccForm: CreateAccountComponentInstance(renderArgs),
@@ -81,8 +80,8 @@ class App extends Component {
                 <Ajax.AjaxInjectionsProvider axios={axios}>
                   {ajaxInjections => (
                     <AppContext.AppContextFetcherProvider ajaxInjections={ajaxInjections}>
-                      {({remoteData, refreshRemoteData}) => (
-                        renderRouter({remoteData, refreshRemoteData, ajaxInjections})
+                      {({appContext, refreshAppContext}) => (
+                        renderRouter({appContext, refreshAppContext, ajaxInjections})
                       )}
                     </AppContext.AppContextFetcherProvider>
                   )}

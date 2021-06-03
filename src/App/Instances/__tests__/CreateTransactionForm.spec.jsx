@@ -16,11 +16,11 @@ describe('CreateTransactionComponent...', () => {
   it('Rendered when accounts and currencies are not null...', () => {
     const accounts = AccountFactory.buildList(2);
     const currencies = CurrencyFactory.buildList(2);
-    const state = RU.objFromPairs(
+    const appContext = RU.objFromPairs(
       AppLens.accounts, accounts,
       AppLens.currencies, currencies,
     );
-    const form = mount(CreateTransactionComponentInstance({ state }));
+    const form = mount(CreateTransactionComponentInstance({ appContext }));
     expect(form.find('CreateTransactionComponent')).toHaveLength(1);
     expect(form.find('CreateTransactionComponent').props().accounts).toEqual(accounts);
   });

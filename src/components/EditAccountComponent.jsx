@@ -39,11 +39,11 @@ export default class EditAccountComponent extends Component {
   handleSubmit = _ => {
     const account = this.state.account;
     const accountSpec = this.getAccountSpec();
-    const refetchState = this.props.refetchState;
+    const refetchAppContext = this.props.refetchAppContext;
     return this.props
       .editAccount(account, accountSpec)
       .then(x => {
-        refetchState();
+        refetchAppContext();
         return x;
       });
   }

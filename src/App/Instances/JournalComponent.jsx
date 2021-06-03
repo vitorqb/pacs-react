@@ -7,10 +7,10 @@ import { defaultColumnMakers } from '../../components/JournalTable.jsx';
 import { isDescendant } from '../../utils';
 
 export default function JournalComponentInstance(
-  { state, stateGetters, ajaxInjections }
+  { appContext, appContextGetters, ajaxInjections }
 ) {
-  const currencies = R.view(AppLens.currencies, state);
-  const accounts = R.view(AppLens.accounts, state);
+  const currencies = R.view(AppLens.currencies, appContext);
+  const accounts = R.view(AppLens.accounts, appContext);
   const getPaginatedJournalDataForAccount = R.view(
     AjaxInjectionsLens.getPaginatedJournalDataForAccount,
     ajaxInjections,
@@ -22,7 +22,7 @@ export default function JournalComponentInstance(
     <JournalComponent
       accounts={accounts}
       isDescendant={isDescendant(accounts)}
-      getCurrency={R.view(AppLens.currencies, stateGetters)}
+      getCurrency={R.view(AppLens.currencies, appContextGetters)}
       columnMakers={defaultColumnMakers}
       getPaginatedJournalDataForAccount={getPaginatedJournalDataForAccount} />
   );  

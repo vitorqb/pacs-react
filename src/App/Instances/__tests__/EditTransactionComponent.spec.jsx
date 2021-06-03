@@ -9,26 +9,26 @@ import renderEditTransactionComponent from '../EditTransactionComponent.jsx';
 describe('', () => {
 
   it('Loading while currencies is null...', () => {
-    const state = R.set(AppLens.accounts, [AccountFactory.build()], {});
+    const appContext = R.set(AppLens.accounts, [AccountFactory.build()], {});
     const ajaxInjections = {};
-    const component = mount(renderEditTransactionComponent({ state, ajaxInjections }));
+    const component = mount(renderEditTransactionComponent({ appContext, ajaxInjections }));
     expect(component).toMatchElement(<p>Loading...</p>);
   });
 
   it('Loading while accounts is null...', () => {
-    const state = R.set(AppLens.currencies, [CurrencyFactory.build()], {});
+    const appContext = R.set(AppLens.currencies, [CurrencyFactory.build()], {});
     const ajaxInjections = {};
-    const component = mount(renderEditTransactionComponent({ state, ajaxInjections }));
+    const component = mount(renderEditTransactionComponent({ appContext, ajaxInjections }));
     expect(component).toMatchElement(<p>Loading...</p>);
   });
 
   it('Renders when both not null', () => {
-    const state = RU.objFromPairs(
+    const appContext = RU.objFromPairs(
       AppLens.currencies, [],
       AppLens.accounts, [],
     );
     const ajaxInjections = {};
-    const component = mount(renderEditTransactionComponent({ state, ajaxInjections }));
+    const component = mount(renderEditTransactionComponent({ appContext, ajaxInjections }));
     expect(component).toContainMatchingElement('EditTransactionComponent');
   });  
 

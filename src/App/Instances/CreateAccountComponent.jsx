@@ -4,8 +4,8 @@ import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
 import CreateAccountComponent from '../../components/CreateAccountComponent';
 
-export default function CreateAccountComponentInstance({ state, ajaxInjections}) {
-  const accounts = R.view(AppLens.accounts, state);
+export default function CreateAccountComponentInstance({ appContext, ajaxInjections}) {
+  const accounts = R.view(AppLens.accounts, appContext);
   const createAcc = R.view(AjaxInjectionsLens.createAcc, ajaxInjections);
   if (R.isNil(accounts)) {
     return <p>Loading...</p>;

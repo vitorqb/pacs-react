@@ -5,10 +5,10 @@ import * as R from 'ramda';
 import { lens as EventsLens } from '../Events';
 
 export default function CurrencyExchangeRateDataFetcherComponentInstance(renderArgs) {
-  const { state, events, ajaxInjections } = renderArgs;
+  const { appContext, events, ajaxInjections } = renderArgs;
   const lens = R.lensPath(["CurrencyExchangeRateDataFetcherComponentInstance"]);
   const onChange = R.view(EventsLens.setState, events);
-  const value = R.view(lens, state);
+  const value = R.view(lens, appContext);
   const fetchCurrencyExchangeRateData = R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData,
                                                ajaxInjections);
 

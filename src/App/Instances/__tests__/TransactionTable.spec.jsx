@@ -12,51 +12,51 @@ import ReactTestUtils from 'react-dom/test-utils';
 describe('TransactionTable', () => {
 
   it('Still loading', () => {
-    const state = {};
-    const stateGetters = {};
+    const appContext = {};
+    const appContextGetters = {};
     const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
-    const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
+    const resp = TransactionTableInstance({ appContext, appContextGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Still loading if currencies not loaded', () => {
-    const state = RU.objFromPairs(
+    const appContext = RU.objFromPairs(
       AppLens.accounts, AccountFactory.buildList(2),
     );
-    const stateGetters = {};
+    const appContextGetters = {};
     const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
-    const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
+    const resp = TransactionTableInstance({ appContext, appContextGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Still loading if accounts not loaded', () => {
-    const state = RU.objFromPairs(
+    const appContext = RU.objFromPairs(
       AppLens.currencies, CurrencyFactory.buildList(2),
     );
-    const stateGetters = {};
+    const appContextGetters = {};
     const ajaxInjections = {getPaginatedTransactions: () => Promise.resolve({})};
-    const resp = TransactionTableInstance({ state, stateGetters, ajaxInjections });
+    const resp = TransactionTableInstance({ appContext, appContextGetters, ajaxInjections });
     expect(resp).toEqual(<p>Loading...</p>);
   });
 
   it('Finished loading', async () => {
     const currencies = CurrencyFactory.buildList(2);
     const accounts = AccountFactory.buildList(2);
-    const state = RU.objFromPairs(
+    const appContext = RU.objFromPairs(
       AppLens.currencies, currencies,
       AppLens.accounts, accounts,
     );
     const getCurrency = sinon.fake();
     const getAccount = sinon.fake();
     const getPaginatedTransactions = () => Promise.resolve({});
-    const stateGetters = RU.objFromPairs(
+    const appContextGetters = RU.objFromPairs(
       AppLens.accounts, getAccount,
       AppLens.currencies, getCurrency,
     );
     const ajaxInjections = {getPaginatedTransactions};
 
     await ReactTestUtils.act(async () => {
-      const resp = mount(TransactionTableInstance({ state, stateGetters, ajaxInjections }));
+      const resp = mount(TransactionTableInstance({ appContext, appContextGetters, ajaxInjections }));
       const transTable = resp.find("TransactionTable");
 
       expect(transTable).toHaveLength(1);

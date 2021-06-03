@@ -4,8 +4,8 @@ import * as R from 'ramda';
 import CurrencyTable from '../../components/CurrencyTable';
 
 
-export default function CurrencyTableInstance({state}) {
-  const currencies = R.view(AppLens.currencies, state);
+export default function CurrencyTableInstance({appContext}) {
+  const currencies = R.view(AppLens.currencies, appContext);
   if (currencies !== [] && !currencies) {
     return <p>Loading...</p>;
   }

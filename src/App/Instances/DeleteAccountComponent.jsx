@@ -47,11 +47,11 @@ export const handleSubmitDelete = R.curry((renderArgs, setState, account) => {
 
   if (! window.confirm(confirmDeletionMsg(account))) { return null; };
   const deleteAcc = R.view(AjaxInjectionsLens.deleteAcc, ajaxInjections);
-  const refetchState = R.view(EventsLens.refetchState, events);
+  const refetchAppContext = R.view(EventsLens.refetchAppContext, events);
 
   return deleteAcc(account)
     .then(_ => setState(reduceOnSuccess(account)))
-    .then(_ => refetchState())
+    .then(_ => refetchAppContext())
     .catch(x => setState(reduceOnError(x)));
 });
 
@@ -60,8 +60,8 @@ export const handleSubmitDelete = R.curry((renderArgs, setState, account) => {
  */
 export function DeleteAccountComponentInstance(renderArgs) {
   const [instanceState, setInstanceState] = useState({});
-  const { state, events } = renderArgs;
-  const accounts = R.view(AppLens.accounts, state);
+  const { appContext, events } = renderArgs;
+  const accounts = R.view(AppLens.accounts, appContext);
   if (R.isNil(accounts)) {
     return null;
   }

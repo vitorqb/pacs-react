@@ -8,12 +8,12 @@ import sinon from 'sinon';
 function mountEditAccComponent(props={}) {
   const { accounts=AccountFactory.buildList(5) } = props;
   const { editAccount=sinon.fake.resolves({}) } = props;
-  const { refetchState=sinon.fake.resolves() } = props;
+  const { refetchAppContext=sinon.fake.resolves() } = props;
   return mount(
     <EditAccountComponent
       accounts={accounts}
       editAccount={editAccount}
-      refetchState={refetchState}
+      refetchAppContext={refetchAppContext}
     />
   );
 }
@@ -60,13 +60,13 @@ describe('EditAccountComponent', () => {
     expect(editAccComponent.props().editAccount.lastCall.args)
       .toEqual([account, accountSpec]);
   });
-  it('Calls refetchState on submit', async () => {
+  it('Calls refetchAppContext on submit', async () => {
     const editAccComponent = mountEditAccComponent();
     const account = editAccComponent.props().accounts[0];
     editAccComponent.find('AccountInput').props().onChange(account);
     editAccComponent.update();
 
     await editAccComponent.find('AccountForm').props().onSubmit(null);
-    expect(editAccComponent.props().refetchState.args).toEqual([[]]);
+    expect(editAccComponent.props().refetchAppContext.args).toEqual([[]]);
   });
 });

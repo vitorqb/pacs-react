@@ -43,7 +43,8 @@ export const fetch = _fetch(fetcherSpecs);
  * A provider that provides the data
  */
 export const AppContextFetcherProvider = ({ajaxInjections, children}) => {
-  const [remoteData, setRemoteData] = useState({});
+  // !!!! TODO setRemoteData => setAppContext
+  const [appContext, setRemoteData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshRemoteData = async () => {
@@ -58,7 +59,7 @@ export const AppContextFetcherProvider = ({ajaxInjections, children}) => {
 
   return (
     <LoadingWrapper isLoading={isLoading}>
-      {children({remoteData, refreshRemoteData})}
+      {children({appContext, refreshRemoteData})}
     </LoadingWrapper>
   );
 };
