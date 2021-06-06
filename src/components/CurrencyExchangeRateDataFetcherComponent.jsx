@@ -28,7 +28,7 @@ export const valueLens = {
  * - props.value.currencyCodes: ValidationWrapper with list of strings with currency codes.
  */
 export function CurrencyExchangeRateDataFetcherComponent(
-  { value, onChange, fetchCurrencyExchangeRateData }
+  { value, onChange, fetchCurrencyExchangeRateData, withToken }
 ) {
   return (
     <div className="currency-exchange-rate-data-fetcher">
@@ -49,6 +49,9 @@ export function CurrencyExchangeRateDataFetcherComponent(
           value={value}
           setValue={onChange}
           fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
+        {withToken && (
+          <div>TOKEN</div>
+        )}
         <ErrorMessage value={R.view(valueLens._errorMessage, value)} />
       </LoadingWrapper>
     </div>

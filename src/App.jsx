@@ -24,6 +24,7 @@ import DeleteAccountComponentInstance from './App/Instances/DeleteAccountCompone
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
+import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
 
 class App extends Component {
 
@@ -69,27 +70,33 @@ class App extends Component {
 
     return (
       <div className="App">
-
-        <LoginProvider
-          loginSvc={this.loginSvc}
-          renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-        >
-          {tokenValue => (
-            <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
-              {axios => (
-                <Ajax.AjaxInjectionsProvider axios={axios}>
-                  {ajaxInjections => (
-                    <AppContext.AppContextFetcherProvider ajaxInjections={ajaxInjections}>
-                      {({appContext, refreshAppContext}) => (
-                        renderRouter({appContext, refreshAppContext, ajaxInjections})
+        <FeatureFlagsProvider>
+          {featureFlagsSvc => (
+            <LoginProvider
+              loginSvc={this.loginSvc}
+              renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
+            >
+              {tokenValue => (
+                <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
+                  {axios => (
+                    <Ajax.AjaxInjectionsProvider axios={axios}>
+                      {ajaxInjections => (
+                        <AppContext.AppContextProvider
+                          ajaxInjections={ajaxInjections}
+                          featureFlagsSvc={featureFlagsSvc}
+                        >
+                          {({appContext, refreshAppContext}) => (
+                            renderRouter({appContext, refreshAppContext, ajaxInjections})
+                          )}
+                        </AppContext.AppContextProvider>
                       )}
-                    </AppContext.AppContextFetcherProvider>
+                    </Ajax.AjaxInjectionsProvider>
                   )}
-                </Ajax.AjaxInjectionsProvider>
+                </AxiosProvider>
               )}
-            </AxiosProvider>
+            </LoginProvider>
           )}
-        </LoginProvider>
+        </FeatureFlagsProvider>
       </div>
     );
   }
