@@ -7,6 +7,7 @@ import ErrorMessage from './ErrorMessage';
 import * as utils from '../utils';
 import { FileUtil } from '../utils';
 import LoadingWrapper from './LoaddingWrapper';
+import TokenInput from './TokenInput/Core';
 
 /**
  * Lenses for the `.value` and `onChange` props
@@ -18,6 +19,7 @@ export const valueLens = {
   currencyCodes: R.lensPath(['currencyCodes']),
   _errorMessage: R.lensPath(['_errorMessage']),
   isLoading: R.lensPath(['isLoading']),
+  token: R.lensPath(['token']),
 };
 
 
@@ -35,23 +37,27 @@ export function CurrencyExchangeRateDataFetcherComponent(
       <LoadingWrapper isLoading={R.view(valueLens.isLoading, value)}>
         <_DatePicker
           value={R.view(valueLens.startAt, value)}
-          onChange={x => onChange(R.set(valueLens.startAt, x, value))}
+          onChange={x => onChange(R.set(valueLens.startAt, x))}
           label={"Start at"} />
         <_DatePicker
           value={R.view(valueLens.endAt, value)}
-          onChange={x => onChange(R.set(valueLens.endAt, x, value))}
+          onChange={x => onChange(R.set(valueLens.endAt, x))}
           label={"End at"} />
         <_CurrencyCodesPicker
           value={R.view(valueLens._currencyCodesRawValue, value)}
           onChange={x => _handleCurrencyCodeNewValue(value, onChange, x)}
           label={"Currency codes"} />
+        {withToken && (
+          <_TokenPicker
+            value={R.view(valueLens.token, value)}
+            onChange={x => onChange(R.set(valueLens.token, x))}
+            label={"Token"}
+          />
+        )}
         <_SubmitBtn
           value={value}
           setValue={onChange}
           fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
-        {withToken && (
-          <div>TOKEN</div>
-        )}
         <ErrorMessage value={R.view(valueLens._errorMessage, value)} />
       </LoadingWrapper>
     </div>
@@ -93,6 +99,18 @@ export function _CurrencyCodesPicker({ label, value, onChange }) {
     <_InputWrapper>
       <span>{"List of currencies"}<i>{"(e.g. EUR,BRL)"}</i></span>
       <CurrencyCodesPicker value={value} setValue={onChange} />
+    </_InputWrapper>
+  );
+}
+
+/**
+ * A picker for a token, needed to request data from the BE
+ */
+export function _TokenPicker({value, onChange}) {
+  return (
+    <_InputWrapper>
+      <span>{"Token"}</span>
+      <TokenInput value={value} onChange={onChange}/>
     </_InputWrapper>
   );
 }

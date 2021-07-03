@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../CurrencyExchangeRateDataFetcherComponent';
 import * as R from 'ramda';
@@ -7,28 +7,58 @@ import {DateInputStateHandler} from '../../components/DateInput';
 import * as RU from '../../ramda-utils';
 import moment from 'moment';
 import sinon from 'sinon';
+import { updateComponent, useStateMock } from '../../testUtils';
+import { act } from 'react-dom/test-utils';
 
 describe('CurrencyExchangeRateDataFetcherComponent', () => {
 
+  const TestWrapper = (props={}) => {
+    const [value, onChange] = useState(props.value || {});
+    return (
+      <sut.CurrencyExchangeRateDataFetcherComponent
+        {...props}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  };
+
+  const renderComponent = (props={}) => mount(<TestWrapper {...props}/>);
   describe('Simple mounting...', () => {
 
-    const component = mount(<sut.CurrencyExchangeRateDataFetcherComponent />);
-
     it('Renders a date picker for start at...', () => {
-      const found = component.find(sut._DatePicker).findWhere(labelInPropsEqual("Start at"));
-      expect(found).toHaveLength(1);
+      const found = renderComponent().find(sut._DatePicker).findWhere(labelInPropsEqual("Start at"));      expect(found).toHaveLength(1);
     });
 
     it('Renders a date picker for end at...', () => {
-      const found = component.find(sut._DatePicker).findWhere(labelInPropsEqual("End at"));
+      const found = renderComponent().find(sut._DatePicker).findWhere(labelInPropsEqual("End at"));
       expect(found).toHaveLength(1);
     });
 
     it('Renders a currency code picker...', () => {
-      const found = component.find(sut._CurrencyCodesPicker);
+      const found = renderComponent().find(sut._CurrencyCodesPicker);
       expect(found).toHaveLength(1);
     });
-    
+
+    it('Renders a TokenPicker if withToken', () => {
+      const found = renderComponent({withToken: true}).find(sut._TokenPicker);
+      expect(found).toHaveLength(1);
+    });
+
+    it('Does not render a TokenPicker if not withToken', () => {
+      const found = renderComponent().find(sut._TokenPicker);
+      expect(found).toHaveLength(0);      
+    });
+
+  });
+
+  it('Updates token value', async () => {
+    const component = renderComponent({withToken: true});
+    await act(async () => {
+      component.find(sut._TokenPicker).props().onChange('abc');
+      await updateComponent(component);
+    });
+    expect(component.find(sut._TokenPicker).props().value).toEqual('abc');
   });
   
 });

@@ -373,3 +373,25 @@ export class MockLocalStorage {
   }
 
 }
+
+
+export const useStateMock = (defaultValue=null) => {
+  let value = defaultValue;
+  let setValue = (x) => {
+    if (typeof x === 'function') {
+      value = x(value);
+    } else {
+      value = x;
+    }
+    return value;
+  };
+  let getValue = () => value;
+  return [getValue, setValue];
+};
+
+
+export const updateComponent = async (component) => {
+  component.update();
+  await new Promise(setTimeout);
+  component.update();
+};
