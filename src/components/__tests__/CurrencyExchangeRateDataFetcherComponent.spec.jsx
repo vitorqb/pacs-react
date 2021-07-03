@@ -146,7 +146,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, ["FOO"],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidStartAt;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
     
     it('endAt is nil', () => {
@@ -155,7 +155,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, ["FOO"],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidEndAt;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
 
     it('currencyCodes is empty', () => {
@@ -165,7 +165,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, [],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidCurrencyCodes;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
 
     it('currencyCodes is null', () => {
@@ -174,7 +174,18 @@ describe('_submitHandler', () => {
         sut.valueLens.startAt, moment("2019-01-01"),
       );
       const errMsg = sut._submitHandler._errMsgs.invalidCurrencyCodes;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
+    });
+
+    it('missing token when token is mandatory', () => {
+      const value = RU.objFromPairs(
+        sut.valueLens.endAt, moment("2019-01-01"),
+        sut.valueLens.startAt, moment("2019-01-01"),
+        sut.valueLens.currencyCodes, ["FOO"],
+        sut.valueLens.token, ""
+      );
+      const errMsg = sut._submitHandler._errMsgs.missingToken;
+      expect(sut._submitHandler._getErrorMessage(value, {withToken: true})).toEqual(errMsg);
     });
   });
 
@@ -183,7 +194,7 @@ describe('_submitHandler', () => {
     it('Sets error message', () => {
       sinon.stub(sut._submitHandler, '_getErrorMessage').returns("FOO");
       const value = {};
-      const newValue = sut._submitHandler._handleInvalidSubmit(value, x => x);
+      const newValue = sut._submitHandler._handleInvalidSubmit(value, x => x, {});
       expect(R.view(sut.valueLens._errorMessage, newValue)).toEqual("FOO");
     });
     

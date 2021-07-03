@@ -57,6 +57,7 @@ export function CurrencyExchangeRateDataFetcherComponent(
         <_SubmitBtn
           value={value}
           setValue={onChange}
+          withToken={withToken}
           fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
         <ErrorMessage value={R.view(valueLens._errorMessage, value)} />
       </LoadingWrapper>
@@ -134,10 +135,12 @@ export function _InputWrapper({ children }) {
 /**
  * A custom submit button
  */
-export function _SubmitBtn({ value, setValue, fetchCurrencyExchangeRateData }) {
+export function _SubmitBtn({ value, setValue, fetchCurrencyExchangeRateData, withToken }) {
   return (
     <button onClick={e => _submitHandler.handleSubmit(value, setValue,
-                                                      fetchCurrencyExchangeRateData, e)}>
+                                                      fetchCurrencyExchangeRateData,
+                                                      {withToken},
+                                                      e)}>
       {"Fetch!"}
     </button>
   );
@@ -150,14 +153,15 @@ export const _submitHandler = {
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    * @param setValue - Callback to set CurrencyExchangeRateDataFetcherComponent value.
    * @param fetchCurrencyExchangeRateData - The fn called to actually fetch the data.
+   * @param opts - Options for submit
    * @param e - The js event.
    */
-  handleSubmit(value, setValue, fetchCurrencyExchangeRateData, e) {
+  handleSubmit(value, setValue, fetchCurrencyExchangeRateData, {withToken}, e) {
     utils.withEventPrevention(e);
-    if (this._isValidStateForSubmission(value)) {
+    if (this._isValidStateForSubmission(value, {withToken})) {
       return this._handleValidSubmit(value, setValue, fetchCurrencyExchangeRateData);
     } else {
-      return this._handleInvalidSubmit(value, setValue);
+      return this._handleInvalidSubmit(value, setValue, {withToken});
     }
   },
 
@@ -166,14 +170,16 @@ export const _submitHandler = {
    * is valid for submission.
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    */
-  _isValidStateForSubmission(value) { return R.isNil(this._getErrorMessage(value)); },
+  _isValidStateForSubmission(value, {withToken}) {
+    return R.isNil(this._getErrorMessage(value, {withToken}));
+  },
 
   /**
    * Returns an error message given the value for CurrencyExchangeRateDataFetcher, or null
    * if the value is valid.
    * @param value - The value for CurrencyExchangeRateDataFetcher.
    */
-  _getErrorMessage(value) {
+  _getErrorMessage(value, {withToken}) {
     const startAt = R.view(valueLens.startAt, value);
     if (R.isNil(startAt)) { return this._errMsgs.invalidStartAt; }
 
@@ -184,6 +190,8 @@ export const _submitHandler = {
     if (R.equals(currencyCodes, []) || R.isNil(currencyCodes)) {
       return this._errMsgs.invalidCurrencyCodes;
     }
+    const token = R.view(valueLens.token, value);
+    if (withToken && (R.isNil(token) || token === "")) { return this._errMsgs.missingToken; }
 
     return null;
   },
@@ -207,8 +215,8 @@ export const _submitHandler = {
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    * @param setValue - Callback to set CurrencyExchangeRateDataFetcherComponent value.
    */
-  _handleInvalidSubmit(value, setValue) {
-    const errMsg = this._getErrorMessage(value);
+  _handleInvalidSubmit(value, setValue, {withToken}) {
+    const errMsg = this._getErrorMessage(value, {withToken});
     return setValue(R.set(valueLens._errorMessage, errMsg, value));
   },
 
@@ -267,6 +275,7 @@ export const _submitHandler = {
     invalidStartAt: "Start date is invalid!",
     invalidEndAt: "End date is invalid!",
     invalidCurrencyCodes: "Currency codes is invalid!",
+    missingToken: "The Token is missing!",
   },
 };
 
