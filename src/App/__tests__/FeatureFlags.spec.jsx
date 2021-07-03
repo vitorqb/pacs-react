@@ -37,6 +37,38 @@ describe('FeatureFlagsSvc', () => {
     expect(mkFeatureFlagsSvc().isActive("fTrue")).toEqual(false);    
   });
 
+  it('sets from url params', () => {
+    let featureFlagsSvc = mkFeatureFlagsSvc();
+    featureFlagsSvc.setFromUrlParams('?feature_foo=true&feature_bar=false&feature_fTrue=false');
+    expect(featureFlagsSvc.isActive('foo')).toBe(true);
+    expect(featureFlagsSvc.isActive('bar')).toBe(false);
+    expect(featureFlagsSvc.isActive('fTrue')).toBe(false);
+  });
+
+});
+
+describe('readFeaturesFromParams', () => {
+
+  it('empty', () => {
+    const params = "?";
+    expect(sut.readFeaturesFromParams(params)).toEqual([]);
+  });
+
+  it('only unrelated params', () => {
+    const params = "?foo=1";
+    expect(sut.readFeaturesFromParams(params)).toEqual([]);
+  });
+
+  it('only related params (case insensitive)', () => {
+    const params = "?feature_foo=true&feature_bar=TRUE&feature_baz=false";
+    expect(sut.readFeaturesFromParams(params)).toEqual([["foo", true], ["bar", true], ["baz", false]]);
+  });
+
+  it('mixed related and unrelated params', () => {
+    const params = "?bar=1&feature_foo=true";
+    expect(sut.readFeaturesFromParams(params)).toEqual([["foo", true]]);
+  });
+  
 });
 
 describe('FeatureFlagsProvider', () => {
