@@ -1,28 +1,18 @@
 import React from 'react';
 import * as sut from '../FeatureFlags.jsx';
 import { mount } from 'enzyme';
+import { MockLocalStorage } from '../../testUtils.jsx';
 
 describe('FeatureFlagsSvc', () => {
 
-  var flags;
+  var localStorage;
 
   const initialFlags = {fTrue: true, fFalse: false};
 
-  const setFlags = x => {
-    switch (typeof x) {
-    case "function":
-      flags = x(flags);
-      ;;
-    default:
-      flags = x;
-      ;;
-    };
-  };
-
-  const mkFeatureFlagsSvc = () => new sut.FeatureFlagsSvc(flags, setFlags);
+  const mkFeatureFlagsSvc = () => new sut.FeatureFlagsSvc(initialFlags, localStorage);
 
   beforeEach(() => {
-    setFlags(initialFlags);
+    localStorage = new MockLocalStorage();
   });
 
   it('returns true for a feature in initial flags', () => {

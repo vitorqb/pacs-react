@@ -352,3 +352,24 @@ export const waitFor = async (f) => {
   }
   throw new Error("Timeout inside waitFor!");
 };
+
+
+export class MockLocalStorage {
+
+  constructor() {
+    this._data = {};
+  }
+
+  setItem(key, value) {
+    this._data[key] = value;
+  }
+
+  getItem(key) {
+    return this._data[key];
+  }
+
+  removeItem(key) {
+    delete this._data[key];
+  }
+
+}
