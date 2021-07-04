@@ -34,33 +34,35 @@ export function CurrencyExchangeRateDataFetcherComponent(
 ) {
   return (
     <div className="currency-exchange-rate-data-fetcher">
-      <LoadingWrapper isLoading={R.view(valueLens.isLoading, value)}>
-        <_DatePicker
-          value={R.view(valueLens.startAt, value)}
-          onChange={x => onChange(R.set(valueLens.startAt, x))}
-          label={"Start at"} />
-        <_DatePicker
-          value={R.view(valueLens.endAt, value)}
-          onChange={x => onChange(R.set(valueLens.endAt, x))}
-          label={"End at"} />
-        <_CurrencyCodesPicker
-          value={R.view(valueLens._currencyCodesRawValue, value)}
-          onChange={x => _handleCurrencyCodeNewValue(value, onChange, x)}
-          label={"Currency codes"} />
-        {withToken && (
-          <_TokenPicker
-            value={R.view(valueLens.token, value)}
-            onChange={x => onChange(R.set(valueLens.token, x))}
-            label={"Token"}
-          />
-        )}
-        <_SubmitBtn
-          value={value}
-          setValue={onChange}
-          withToken={withToken}
-          fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
-        <ErrorMessage value={R.view(valueLens._errorMessage, value)} />
-      </LoadingWrapper>
+      <form onSubmit={e => e.preventDefault()}>
+        <LoadingWrapper isLoading={R.view(valueLens.isLoading, value)}>
+          <_DatePicker
+            value={R.view(valueLens.startAt, value)}
+            onChange={x => onChange(R.set(valueLens.startAt, x))}
+            label={"Start at"} />
+          <_DatePicker
+            value={R.view(valueLens.endAt, value)}
+            onChange={x => onChange(R.set(valueLens.endAt, x))}
+            label={"End at"} />
+          <_CurrencyCodesPicker
+            value={R.view(valueLens._currencyCodesRawValue, value)}
+            onChange={x => _handleCurrencyCodeNewValue(value, onChange, x)}
+            label={"Currency codes"} />
+          {withToken && (
+            <_TokenPicker
+              value={R.view(valueLens.token, value)}
+              onChange={x => onChange(R.set(valueLens.token, x))}
+              label={"Token"}
+            />
+          )}
+          <_SubmitBtn
+            value={value}
+            setValue={onChange}
+            withToken={withToken}
+            fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData} />
+          <ErrorMessage value={R.view(valueLens._errorMessage, value)} />
+        </LoadingWrapper>
+      </form>
     </div>
   );
 }
@@ -111,7 +113,10 @@ export function _TokenPicker({value, onChange}) {
   return (
     <_InputWrapper>
       <span>{"Token"}</span>
-      <TokenInput value={value} onChange={onChange}/>
+      <input
+        type="password"
+        onChange={e => onChange(e.target.value)}
+        value={value || ""} />
     </_InputWrapper>
   );
 }
@@ -159,7 +164,7 @@ export const _submitHandler = {
   handleSubmit(value, setValue, fetchCurrencyExchangeRateData, {withToken}, e) {
     utils.withEventPrevention(e);
     if (this._isValidStateForSubmission(value, {withToken})) {
-      return this._handleValidSubmit(value, setValue, fetchCurrencyExchangeRateData);
+      return this._handleValidSubmit(value, setValue, fetchCurrencyExchangeRateData, {withToken});
     } else {
       return this._handleInvalidSubmit(value, setValue, {withToken});
     }
@@ -201,11 +206,12 @@ export const _submitHandler = {
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    * @param setValue - Callback to set CurrencyExchangeRateDataFetcherComponent value.
    * @param fetchCurrencyExchangeRateData - The fn called to actually fetch the data.
+   * @param opts - Extra options for the submission.
    */
-  _handleValidSubmit(value, setValue, fetchCurrencyExchangeRateData) {
+  _handleValidSubmit(value, setValue, fetchCurrencyExchangeRateData, {withToken}) {
     this._reduceValueBeforeSubmit(setValue, value);
     return this
-      ._submit(value, fetchCurrencyExchangeRateData)
+      ._submit(value, fetchCurrencyExchangeRateData, {withToken})
       .then(x => this._validRequestHandler(value, setValue, x))
       .catch(e => this._failedRequestHandler(value, setValue, e));
   },
@@ -214,6 +220,7 @@ export const _submitHandler = {
    * Custom handler for valid submits.
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    * @param setValue - Callback to set CurrencyExchangeRateDataFetcherComponent value.
+   * @param opts - Extra options for the submission.
    */
   _handleInvalidSubmit(value, setValue, {withToken}) {
     const errMsg = this._getErrorMessage(value, {withToken});
@@ -224,12 +231,17 @@ export const _submitHandler = {
    * Extracts params and submits.
    * @param value - The value for CurrencyExchangeRateDataFetcherComponent.
    * @param fetchCurrencyExchangeRateData - The fn called to actually fetch the data.
+   * @param opts - Extra options for the submission.
    */
-  _submit(value, fetchCurrencyExchangeRateData) {
+  _submit(value, fetchCurrencyExchangeRateData, {withToken}) {
     const startAt = R.view(valueLens.startAt, value);
     const endAt = R.view(valueLens.endAt, value);
     const currencyCodes = R.view(valueLens.currencyCodes, value);
-    return fetchCurrencyExchangeRateData({ startAt, endAt, currencyCodes });
+    const params = { startAt, endAt, currencyCodes };
+    if (withToken) {
+      params.token = R.view(valueLens.token, value);
+    }
+    return fetchCurrencyExchangeRateData(params);
   },
 
   /**

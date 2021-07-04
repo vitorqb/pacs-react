@@ -130,10 +130,11 @@ describe('_submitHandler', () => {
 
     it('Calls _handleValidSubmit if submit is valid', () => {
       const handleValidSubmit = sinon.stub(sut._submitHandler, '_handleValidSubmit');
+      const opts = {withToken: false};
       sinon.stub(sut._submitHandler, '_isValidStateForSubmission').returns(true);
-      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, e);
+      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, opts, e);
       expect(handleValidSubmit.args).toHaveLength(1);
-      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent]);
+      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent, opts]);
     });
     
   });
@@ -242,16 +243,23 @@ describe('_submitHandler', () => {
     const startAt = moment("2020-01-01");
     const endAt = moment("2020-01-02");
     const currencyCodes = ["FOO", "BAR"];
+    const token = "foo";
     const value = RU.objFromPairs(
       sut.valueLens.startAt, startAt,
       sut.valueLens.endAt, endAt,
       sut.valueLens.currencyCodes, currencyCodes,
+      sut.valueLens.token, token,
     );
     const fetch = x => x;
-    const result = sut._submitHandler._submit(value, fetch);
 
     it('Fetch with values ', () => {
+      const result = sut._submitHandler._submit(value, fetch, {withToken: false});
       expect(result).toEqual({ startAt, endAt, currencyCodes });
+    });
+
+    it('Includes token if withToken is true', () => {
+      const result = sut._submitHandler._submit(value, fetch, {withToken: true});
+      expect(result).toEqual({ startAt, endAt, currencyCodes, token });      
     });
     
   });
