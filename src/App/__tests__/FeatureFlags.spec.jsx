@@ -1,7 +1,8 @@
 import React from 'react';
 import * as sut from '../FeatureFlags.jsx';
 import { mount } from 'enzyme';
-import { MockLocalStorage } from '../../testUtils.jsx';
+import { MockLocalStorage, updateComponent } from '../../testUtils.jsx';
+import sinon from 'sinon';
 
 describe('FeatureFlagsSvc', () => {
 
@@ -47,6 +48,29 @@ describe('FeatureFlagsSvc', () => {
 
 });
 
+describe('fetchFeatureToggles', () => {
+
+  it('Returns features from axios', async () => {
+    const axios = sinon.fake.resolves({data: {foo: true}});
+    const result = await sut.fetchFeatureToggles({axios});
+    expect(result).toEqual({foo: true});
+    expect(axios.args[0][0]).toEqual({
+      url: "/featuretoggles",
+      method: "GET",
+      data: {},
+      params: {},
+      headers: {}
+    });
+  });
+
+  it('Defaults to empty array on error', async () => {
+    const axios = sinon.fake.rejects();
+    const result = await sut.fetchFeatureToggles({axios});
+    expect(result).toEqual({});    
+  });
+
+});
+
 describe('readFeaturesFromParams', () => {
 
   it('empty', () => {
@@ -73,17 +97,18 @@ describe('readFeaturesFromParams', () => {
 
 describe('FeatureFlagsProvider', () => {
 
-  const defaultFlags = {FOO: true};
+  const axiosMock = sinon.fake.resolves({data: {FOO: true}});
   const Child = ({featureFlagsSvc}) => <div>CHILD</div>;
 
-  it('renders children with a feature flags svc', () => {
+  it('renders children with a feature flags svc', async () => {
     const component = mount(
-      <sut.FeatureFlagsProvider defaultFlags={defaultFlags}>
+      <sut.FeatureFlagsProvider axios={axiosMock}>
         {featureFlagsSvc =>
           <Child featureFlagsSvc={featureFlagsSvc}/>
         }
       </sut.FeatureFlagsProvider>
     );
+    await updateComponent(component);
     expect(component.html()).toEqual("<div>CHILD</div>");
     expect(component.find(Child).props().featureFlagsSvc.isActive("FOO")).toEqual(true);
   });

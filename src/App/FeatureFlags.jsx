@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import React, { useState, useEffect } from 'react';
+import { makeRequest } from '../ajax';
 
 export const TOKEN_IN_EXCHANGE_FETCHER = 'tokenInExchangeFetcher';
 
@@ -50,14 +51,25 @@ export class FeatureFlagsSvc {
   
 };
 
-export const FeatureFlagsProvider = ({ children, defaultFlags=DEFAULT_FLAGS }) => {
+export const fetchFeatureToggles = async ({axios}) => {
+  try {
+    return await makeRequest({ axios, url: "/featuretoggles" });
+  } catch (e) {
+    return {};
+  }
+};
+
+export const FeatureFlagsProvider = ({ children, axios }) => {
   const [featureFlagsSvc, setFeatureFlagsSvc] = useState(null);
 
   useEffect(() => {
-    let featureFlagsSvc = new FeatureFlagsSvc(defaultFlags, window.localStorage);
-    featureFlagsSvc.setFromUrlParams(window.location.search);
-    setFeatureFlagsSvc(featureFlagsSvc);
-  }, [defaultFlags]);
+    (async () => {
+      let defaultFlags = await fetchFeatureToggles({axios});
+      let featureFlagsSvc = new FeatureFlagsSvc(defaultFlags, window.localStorage);
+      featureFlagsSvc.setFromUrlParams(window.location.search);
+      setFeatureFlagsSvc(featureFlagsSvc);
+    })();
+  }, [axios]);
 
   if (!featureFlagsSvc) return <div/>;
 

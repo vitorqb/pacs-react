@@ -70,15 +70,15 @@ class App extends Component {
 
     return (
       <div className="App">
-        <FeatureFlagsProvider>
-          {featureFlagsSvc => (
-            <LoginProvider
-              loginSvc={this.loginSvc}
-              renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-            >
-              {tokenValue => (
-                <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
-                  {axios => (
+        <LoginProvider
+          loginSvc={this.loginSvc}
+          renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
+        >
+          {tokenValue => (
+            <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
+              {axios => (
+                <FeatureFlagsProvider axios={axios}>
+                  {featureFlagsSvc => (
                     <Ajax.AjaxInjectionsProvider axios={axios}>
                       {ajaxInjections => (
                         <AppContext.AppContextProvider
@@ -92,11 +92,11 @@ class App extends Component {
                       )}
                     </Ajax.AjaxInjectionsProvider>
                   )}
-                </AxiosProvider>
+                </FeatureFlagsProvider>
               )}
-            </LoginProvider>
+            </AxiosProvider>
           )}
-        </FeatureFlagsProvider>
+        </LoginProvider>
       </div>
     );
   }
