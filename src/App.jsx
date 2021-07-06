@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
 import * as Routes from './App/Routes.jsx';
-import { mkAxiosWrapperFromSecrets, AxiosProvider } from "./axios.jsx";
+import { mkAxiosWrapperFromSecrets, AxiosProvider, mkAxiosWrapper } from "./axios.jsx";
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
 import SecretLens from './domain/Secrets/Lens.js';
@@ -70,15 +70,15 @@ class App extends Component {
 
     return (
       <div className="App">
-        <LoginProvider
-          loginSvc={this.loginSvc}
-          renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-        >
-          {tokenValue => (
-            <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
-              {axios => (
-                <FeatureFlagsProvider axios={axios}>
-                  {featureFlagsSvc => (
+        <FeatureFlagsProvider axios={mkAxiosWrapper({baseUrl})}>
+          {featureFlagsSvc => (
+            <LoginProvider
+              loginSvc={this.loginSvc}
+              renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
+            >
+              {tokenValue => (
+                <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
+                  {axios => (
                     <Ajax.AjaxInjectionsProvider axios={axios}>
                       {ajaxInjections => (
                         <AppContext.AppContextProvider
@@ -92,11 +92,11 @@ class App extends Component {
                       )}
                     </Ajax.AjaxInjectionsProvider>
                   )}
-                </FeatureFlagsProvider>
+                </AxiosProvider>
               )}
-            </AxiosProvider>
+            </LoginProvider>
           )}
-        </LoginProvider>
+        </FeatureFlagsProvider>
       </div>
     );
   }
