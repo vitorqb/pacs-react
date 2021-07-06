@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../CurrencyExchangeRateDataFetcherComponent';
 import * as R from 'ramda';
@@ -7,28 +7,58 @@ import {DateInputStateHandler} from '../../components/DateInput';
 import * as RU from '../../ramda-utils';
 import moment from 'moment';
 import sinon from 'sinon';
+import { updateComponent, useStateMock } from '../../testUtils';
+import { act } from 'react-dom/test-utils';
 
 describe('CurrencyExchangeRateDataFetcherComponent', () => {
 
+  const TestWrapper = (props={}) => {
+    const [value, onChange] = useState(props.value || {});
+    return (
+      <sut.CurrencyExchangeRateDataFetcherComponent
+        {...props}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  };
+
+  const renderComponent = (props={}) => mount(<TestWrapper {...props}/>);
   describe('Simple mounting...', () => {
 
-    const component = mount(<sut.CurrencyExchangeRateDataFetcherComponent />);
-
     it('Renders a date picker for start at...', () => {
-      const found = component.find(sut._DatePicker).findWhere(labelInPropsEqual("Start at"));
-      expect(found).toHaveLength(1);
+      const found = renderComponent().find(sut._DatePicker).findWhere(labelInPropsEqual("Start at"));      expect(found).toHaveLength(1);
     });
 
     it('Renders a date picker for end at...', () => {
-      const found = component.find(sut._DatePicker).findWhere(labelInPropsEqual("End at"));
+      const found = renderComponent().find(sut._DatePicker).findWhere(labelInPropsEqual("End at"));
       expect(found).toHaveLength(1);
     });
 
     it('Renders a currency code picker...', () => {
-      const found = component.find(sut._CurrencyCodesPicker);
+      const found = renderComponent().find(sut._CurrencyCodesPicker);
       expect(found).toHaveLength(1);
     });
-    
+
+    it('Renders a TokenPicker if withToken', () => {
+      const found = renderComponent({withToken: true}).find(sut._TokenPicker);
+      expect(found).toHaveLength(1);
+    });
+
+    it('Does not render a TokenPicker if not withToken', () => {
+      const found = renderComponent().find(sut._TokenPicker);
+      expect(found).toHaveLength(0);      
+    });
+
+  });
+
+  it('Updates token value', async () => {
+    const component = renderComponent({withToken: true});
+    await act(async () => {
+      component.find(sut._TokenPicker).props().onChange('abc');
+      await updateComponent(component);
+    });
+    expect(component.find(sut._TokenPicker).props().value).toEqual('abc');
   });
   
 });
@@ -100,10 +130,11 @@ describe('_submitHandler', () => {
 
     it('Calls _handleValidSubmit if submit is valid', () => {
       const handleValidSubmit = sinon.stub(sut._submitHandler, '_handleValidSubmit');
+      const opts = {withToken: false};
       sinon.stub(sut._submitHandler, '_isValidStateForSubmission').returns(true);
-      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, e);
+      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, opts, e);
       expect(handleValidSubmit.args).toHaveLength(1);
-      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent]);
+      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent, opts]);
     });
     
   });
@@ -116,7 +147,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, ["FOO"],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidStartAt;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
     
     it('endAt is nil', () => {
@@ -125,7 +156,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, ["FOO"],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidEndAt;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
 
     it('currencyCodes is empty', () => {
@@ -135,7 +166,7 @@ describe('_submitHandler', () => {
         sut.valueLens.currencyCodes, [],
       );
       const errMsg = sut._submitHandler._errMsgs.invalidCurrencyCodes;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
 
     it('currencyCodes is null', () => {
@@ -144,7 +175,18 @@ describe('_submitHandler', () => {
         sut.valueLens.startAt, moment("2019-01-01"),
       );
       const errMsg = sut._submitHandler._errMsgs.invalidCurrencyCodes;
-      expect(sut._submitHandler._getErrorMessage(value)).toEqual(errMsg);
+      expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
+    });
+
+    it('missing token when token is mandatory', () => {
+      const value = RU.objFromPairs(
+        sut.valueLens.endAt, moment("2019-01-01"),
+        sut.valueLens.startAt, moment("2019-01-01"),
+        sut.valueLens.currencyCodes, ["FOO"],
+        sut.valueLens.token, ""
+      );
+      const errMsg = sut._submitHandler._errMsgs.missingToken;
+      expect(sut._submitHandler._getErrorMessage(value, {withToken: true})).toEqual(errMsg);
     });
   });
 
@@ -153,7 +195,7 @@ describe('_submitHandler', () => {
     it('Sets error message', () => {
       sinon.stub(sut._submitHandler, '_getErrorMessage').returns("FOO");
       const value = {};
-      const newValue = sut._submitHandler._handleInvalidSubmit(value, x => x);
+      const newValue = sut._submitHandler._handleInvalidSubmit(value, x => x, {});
       expect(R.view(sut.valueLens._errorMessage, newValue)).toEqual("FOO");
     });
     
@@ -201,16 +243,23 @@ describe('_submitHandler', () => {
     const startAt = moment("2020-01-01");
     const endAt = moment("2020-01-02");
     const currencyCodes = ["FOO", "BAR"];
+    const token = "foo";
     const value = RU.objFromPairs(
       sut.valueLens.startAt, startAt,
       sut.valueLens.endAt, endAt,
       sut.valueLens.currencyCodes, currencyCodes,
+      sut.valueLens.token, token,
     );
     const fetch = x => x;
-    const result = sut._submitHandler._submit(value, fetch);
 
     it('Fetch with values ', () => {
+      const result = sut._submitHandler._submit(value, fetch, {withToken: false});
       expect(result).toEqual({ startAt, endAt, currencyCodes });
+    });
+
+    it('Includes token if withToken is true', () => {
+      const result = sut._submitHandler._submit(value, fetch, {withToken: true});
+      expect(result).toEqual({ startAt, endAt, currencyCodes, token });      
     });
     
   });

@@ -1,12 +1,12 @@
 import React from 'react';
-import { lens as AppLens } from '../Lens';
+import { lens as AppContextLens } from '../AppContext';
 import * as R from 'ramda';
 import TransactionTable from "../../components/TransactionTable";
 import { lens as AjaxInjectionsLens } from '../Ajax';
 
-export default function TransactionTableInstance({ state, stateGetters, ajaxInjections }) {
-  const currencies = R.view(AppLens.currencies, state);
-  const accounts = R.view(AppLens.accounts, state);
+export default function TransactionTableInstance({ appContext, appContextGetters, ajaxInjections }) {
+  const currencies = R.view(AppContextLens.currencies, appContext);
+  const accounts = R.view(AppContextLens.accounts, appContext);
   const getPaginatedTransactions = R.view(AjaxInjectionsLens.getPaginatedTransactions,
                                           ajaxInjections);
   if (R.isNil(currencies) || R.isNil(accounts)) {
@@ -15,8 +15,8 @@ export default function TransactionTableInstance({ state, stateGetters, ajaxInje
   return (
     <div className="transaction-table-instance">
       <TransactionTable
-        getCurrency={R.view(AppLens.currencies, stateGetters)}
-        getAccount={R.view(AppLens.accounts, stateGetters)}
+        getCurrency={R.view(AppContextLens.currencies, appContextGetters)}
+        getAccount={R.view(AppContextLens.accounts, appContextGetters)}
         getPaginatedTransactions={getPaginatedTransactions}
       />
     </div>

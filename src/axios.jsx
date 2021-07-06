@@ -10,7 +10,6 @@ import SecretsLens from './domain/Secrets/Lens';
  * make http requests.
  */
 export const mkAxiosWrapperFromSecrets = secrets => {
-  console.log({secrets});
   return mkAxiosWrapper({
     baseUrl: R.view(SecretsLens.host, secrets),
     token: R.view(SecretsLens.token, secrets),
@@ -19,16 +18,27 @@ export const mkAxiosWrapperFromSecrets = secrets => {
 
 
 /**
+ * Serializes a map of FeatureFlags into a string understood by BE
+ */
+export const serializeFeatureFlags = R.pipe(
+  R.toPairs,
+  R.map(([x, y]) => y === true ? x : `!${x}`),
+  R.join(","),
+);
+
+
+/**
  * Returns a new axios wrapper with custom optiosn
  */
-export const mkAxiosWrapper = ({baseUrl, token}) => {
+export const mkAxiosWrapper = ({baseUrl, token, featureFlags}) => {
   const axiosOpts = {};
   if (baseUrl) {
     axiosOpts.baseURL = baseUrl;
   }
-  if (token) {
-    axiosOpts.headers = {Authorization: `Token ${token}`};
-  }
+  axiosOpts.headers = R.pipe(
+    R.when(() => token, R.assoc("Authorization", `Token ${token}`)),
+    R.when(() => featureFlags, R.assoc("Pacs-Feature-Toggles", serializeFeatureFlags(featureFlags)))
+  )({});
   return axios.create(axiosOpts);
 };
 
@@ -36,10 +46,10 @@ export const mkAxiosWrapper = ({baseUrl, token}) => {
 /**
  * A provider component for an axios
  */
-export const AxiosProvider = ({baseUrl, token, children}) => {
+export const AxiosProvider = ({baseUrl, token, children, featureFlags}) => {
   const [axios, setAxios] = useState(null);
   useEffect(() => {
-    setAxios(() => mkAxiosWrapper({baseUrl, token}));
+    setAxios(() => mkAxiosWrapper({baseUrl, token, featureFlags}));
   }, [baseUrl, token]);
   return axios ? children(axios) : <div/>;
 };

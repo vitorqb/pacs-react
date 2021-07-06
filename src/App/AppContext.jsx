@@ -2,12 +2,12 @@ import React, {useState, useEffect} from 'react';
 import * as Ajax from './Ajax';
 import * as R from 'ramda';
 import * as RU from '../ramda-utils';
-import { lens as AppLens } from './Lens';
 import { LoadingWrapper } from '../components/LoaddingWrapper.jsx';
 
 export const lens = {
   accounts: R.lensPath(['accounts']),
   currencies: R.lensPath(['currencies']),
+  featureFlagsSvc: R.lensPath(['featureFlagsSvc']),
 };
 
 /**
@@ -18,11 +18,11 @@ export const lens = {
 export const fetcherSpecs = [
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getAccounts),
-    AppLens.accounts,
+    lens.accounts,
   ],
   [
     RU.viewAndCallWithoutArgs(Ajax.lens.getCurrencies),
-    AppLens.currencies,
+    lens.currencies,
   ],
 ];
 
@@ -42,13 +42,13 @@ export const fetch = _fetch(fetcherSpecs);
 /**
  * A provider that provides the data
  */
-export const FetcherProvider = ({ajaxInjections, children}) => {
-  const [remoteData, setRemoteData] = useState({});
+export const AppContextProvider = ({ajaxInjections, children, featureFlagsSvc}) => {
+  const [appContext, setAppContext] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshRemoteData = async () => {
     setIsLoading(true);
-    setRemoteData(await fetch(ajaxInjections));
+    setAppContext(await fetch(ajaxInjections));
     setIsLoading(false);
   };
 
@@ -56,9 +56,13 @@ export const FetcherProvider = ({ajaxInjections, children}) => {
     refreshRemoteData();
   }, [ajaxInjections]);
 
+  useEffect(() => {
+    setAppContext(R.set(lens.featureFlagsSvc, featureFlagsSvc));
+  }, [featureFlagsSvc]);
+
   return (
     <LoadingWrapper isLoading={isLoading}>
-      {children({remoteData, refreshRemoteData})}
+      {children({appContext, refreshRemoteData})}
     </LoadingWrapper>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import * as R from 'ramda';
-import { lens as AppLens } from '../../Lens';
+import { lens as AppContextLens } from '../../AppContext';
 import { AccountFactory } from '../../../testUtils';
 import { mount } from 'enzyme';
 import AccountTree from '../AccountTree';
@@ -15,8 +15,8 @@ describe('AccountTree', () => {
 
   it('Shows accounts if parsed', () => {
     const accounts = AccountFactory.buildRootAndChildren(2);
-    const state = R.set(AppLens.accounts, accounts, {});
-    const accountTree = mount(AccountTree({ state }));
+    const appContext = R.set(AppContextLens.accounts, accounts, {});
+    const accountTree = mount(AccountTree({ appContext }));
     expect(accountTree.find('AccountTree')).toHaveLength(1);
     expect(accountTree.find('AccountTree').props().accounts).toBe(accounts);
   });

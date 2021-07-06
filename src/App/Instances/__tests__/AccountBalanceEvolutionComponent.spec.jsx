@@ -4,7 +4,7 @@ import * as RU from '../../../ramda-utils.js';
 import * as R from 'ramda';
 import * as sut from '../AccountBalanceEvolutionComponent';
 import AccountBalanceEvolutionComponent, { propsLens, valueLens } from '../../../components/AccountBalanceEvolutionComponent';
-import { lens as AppLens } from '../../Lens';
+import { lens as AppContextLens } from '../../AppContext';
 import { lens as EventsLens } from '../../Events';
 import * as testUtils from '../../../testUtils.jsx';
 
@@ -12,16 +12,16 @@ const account = testUtils.AccountFactory.build();
 const currency = testUtils.CurrencyFactory.build();
 
 const defaultProps = {
-  state: RU.objFromPairs(
-    AppLens.accounts, [account],
-    AppLens.currencies, [currency],
+  appContext: RU.objFromPairs(
+    AppContextLens.accounts, [account],
+    AppContextLens.currencies, [currency],
   ),
   events: RU.objFromPairs(
     EventsLens.overState, () => () => {},
   ),
-  stateGetters: RU.objFromPairs(
-    AppLens.accounts, () => account,
-    AppLens.currencies, () => currency,
+  appContextGetters: RU.objFromPairs(
+    AppContextLens.accounts, () => account,
+    AppContextLens.currencies, () => currency,
   )
 };
 

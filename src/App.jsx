@@ -2,16 +2,14 @@ import * as R from 'ramda';
 import React, { Component } from 'react';
 import * as RU from './ramda-utils';
 import * as Routes from './App/Routes.jsx';
-import { mkAxiosWrapperFromSecrets, AxiosProvider } from "./axios.jsx";
-import { valueLens as loginPageValueLens } from './components/LoginPage';
+import { mkAxiosWrapperFromSecrets, AxiosProvider, mkAxiosWrapper } from "./axios.jsx";
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
 import SecretLens from './domain/Secrets/Lens.js';
 import { makeRouter } from './App/Router';
-import lens from './App/Lens';
 import * as Ajax from './App/Ajax.jsx';
-import * as Fetcher from './App/Fetcher.jsx';
-import * as StateGetters from './App/StateGetters';
+import * as AppContext from './App/AppContext.jsx';
+import * as AppContextGetters from './App/AppContextGetters';
 import TransactionTableInstace from './App/Instances/TransactionTable';
 import CreateAccountComponentInstance from './App/Instances/CreateAccountComponent';
 import EditAccountComponentInstance from './App/Instances/EditAccountComponent';
@@ -26,6 +24,7 @@ import DeleteAccountComponentInstance from './App/Instances/DeleteAccountCompone
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
+import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
 
 class App extends Component {
 
@@ -38,19 +37,18 @@ class App extends Component {
 
   render() {
 
-    // Prepares the state, stateGetters and ajax functions
+    // Prepares the state, appContextGetters and ajax functions
     const state = this.state;
 
     // Prepares the router
-    const renderRouter = ({remoteData, refreshRemoteData, axios, ajaxInjections}) => {
-      const fullState = {...state, ...remoteData};
-      const stateGetters = StateGetters.makeGetters(fullState);
+    const renderRouter = ({appContext, refreshAppContext, ajaxInjections}) => {
+      const appContextGetters = AppContextGetters.makeGetters(appContext);
       const events = RU.objFromPairs(
-        EventsLens.refetchState, () => refreshRemoteData(),
+        EventsLens.refetchAppContext, () => refreshAppContext(),
         EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
         EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
       );
-      const renderArgs = { state: fullState, stateGetters, ajaxInjections, events };
+      const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
       const routeData = Routes.getRoutesData({
         transactionTable: TransactionTableInstace(renderArgs),
         createAccForm: CreateAccountComponentInstance(renderArgs),
@@ -72,27 +70,36 @@ class App extends Component {
 
     return (
       <div className="App">
-
-        <LoginProvider
-          loginSvc={this.loginSvc}
-          renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-        >
-          {tokenValue => (
-            <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
-              {axios => (
-                <Ajax.AjaxInjectionsProvider axios={axios}>
-                  {ajaxInjections => (
-                    <Fetcher.FetcherProvider ajaxInjections={ajaxInjections}>
-                      {({remoteData, refreshRemoteData}) => (
-                        renderRouter({remoteData, refreshRemoteData, axios, ajaxInjections})
+        <FeatureFlagsProvider axios={mkAxiosWrapper({baseUrl})}>
+          {featureFlagsSvc => (
+            <LoginProvider
+              loginSvc={this.loginSvc}
+              renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
+            >
+              {tokenValue => (
+                <AxiosProvider
+                  token={tokenValue}
+                  baseUrl={baseUrl}
+                  featureFlags={featureFlagsSvc.getAll()}>
+                  {axios => (
+                    <Ajax.AjaxInjectionsProvider axios={axios}>
+                      {ajaxInjections => (
+                        <AppContext.AppContextProvider
+                          ajaxInjections={ajaxInjections}
+                          featureFlagsSvc={featureFlagsSvc}
+                        >
+                          {({appContext, refreshAppContext}) => (
+                            renderRouter({appContext, refreshAppContext, ajaxInjections})
+                          )}
+                        </AppContext.AppContextProvider>
                       )}
-                    </Fetcher.FetcherProvider>
+                    </Ajax.AjaxInjectionsProvider>
                   )}
-                </Ajax.AjaxInjectionsProvider>
+                </AxiosProvider>
               )}
-            </AxiosProvider>
+            </LoginProvider>
           )}
-        </LoginProvider>
+        </FeatureFlagsProvider>
       </div>
     );
   }

@@ -8,6 +8,7 @@ import * as PricePortifolio from './domain/PricePortifolio/Core';
 // Contants
 // 
 export const REQUEST_ERROR_MSG = "Something went wrong on the http request";
+export const FETCH_CURRENCY_EXCHANGE_RATE_TOKEN_HEADER = "FETCH_CURRENCY_EXCHANGE_RATE_TOKEN";
 
 //
 // Axios & Requests
@@ -43,12 +44,13 @@ export function makeRequest({
   requestData = {},
   requestParams = {},
   parseResponseData = R.identity,
+  customHeaders = {}
 }) {
   const handleSuccess = R.pipe(extractDataFromAxiosResponse, parseResponseData);
   function handleFailure(error) {
     throw extractDataFromAxiosError(error);
   }
-  return axios({url, method, data: requestData, params: requestParams})
+  return axios({url, method, data: requestData, params: requestParams, headers: customHeaders})
     .then(handleSuccess)
     .catch(handleFailure);
 }
@@ -382,18 +384,24 @@ export const ajaxGetAccountsFlowsEvolutionData = R.curry(
  * @param args.currencyCodes - List with currency codes.
  */
 export const ajaxFetchCurrencyExchangeRateData = R.curry(
-  function(axios, { startAt, endAt, currencyCodes }) {
-    const parsedStartAt = DateUtil.format(startAt);
-    const parsedEndAt = DateUtil.format(endAt);
-    const parsedCurrencyCodes = StrUtil.joinList(currencyCodes, ",");
-    const params = { "start_at": parsedStartAt,
-                     "end_at": parsedEndAt,
-                     "currency_codes": parsedCurrencyCodes };
+  function(axios, { startAt, endAt, currencyCodes, token }) {
+    const params = R.pipe(
+      R.assoc("start_at", DateUtil.format(startAt)),
+      R.assoc("end_at", DateUtil.format(endAt)),
+      R.assoc("currency_codes", StrUtil.joinList(currencyCodes, ",")),
+    )({});
+    const headers = R.pipe(
+      R.unless(
+        () => R.isNil(token),
+        R.assoc(FETCH_CURRENCY_EXCHANGE_RATE_TOKEN_HEADER, token)
+      )
+    )({});
     return makeRequest({
       axios,
       url: "/exchange_rates/data/",
       method: "GET",
       requestParams: params,
+      customHeaders: headers,
     });
   }
 );

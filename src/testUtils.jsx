@@ -352,3 +352,46 @@ export const waitFor = async (f) => {
   }
   throw new Error("Timeout inside waitFor!");
 };
+
+
+export class MockLocalStorage {
+
+  constructor() {
+    this._data = {};
+  }
+
+  setItem(key, value) {
+    this._data[key] = value;
+  }
+
+  getItem(key) {
+    return this._data[key];
+  }
+
+  removeItem(key) {
+    delete this._data[key];
+  }
+
+}
+
+
+export const useStateMock = (defaultValue=null) => {
+  let value = defaultValue;
+  let setValue = (x) => {
+    if (typeof x === 'function') {
+      value = x(value);
+    } else {
+      value = x;
+    }
+    return value;
+  };
+  let getValue = () => value;
+  return [getValue, setValue];
+};
+
+
+export const updateComponent = async (component) => {
+  component.update();
+  await new Promise(setTimeout);
+  component.update();
+};

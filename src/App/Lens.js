@@ -8,10 +8,6 @@ import * as R from 'ramda';
  */
 export const lens = {
 
-  // Remote data
-  accounts: R.lensPath(['accounts']),
-  currencies: R.lensPath(['currencies']),
-
   // Secrets
   secrets: R.lensPath(['secrets']),
 
