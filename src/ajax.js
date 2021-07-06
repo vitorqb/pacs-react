@@ -396,7 +396,6 @@ export const ajaxFetchCurrencyExchangeRateData = R.curry(
         R.assoc(FETCH_CURRENCY_EXCHANGE_RATE_TOKEN_HEADER, token)
       )
     )({});
-    console.log({headers});
     return makeRequest({
       axios,
       url: "/exchange_rates/data/",

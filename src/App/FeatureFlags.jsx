@@ -23,6 +23,7 @@ export class FeatureFlagsSvc {
   constructor(defaultFlags, localStorage) {
     this._getItem = x => localStorage.getItem(this.LOCAL_STORAGE_PREFIX + x);
     this._setItem = (x, y) => localStorage.setItem(this.LOCAL_STORAGE_PREFIX + x, y);
+    this._localStorage = localStorage;
     this._defaultFlags = defaultFlags;
   }
 
@@ -47,6 +48,17 @@ export class FeatureFlagsSvc {
         this.setInactive(key);
       }
     });
+  }
+
+  getAll = () => {
+    let out = {...this._defaultFlags};
+    for (var i = 0; i < this._localStorage.length; i++){
+      let key = this._localStorage.key(i);
+      if (key.startsWith(this.LOCAL_STORAGE_PREFIX)) {
+        out[key] = this._localStorage.getItem(key);
+      }
+    }
+    return out;
   }
   
 };

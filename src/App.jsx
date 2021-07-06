@@ -77,7 +77,10 @@ class App extends Component {
               renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
             >
               {tokenValue => (
-                <AxiosProvider token={tokenValue} baseUrl={baseUrl}>
+                <AxiosProvider
+                  token={tokenValue}
+                  baseUrl={baseUrl}
+                  featureFlags={featureFlagsSvc.getAll()}>
                   {axios => (
                     <Ajax.AjaxInjectionsProvider axios={axios}>
                       {ajaxInjections => (
