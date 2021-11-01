@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { makeRequest } from '../ajax';
 
 export const TOKEN_IN_EXCHANGE_FETCHER = 'tokenInExchangeFetcher';
+export const FETCH_EXCHANGERATE_ENDPOINT_V2 = 'FETCH_EXCHANGERATE_ENDPOINT_V2';
 
 export const DEFAULT_FLAGS = {
   TOKEN_IN_EXCHANGE_FETCHER: false,
+  FETCH_EXCHANGERATE_ENDPOINT_V2: true,
 };
 
 export const readFeaturesFromParams = (params) => {
@@ -60,7 +62,26 @@ export class FeatureFlagsSvc {
     }
     return out;
   }
-  
+
+};
+
+export const featureFlagsSvcBuilder = () => {
+  let localStorage = window.localStorage;
+  let globalDefaultFlags = DEFAULT_FLAGS;
+  let _defaultFlags = {};
+  let windowUrlParams = window.location.search;
+  return {
+    withDefaultFlags(defaultFlags) {
+      _defaultFlags = defaultFlags;
+      return this;
+    },
+    build() {
+      const finalDefaultFlags = {...globalDefaultFlags, ..._defaultFlags};
+      let svc = new FeatureFlagsSvc(finalDefaultFlags, localStorage);
+      svc.setFromUrlParams(windowUrlParams);
+      return svc;
+    }
+  };
 };
 
 export const fetchFeatureToggles = async ({axios}) => {
@@ -77,8 +98,7 @@ export const FeatureFlagsProvider = ({ children, axios }) => {
   useEffect(() => {
     (async () => {
       let defaultFlags = await fetchFeatureToggles({axios});
-      let featureFlagsSvc = new FeatureFlagsSvc(defaultFlags, window.localStorage);
-      featureFlagsSvc.setFromUrlParams(window.location.search);
+      let featureFlagsSvc = featureFlagsSvcBuilder().withDefaultFlags(defaultFlags).build();
       setFeatureFlagsSvc(featureFlagsSvc);
     })();
   }, [axios]);
