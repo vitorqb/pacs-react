@@ -375,21 +375,18 @@ export const ajaxGetAccountsFlowsEvolutionData = R.curry(
   }
 );
 
-/**
- * @type Function
- * Get the json with data for the exchange rate.
- * @param axios - The axios or axios wrapper fn.
- * @param args.startAt - Start momentjs date.
- * @param args.endAt - End momentjs date.
- * @param args.currencyCodes - List with currency codes.
- */
-export const ajaxFetchCurrencyExchangeRateData = R.curry(
-  function(axios, { startAt, endAt, currencyCodes, token }) {
-    const params = R.pipe(
-      R.assoc("start_at", DateUtil.format(startAt)),
-      R.assoc("end_at", DateUtil.format(endAt)),
-      R.assoc("currency_codes", StrUtil.joinList(currencyCodes, ",")),
-    )({});
+export const ajaxFetchCurrencyExchangeRateData = {
+
+  /**
+   * @type Function
+   * Get the json with data for the exchange rate.
+   * @param axios - The axios or axios wrapper fn.
+   * @param args.startAt - Start momentjs date.
+   * @param args.endAt - End momentjs date.
+   * @param args.currencyCodes - List with currency codes.
+   */
+  v1: R.curry(function(axios, args) {
+    const { token } = args;
     const headers = R.pipe(
       R.unless(
         () => R.isNil(token),
@@ -400,8 +397,30 @@ export const ajaxFetchCurrencyExchangeRateData = R.curry(
       axios,
       url: "/exchange_rates/data/",
       method: "GET",
-      requestParams: params,
+      requestParams: ajaxFetchCurrencyExchangeRateData._getParams(args),
       customHeaders: headers,
-    });
-  }
-);
+    });}),
+
+  /**
+   * @type Function
+   * Get the json with data for the exchange rate.
+   * @param axios - The axios or axios wrapper fn.
+   * @param args.startAt - Start momentjs date.
+   * @param args.endAt - End momentjs date.
+   * @param args.currencyCodes - List with currency codes.
+   */
+  v2: R.curry(function(axios, args) {
+      return makeRequest({
+        axios,
+        url: "/exchange_rates/data/v2",
+        method: "GET",
+        requestParams: ajaxFetchCurrencyExchangeRateData._getParams(args),
+      });}),
+
+  _getParams: ({ startAt, endAt, currencyCodes }) => R.pipe(
+    R.assoc("start_at", DateUtil.format(startAt)),
+    R.assoc("end_at", DateUtil.format(endAt)),
+    R.assoc("currency_codes", StrUtil.joinList(currencyCodes, ",")),
+  )({})
+
+};

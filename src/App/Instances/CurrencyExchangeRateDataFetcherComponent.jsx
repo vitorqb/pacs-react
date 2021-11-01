@@ -9,10 +9,13 @@ export default function CurrencyExchangeRateDataFetcherComponentInstance(renderA
   const { ajaxInjections, appContext } = renderArgs;
   const [ state, setState ] = useState({});
   const featureFlagsSvc = R.view(AppContext.lens.featureFlagsSvc, appContext);
-  const fetchCurrencyExchangeRateData =
-        R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData, ajaxInjections);
 
   if (!featureFlagsSvc) return;
+
+  const fetchCurrencyExchangeRateData =
+        featureFlagsSvc.isActive(FeatureFlags.FETCH_EXCHANGERATE_ENDPOINT_V2) ?
+        R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateDataV2, ajaxInjections) :
+        R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData, ajaxInjections);
 
   return (
     <CurrencyExchangeRateDataFetcherComponent
