@@ -2,11 +2,7 @@ import * as R from 'ramda';
 import React, { useState, useEffect } from 'react';
 import { makeRequest } from '../ajax';
 
-export const FETCH_EXCHANGERATE_ENDPOINT_V2 = 'FETCH_EXCHANGERATE_ENDPOINT_V2';
-
-export const DEFAULT_FLAGS = {
-  FETCH_EXCHANGERATE_ENDPOINT_V2: true,
-};
+export const DEFAULT_FLAGS = {};
 
 export const readFeaturesFromParams = (params) => {
   const entries = Array.from(new URLSearchParams(params).entries());
