@@ -40,27 +40,8 @@ describe('CurrencyExchangeRateDataFetcherComponent', () => {
       expect(found).toHaveLength(1);
     });
 
-    it('Renders a TokenPicker if withToken', () => {
-      const found = renderComponent({withToken: true}).find(sut._TokenPicker);
-      expect(found).toHaveLength(1);
-    });
-
-    it('Does not render a TokenPicker if not withToken', () => {
-      const found = renderComponent().find(sut._TokenPicker);
-      expect(found).toHaveLength(0);      
-    });
-
   });
 
-  it('Updates token value', async () => {
-    const component = renderComponent({withToken: true});
-    await act(async () => {
-      component.find(sut._TokenPicker).props().onChange('abc');
-      await updateComponent(component);
-    });
-    expect(component.find(sut._TokenPicker).props().value).toEqual('abc');
-  });
-  
 });
 
 describe('_CurrencyCodesPicker', () => {
@@ -130,11 +111,10 @@ describe('_submitHandler', () => {
 
     it('Calls _handleValidSubmit if submit is valid', () => {
       const handleValidSubmit = sinon.stub(sut._submitHandler, '_handleValidSubmit');
-      const opts = {withToken: false};
       sinon.stub(sut._submitHandler, '_isValidStateForSubmission').returns(true);
-      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, opts, e);
+      sut._submitHandler.handleSubmit(value, setValue, fetchCurrencyExchangeRateDataComponent, e);
       expect(handleValidSubmit.args).toHaveLength(1);
-      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent, opts]);
+      expect(handleValidSubmit.args[0]).toEqual([value, setValue, fetchCurrencyExchangeRateDataComponent]);
     });
     
   });
@@ -178,16 +158,6 @@ describe('_submitHandler', () => {
       expect(sut._submitHandler._getErrorMessage(value, {})).toEqual(errMsg);
     });
 
-    it('missing token when token is mandatory', () => {
-      const value = RU.objFromPairs(
-        sut.valueLens.endAt, moment("2019-01-01"),
-        sut.valueLens.startAt, moment("2019-01-01"),
-        sut.valueLens.currencyCodes, ["FOO"],
-        sut.valueLens.token, ""
-      );
-      const errMsg = sut._submitHandler._errMsgs.missingToken;
-      expect(sut._submitHandler._getErrorMessage(value, {withToken: true})).toEqual(errMsg);
-    });
   });
 
   describe('_handleInvalidSubmit', () => {
@@ -243,23 +213,16 @@ describe('_submitHandler', () => {
     const startAt = moment("2020-01-01");
     const endAt = moment("2020-01-02");
     const currencyCodes = ["FOO", "BAR"];
-    const token = "foo";
     const value = RU.objFromPairs(
       sut.valueLens.startAt, startAt,
       sut.valueLens.endAt, endAt,
       sut.valueLens.currencyCodes, currencyCodes,
-      sut.valueLens.token, token,
     );
     const fetch = x => x;
 
     it('Fetch with values ', () => {
-      const result = sut._submitHandler._submit(value, fetch, {withToken: false});
+      const result = sut._submitHandler._submit(value, fetch);
       expect(result).toEqual({ startAt, endAt, currencyCodes });
-    });
-
-    it('Includes token if withToken is true', () => {
-      const result = sut._submitHandler._submit(value, fetch, {withToken: true});
-      expect(result).toEqual({ startAt, endAt, currencyCodes, token });      
     });
     
   });

@@ -22,7 +22,6 @@ export default function CurrencyExchangeRateDataFetcherComponentInstance(renderA
       onChange={setState}
       value={state}
       fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData}
-      withToken={featureFlagsSvc.isActive(FeatureFlags.TOKEN_IN_EXCHANGE_FETCHER)}
     />
   );
 }
