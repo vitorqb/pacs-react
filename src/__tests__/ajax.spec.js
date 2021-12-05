@@ -405,7 +405,7 @@ describe('ajaxFetchCurrencyExchangeRateData', () => {
     });
 
     it('Passes correct args to axios', async () => {
-      await sut.ajaxFetchCurrencyExchangeRateData.v2(axios)(params);
+      await sut.ajaxFetchCurrencyExchangeRateData(axios)(params);
       expect(axios.args[0][0].params).toEqual({
         "start_at": "2020-01-01",
         "end_at": "2020-01-02",

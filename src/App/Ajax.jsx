@@ -18,7 +18,7 @@ export const lens = {
   getPaginatedJournalDataForAccount: R.lensPath(['getPaginatedJournalDataForAccount']),
   getAccountBalanceEvolutionData: R.lensPath(['getAccountBalanceEvolutionData']),
   getAccountsFlowsEvolutionData: R.lensPath(['getAccountsFlowsEvolutionData']),
-  fetchCurrencyExchangeRateDataV2: R.lensPath(['fetchCurrencyExchangeRateDataV2']),
+  fetchCurrencyExchangeRateData: R.lensPath(['fetchCurrencyExchangeRateData']),
 };
 
 /**
@@ -38,7 +38,7 @@ export const ajaxInjectionSpec = [
   [lens.getPaginatedJournalDataForAccount, ajax.ajaxGetPaginatedJournalDataForAccount],
   [lens.getAccountBalanceEvolutionData, ajax.ajaxGetAccountBalanceEvolutionData],
   [lens.getAccountsFlowsEvolutionData, ajax.ajaxGetAccountsFlowsEvolutionData],
-  [lens.fetchCurrencyExchangeRateDataV2, ajax.ajaxFetchCurrencyExchangeRateData.v2],
+  [lens.fetchCurrencyExchangeRateData, ajax.ajaxFetchCurrencyExchangeRateData],
 ];
 
 /**

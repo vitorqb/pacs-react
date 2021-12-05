@@ -12,7 +12,7 @@ describe('CurrencyExchangeRateDataFetcherComponentInstance', () => {
   it('Uses fetch exchange rates endpoint', () => {
     const endpoint = async () => {};
     const ajaxInjections = RU.objFromPairs(
-      AjaxInjectionsLens.fetchCurrencyExchangeRateDataV2, endpoint,
+      AjaxInjectionsLens.fetchCurrencyExchangeRateData, endpoint,
     );
     const featureFlagsSvc = { isActive: () => true };
     const appContext = RU.objFromPairs(AppContext.lens.featureFlagsSvc, featureFlagsSvc);
