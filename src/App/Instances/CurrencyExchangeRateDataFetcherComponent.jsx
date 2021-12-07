@@ -13,8 +13,6 @@ export default function CurrencyExchangeRateDataFetcherComponentInstance(renderA
   if (!featureFlagsSvc) return;
 
   const fetchCurrencyExchangeRateData =
-        featureFlagsSvc.isActive(FeatureFlags.FETCH_EXCHANGERATE_ENDPOINT_V2) ?
-        R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateDataV2, ajaxInjections) :
         R.view(AjaxInjectionsLens.fetchCurrencyExchangeRateData, ajaxInjections);
 
   return (
@@ -22,7 +20,6 @@ export default function CurrencyExchangeRateDataFetcherComponentInstance(renderA
       onChange={setState}
       value={state}
       fetchCurrencyExchangeRateData={fetchCurrencyExchangeRateData}
-      withToken={featureFlagsSvc.isActive(FeatureFlags.TOKEN_IN_EXCHANGE_FETCHER)}
     />
   );
 }

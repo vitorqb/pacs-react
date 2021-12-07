@@ -392,46 +392,6 @@ describe('ajaxGetAccountBalanceEvolutionData', () => {
 
 describe('ajaxFetchCurrencyExchangeRateData', () => {
 
-  describe('v1', () => {
-    let axios;
-
-    const params = {
-      startAt: moment("2020-01-01"),
-      endAt: moment("2020-01-02"),
-      currencyCodes: ["EUR"]
-    };
-
-    beforeEach(() => {
-      axios = sinon.fake.resolves({});
-    });
-
-
-    it('Ignore token if not passed', async () => {
-      await sut.ajaxFetchCurrencyExchangeRateData.v1(axios)(params);
-      expect(axios.args[0][0].params).toEqual({
-        "start_at": "2020-01-01",
-        "end_at": "2020-01-02",
-        "currency_codes": "EUR",
-      });
-      expect(axios.args[0][0].headers).toEqual({});
-    });
-
-    it('Uses token if passed', async () => {
-      const params_ = R.assoc('token', 'abc', params);
-      await sut.ajaxFetchCurrencyExchangeRateData.v1(axios)(params_);
-      expect(axios.args[0][0].params).toEqual({
-        "start_at": "2020-01-01",
-        "end_at": "2020-01-02",
-        "currency_codes": "EUR",
-      });
-      expect(axios.args[0][0].headers).toEqual(
-        {[sut.FETCH_CURRENCY_EXCHANGE_RATE_TOKEN_HEADER]: "abc"}
-      );    
-    });
-    
-  });
-
-  describe('v2', () => {
     let axios;
 
     const params = {
@@ -445,12 +405,12 @@ describe('ajaxFetchCurrencyExchangeRateData', () => {
     });
 
     it('Passes correct args to axios', async () => {
-      await sut.ajaxFetchCurrencyExchangeRateData.v2(axios)(params);
+      await sut.ajaxFetchCurrencyExchangeRateData(axios)(params);
       expect(axios.args[0][0].params).toEqual({
         "start_at": "2020-01-01",
         "end_at": "2020-01-02",
         "currency_codes": "EUR",
       });
-    });    
-  });
+    });
+
 });
