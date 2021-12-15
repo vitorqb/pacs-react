@@ -9,6 +9,7 @@ import DateInput from './DateInput.jsx';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 import { DateUtil } from '../utils';
 import DateDistanceVisualizer, { propsLens as DateDistanceVisualizerPropsLens } from './DateDistanceVisualizer';
+import TagsInput from './TagsInput.jsx';
 
 /**
  * A component that wraps a form to create a Transaction.
@@ -99,6 +100,7 @@ export default class TransactionForm extends Component {
         <form onSubmit={this.handleSubmit}>
           {this.renderReferenceInput()}
           {this.renderDescriptionInput()}
+          {this.renderTagsInput()}
           {this.renderDateInput()}
           {this.renderMovementsInputs()}
           <div>{this.renderAddMovementButton()}</div>
@@ -251,6 +253,16 @@ export default class TransactionForm extends Component {
     }
 
     return movements.map(renderOne);
+  };
+
+  /**
+   * Renders an input for the tags
+   */
+  renderTagsInput() {
+    const tags = R.path(['tags', 'pickedTags'], this.getValue());
+    return (
+      <TagsInput value={tags}/>
+    );
   }
 
   renderAddMovementButton() {
