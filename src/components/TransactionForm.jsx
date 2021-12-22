@@ -106,7 +106,7 @@ export default class TransactionForm extends Component {
           <div>{this.renderAddMovementButton()}</div>
           <input type="submit" value="Submit" />
         </form>
-        <ErrorMessage value={this.state.errorMessage} />
+        <ErrorMessage data-testid="form-error-message" value={this.state.errorMessage} />
         <SuccessMessage value={this.state.successMessage} />
       </div>
     );
@@ -259,10 +259,14 @@ export default class TransactionForm extends Component {
    * Renders an input for the tags
    */
   renderTagsInput() {
-    const tags = R.path(['tags', 'pickedTags'], this.getValue());
-    return (
-      <TagsInput value={tags}/>
+    const onChange = this.handleUpdate(R.lensProp("tags"), R.identity);
+    const tags = R.path(['tags'], this.getValue());
+    const input = <TagsInput value={tags} onChange={onChange} />;
+    const inputWrapperProps = RU.objFromPairs(
+      InputWrapperLens.label, "Tags",
+      InputWrapperLens.content, input,
     );
+    return <InputWrapper {...inputWrapperProps} />;
   }
 
   renderAddMovementButton() {

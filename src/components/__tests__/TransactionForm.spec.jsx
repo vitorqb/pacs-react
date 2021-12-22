@@ -121,7 +121,9 @@ describe('TransactionForm', () => {
         const value = getSpecFromTransaction(transaction);
         formComponent = mountTransactionForm({value});
         expect(formComponent.find('TagsInput')).toHaveLength(1);
-        expect(formComponent.find('TagsInput').props().value).toEqual(tags);
+        expect(formComponent.find('TagsInput').props().value).toEqual(
+          {pickedTags: tags, userInput: "foo:bar bar:foo"}
+        );
       });
       
     });
@@ -332,7 +334,7 @@ describe('TransactionForm', () => {
     let onSubmit;
 
     function getErrorMessage() {
-      return formComponent.find(ErrorMessage);
+      return formComponent.find('[data-testid="form-error-message"]').at(0);
     }
 
     function getErrorMessage_div() {

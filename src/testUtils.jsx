@@ -340,9 +340,9 @@ export function expectRenderError(element, expectedError) {
 }
 
 export const waitFor = async (f) => {
-  const waitPromise = () => new Promise((resolve, _) => setTimeout(resolve, 250));
+  const waitPromise = () => new Promise((resolve, _) => setTimeout(resolve, 100));
   var i = 0;
-  while (i < 10) {
+  while (i < 20) {
     const result = f();
     if (result) {
       return
