@@ -68,7 +68,8 @@ describe('getSpecFromTransaction()', () => {
     reference: "bye",
     description: "hola",
     movements: [],
-    date: moment.utc("1922-12-22")
+    date: moment.utc("1922-12-22"),
+    tags: [{name: "foo", value: "bar"}, {name: "bar", value: "foo"}],
   };
   const transactionSpec = getSpecFromTransaction(transaction);
   it('No pk copied', () => {
@@ -88,6 +89,18 @@ describe('getSpecFromTransaction()', () => {
   it('Same reference', () => {
     expect(transactionSpec.reference).toBe(transaction.reference);
   });
+
+  describe('has tags...', () => {
+    it('...with correct pickedTags', () => {
+      expect(transactionSpec.tags.pickedTags).toEqual(
+        [{name: "foo", value: "bar"}, {name: "bar", value: "foo"}]
+      );
+    });
+    it('...with correct userInput', () => {
+      expect(transactionSpec.tags.userInput).toEqual("foo:bar bar:foo");
+    });
+  });
+  
 });
 
 

@@ -103,6 +103,31 @@ describe('TransactionForm', () => {
       }
     });
 
+    describe('Mounts with TagsInput', () => {
+
+      it('...if no tags', () => {
+        const transaction = TransactionFactory.build();
+        const value = R.omit(['tags'], getSpecFromTransaction(transaction));
+        formComponent = mountTransactionForm({value});
+        expect(formComponent.find('TagsInput')).toHaveLength(1);
+      });
+
+      it('...if two tags', () => {
+        const tags = [
+          {name: "foo", value: "bar",},
+          {name: "bar", value: "foo",}
+        ];
+        const transaction = R.pipe(R.assoc('tags', tags))(TransactionFactory.build());
+        const value = getSpecFromTransaction(transaction);
+        formComponent = mountTransactionForm({value});
+        expect(formComponent.find('TagsInput')).toHaveLength(1);
+        expect(formComponent.find('TagsInput').props().value).toEqual(
+          {pickedTags: tags, userInput: "foo:bar bar:foo"}
+        );
+      });
+      
+    });
+
     it('Mounted MovementInputs have accounts', () => {
       const accounts = AccountFactory.buildList(3);
       const formComponent = mountTransactionForm({accounts});
@@ -309,7 +334,7 @@ describe('TransactionForm', () => {
     let onSubmit;
 
     function getErrorMessage() {
-      return formComponent.find(ErrorMessage);
+      return formComponent.find('[data-testid="form-error-message"]').at(0);
     }
 
     function getErrorMessage_div() {

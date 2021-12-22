@@ -177,7 +177,8 @@ describe('Test ajax', () => {
             description: transaction.description,
             date: transaction.date.format("YYYY-MM-DD"),
             movements_specs: transaction.movements,
-            reference: transaction.reference
+            reference: transaction.reference,
+            tags: transaction.tags,
           };
           const axiosMock = sinon.fake.resolves({data: ""});
           ajaxCreateTransaction(axiosMock)(transactionSpec);
@@ -218,7 +219,26 @@ describe('Test ajax', () => {
         });
       });
 
-    });    
+    });
+
+    describe('ajaxUpdateTransaction...', () => {
+      it('sends PUT with parsed data', () => {
+        const transaction = TransactionFactory.build();
+        const transactionSpec = getSpecFromTransaction(transaction);
+        const expectedParams = {
+          description: transaction.description,
+          date: transaction.date.format("YYYY-MM-DD"),
+          movements_specs: transaction.movements,
+          reference: transaction.reference,
+          tags: transaction.tags,
+        };
+        const axiosMock = sinon.fake.resolves({data: ""});
+        sut.ajaxUpdateTransaction(axiosMock)(transaction)(transactionSpec);
+        assertCalledWithUrl(axiosMock, `/transactions/${transaction.pk}/`);
+        expect(axiosMock.lastArg.data).toEqual(expectedParams);
+      });
+    });
+
   });
 
   describe('Accounts...', () => {

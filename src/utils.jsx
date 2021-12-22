@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import numeral from 'numeral';
 import moment from 'moment';
 import CryptoJs from 'crypto-js';
+import Tags from './domain/Tags';
 
 /**
  * @typedef Currency
@@ -86,12 +87,19 @@ import CryptoJs from 'crypto-js';
  * Maps a Transaction to a TransactionSpec.
  */
 export const getSpecFromTransaction = R.pipe(
-  R.pick(["description", "date", "movements", "reference"]),
+  R.pick(["description", "date", "movements", "reference", "tags"]),
   R.evolve({
     date: date => ({
       pickedDate: date,
       userInput: date && date.isValid() ? date.format("YYYY-MM-DD") : null
-    })
+    }),
+    tags: tags => ({
+        pickedTags: tags,
+        userInput: R.pipe(
+          R.defaultTo([]),
+          Tags.toUserInput,
+        )(tags)
+      }),
   })
 );
   
