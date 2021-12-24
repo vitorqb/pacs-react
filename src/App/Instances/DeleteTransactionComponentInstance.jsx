@@ -1,10 +1,17 @@
 import React from 'react';
-import AccountPicker from '../../components/AccountPicker.jsx';
 import DeleteTransactionComponent from '../../components/DeleteTransactionComponent.jsx';
+import * as R from 'ramda';
+import * as Ajax from '../Ajax.jsx';
 
 
 export const DeleteTransactionComponentInstance = (renderArgs) => {
-  return <DeleteTransactionComponent />;
+  const { ajaxInjections } = renderArgs;
+  const getTransaction = R.view(Ajax.lens.getTransaction, ajaxInjections);
+  return (
+    <DeleteTransactionComponent
+      getTransaction={getTransaction}
+    />
+  );
 };
 
 
