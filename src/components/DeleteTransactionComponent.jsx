@@ -3,6 +3,7 @@ import "./DeleteTransactionComponent.module.scss";
 import TransactionDisplayer from './TransactionDisplayer.jsx';
 import TransactionPicker from './TransactionPicker';
 import * as R from 'ramda';
+import ErrorMessage from './ErrorMessage.jsx';
 
 
 export const DeleteButton = (props) => {
@@ -15,11 +16,23 @@ export const DeleteButton = (props) => {
 export const DeleteTransactionComponent = (props) => {
   const { getTransaction } = props;
   const [pickedTransaction, setPickedTransaction] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   return (
     <div>
-      <TransactionPicker getTransaction={getTransaction} onPicked={setPickedTransaction} />
+      <TransactionPicker
+        getTransaction={getTransaction}
+        onPicked={(transaction) => {
+          setErrorMessage(null);
+          setPickedTransaction(transaction);
+        }}
+        onGetTransactionFailure={(error) => {
+          setPickedTransaction(null);
+          setErrorMessage(error);
+        }}
+      />
       {pickedTransaction && <TransactionDisplayer transaction={pickedTransaction}/>}
       {pickedTransaction && <DeleteButton/>}
+      <ErrorMessage value={errorMessage} />
     </div>
   );
 };

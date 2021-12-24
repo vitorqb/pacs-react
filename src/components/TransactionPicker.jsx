@@ -31,7 +31,7 @@ export default class TransactionPicker extends Component {
       transaction = await getTransaction(pk);
     } catch(e) {
       if (onGetTransactionFailure) {
-        onGetTransactionFailure(e.message);
+        onGetTransactionFailure(e);
       }
       return;
     }

@@ -60,8 +60,8 @@ describe('TransactionPicker', () => {
     });
 
     it('Calls callback onGetTransactionFailure with error if fails to get the transaction', async () => {
-      const error = "Not found!";
-      getTransaction = sinon.fake.rejects(error);
+      const error = {detail: "Not found!"};
+      getTransaction = async () => { throw error; };
       const picker = render();
       picker.find('input[type="submit"]').simulate('change', {target: {value: 12}});
       picker.update();
