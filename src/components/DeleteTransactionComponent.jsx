@@ -7,16 +7,33 @@ import ErrorMessage from './ErrorMessage.jsx';
 
 
 export const DeleteButton = (props) => {
+  const { deletionRequestedState } = props;
+  const [deletionRequested, setDeletionRequested] = deletionRequestedState;
   return (
-    <button data-testid="delete-button" type="submit">Delete</button>
+    <button
+      disabled={deletionRequested}
+      data-testid="delete-button"
+      type="submit"
+      onClick={() => setDeletionRequested(true)}
+    >
+      Delete
+    </button>
   );
 };
 
 
 export const DeleteTransactionComponentCore = (props) => {
-  const { getTransaction, getAccount, getCurrency, transactionState, errorMessageState } = props;
-  const [pickedTransaction, setPickedTransaction] = transactionState;
+  const {
+    getTransaction,
+    getAccount,
+    getCurrency,
+    pickedTransactionState,
+    errorMessageState,
+    deletionRequestedState
+  } = props;
+  const [pickedTransaction, setPickedTransaction] = pickedTransactionState;
   const [errorMessage, setErrorMessage] = errorMessageState;
+  const [deletionRequested, setDeletionRequested] = deletionRequestedState;
   return (
     <div>
       <TransactionPicker
@@ -35,18 +52,19 @@ export const DeleteTransactionComponentCore = (props) => {
          transaction={pickedTransaction}
          getAccount={getAccount}
          getCurrency={getCurrency}
-       />
-      }
-      {pickedTransaction && <DeleteButton/>}
+       />}
+      {pickedTransaction &&
+       <DeleteButton deletionRequestedState={deletionRequestedState}/>}
       <ErrorMessage value={errorMessage} />
     </div>
   );
 };
 
 export const DeleteTransactionComponent = (props) => {
-  const transactionState = useState(null);
+  const pickedTransactionState = useState(null);
   const errorMessageState = useState(null);
-  const enrichedProps = {...props, transactionState, errorMessageState};
+  const deletionRequestedState = useState(null);
+  const enrichedProps = {...props, pickedTransactionState, errorMessageState, deletionRequestedState};
   return <DeleteTransactionComponentCore {...enrichedProps}/>;
 };
 
