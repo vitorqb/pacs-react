@@ -6,13 +6,13 @@ import * as R from 'ramda';
 import ErrorMessage from './ErrorMessage.jsx';
 
 export const DeletionConfirmationBox = (props) => {
-  const { deletionRequestedState } = props;
+  const { deletionRequestedState, onSubmit } = props;
   const [deletionRequested, setDeletionRequested] = deletionRequestedState;
   return (
     <div className={styles.deletionConfirmationBox}>
       {"Are you sure you want to delete this transaction?"}
       <div>
-        <button>Yes</button>
+        <button onClick={() => onSubmit()}>Yes</button>
         <button onClick={() => setDeletionRequested(false)}>No</button>
       </div>
     </div>
@@ -42,7 +42,8 @@ export const DeleteTransactionComponentCore = (props) => {
     getCurrency,
     pickedTransactionState,
     errorMessageState,
-    deletionRequestedState
+    deletionRequestedState,
+    handleDeletionSubmit,
   } = props;
   const [pickedTransaction, setPickedTransaction] = pickedTransactionState;
   const [errorMessage, setErrorMessage] = errorMessageState;
@@ -69,19 +70,59 @@ export const DeleteTransactionComponentCore = (props) => {
          />
        </div>}
       {pickedTransaction &&
-       <DeleteButton deletionRequestedState={deletionRequestedState}/>}
+       <DeleteButton
+         deletionRequestedState={deletionRequestedState}
+       />}
       {deletionRequested &&
-       <DeletionConfirmationBox deletionRequestedState={deletionRequestedState} />}
+       <DeletionConfirmationBox
+         deletionRequestedState={deletionRequestedState}
+         onSubmit={handleDeletionSubmit}
+       />}
       <ErrorMessage value={errorMessage} />
     </div>
   );
 };
 
+export const handleDeletionSubmit = R.curry(async (opts) => {
+    const {
+    deletionRequestedState,
+    errorMessageState,
+    pickedTransactionState,
+    deleteTransactionFn,
+  } = opts;
+  const [pickedTransaction, setPickedTransaction] = pickedTransactionState;
+  const [, setErrorMessage] = errorMessageState;
+  const [, setDeletionRequested] = deletionRequestedState;
+
+  try {
+    await deleteTransactionFn(pickedTransaction);
+  } catch (e) {
+    setErrorMessage(e);
+    return;
+  }
+  setPickedTransaction(null);
+  setErrorMessage(null);
+  setDeletionRequested(false);
+});
+
 export const DeleteTransactionComponent = (props) => {
   const pickedTransactionState = useState(null);
   const errorMessageState = useState(null);
   const deletionRequestedState = useState(null);
-  const enrichedProps = {...props, pickedTransactionState, errorMessageState, deletionRequestedState};
+  const { deleteTransactionFn } = props;
+  const handleDeletionSubmitOpts = {
+      deleteTransactionFn,
+      deletionRequestedState,
+      errorMessageState,
+      pickedTransactionState,
+    };
+  const enrichedProps = {
+    ...R.omit(['deleteTransactionFn'], props),
+    pickedTransactionState,
+    errorMessageState,
+    deletionRequestedState,
+    handleDeletionSubmit: () => handleDeletionSubmit(handleDeletionSubmitOpts)
+  };
   return <DeleteTransactionComponentCore {...enrichedProps}/>;
 };
 

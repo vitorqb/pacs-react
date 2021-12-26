@@ -10,11 +10,13 @@ export const DeleteTransactionComponentInstance = (renderArgs) => {
   const getTransaction = R.view(Ajax.lens.getTransaction, ajaxInjections);
   const getAccount = R.view(AppContext.lens.accounts, appContextGetters);
   const getCurrency = R.view(AppContext.lens.currencies, appContextGetters);
+  const deleteTransaction = R.view(Ajax.lens.deleteTransaction, ajaxInjections);
   return (
     <DeleteTransactionComponent
       getTransaction={getTransaction}
       getAccount={getAccount}
       getCurrency={getCurrency}
+      deleteTransactionFn={deleteTransaction}
     />
   );
 };
