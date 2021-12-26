@@ -13,10 +13,10 @@ export const DeleteButton = (props) => {
 };
 
 
-export const DeleteTransactionComponent = (props) => {
-  const { getTransaction, getAccount, getCurrency } = props;
-  const [pickedTransaction, setPickedTransaction] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+export const DeleteTransactionComponentCore = (props) => {
+  const { getTransaction, getAccount, getCurrency, transactionState, errorMessageState } = props;
+  const [pickedTransaction, setPickedTransaction] = transactionState;
+  const [errorMessage, setErrorMessage] = errorMessageState;
   return (
     <div>
       <TransactionPicker
@@ -41,6 +41,13 @@ export const DeleteTransactionComponent = (props) => {
       <ErrorMessage value={errorMessage} />
     </div>
   );
+};
+
+export const DeleteTransactionComponent = (props) => {
+  const transactionState = useState(null);
+  const errorMessageState = useState(null);
+  const enrichedProps = {...props, transactionState, errorMessageState};
+  return <DeleteTransactionComponentCore {...enrichedProps}/>;
 };
 
 

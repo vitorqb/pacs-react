@@ -1,20 +1,23 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../DeleteTransactionComponent';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, CurrencyFactory, TransactionFactory, useStateMock } from '../../testUtils.jsx';
 import { waitFor } from '../../testUtils.jsx';
+import sinon from 'sinon';
 
 
-describe('DeleteTransactionComponent', () => {
+describe('DeleteTransactionComponentCore', () => {
 
   const defaultProps = () => ({
     getTransaction: () => TransactionFactory.build(),
     getAccount: () => AccountFactory.build(),
     getCurrency: () => CurrencyFactory.build(),
+    transactionState: [null, () => {}],
+    errorMessageState: [null, () => {}],
   });
 
   const render = (props) => {
-    return mount(<sut.DeleteTransactionComponent {...defaultProps()} {...props}/>);
+    return mount(<sut.DeleteTransactionComponentCore {...defaultProps()} {...props}/>);
   };
 
   const findDeleteButton = c => c.find('[data-testid="delete-button"]');
@@ -22,99 +25,73 @@ describe('DeleteTransactionComponent', () => {
   const findTransactionPicker = c => c.find('TransactionPicker');
   const findErrorMessage = c => c.find('ErrorMessage');
 
-  it('Displays the transaction once its selected', async () => {
-    const component = render();
-    const transaction = TransactionFactory.build();
+  describe('...TransactionDisplayer', () => {
 
-    expect(findTransactionDisplayer(component)).toHaveLength(0);
-    findTransactionPicker(component).invoke('onPicked')(transaction);
-    await waitFor(() => {
-      component.update();
-      return findTransactionDisplayer(component).length > 0;
+    it('is not rendered if no transaction', () => {
+      const component = render({transactionState: [null, () => {}]});
+      expect(findTransactionDisplayer(component)).toHaveLength(0);
     });
-    expect(findTransactionDisplayer(component).props().transaction).toEqual(transaction);
+
+    it('Renders with proper props when has a transaction', async () => {
+      const transaction = TransactionFactory.build();
+      const transactionState = [transaction, () => {}];
+      const props = {...defaultProps(), transactionState};
+      const component = render(props);
+      const expectedProps = {
+        getAccount: props.getAccount,
+        getCurrency: props.getCurrency,
+        transaction,
+      };
+      expect(findTransactionDisplayer(component).props()).toEqual(expectedProps);
+    });
+    
   });
 
-  it('Renders TransactionDisplayer with proper props', async () => {
-    const props = defaultProps();
-    const component = render(props);
-    const transaction = TransactionFactory.build();
+  describe('...DeleteButton', () => {
 
-    findTransactionPicker(component).invoke('onPicked')(transaction);
-    await waitFor(() => {
-      component.update();
-      return findTransactionDisplayer(component).length > 0;
+    it('Is not rendered if a transaction is not selected', () => {
+      const component = render({transactionState: [null, () => {}]});
+      expect(findDeleteButton(component)).toHaveLength(0);
     });
 
-    const expectedProps = {
-      getAccount: props.getAccount,
-      getCurrency: props.getCurrency,
-      transaction,
-    };
-    expect(findTransactionDisplayer(component).props()).toEqual(expectedProps);
+    it('Is rendered if a transaction is selected', async () => {
+      const transaction = TransactionFactory.build();
+      const transactionState = [transaction, () => {}];
+      const component = render({transactionState});
+      expect(findDeleteButton(component)).toHaveLength(1);
+    });
   });
 
-  it('Displays the delete button once an transaction is selected', async () => {
-    const component = render();
-    const transaction = TransactionFactory.build();
+  describe('...Error handling', () => {
 
-    expect(findDeleteButton(component)).toHaveLength(0);
-    findTransactionPicker(component).invoke('onPicked')(transaction);
-    await waitFor(() => {
-      component.update();
-      return findDeleteButton(component).length > 0;
+    it('Displays error message', () => {
+      const errorMessageState = ["Foo", () => {}];
+      const component = render({errorMessageState});
+      expect(findErrorMessage(component).props().value).toEqual("Foo");
     });
-    expect(findDeleteButton(component)).toHaveLength(1);
+
+    it('Sets error message from onGetTransactionFailure', () => {
+      const errorMessageState = ["Foo", sinon.fake()];
+      const component = render({errorMessageState});
+      findTransactionPicker(component).invoke('onGetTransactionFailure')("Foo");
+      expect(errorMessageState[1].args).toEqual([["Foo"]]);
+    });
+
+    it('Cleans up error msg on new submit', async () => {
+      const errorMessageState = ["Foo", sinon.fake()];
+      const transaction = TransactionFactory.build();
+      const component = render({errorMessageState});
+      findTransactionPicker(component).invoke('onPicked')(transaction);
+      expect(errorMessageState[1].args).toEqual([[null]]);
+    });
   });
 
-  it('Displays error if something goes wrong', () => {
-    const component = render();
-    expect(findErrorMessage(component).props().value).toEqual(null);
-    findTransactionPicker(component).invoke('onGetTransactionFailure')('Foo');
-    waitFor(() => {
-      component.update();
-      return findErrorMessage(component).props().value == "Foo";
-    });
-    expect(findErrorMessage(component).props().value).toEqual("Foo");
-  });
-
-  it('Cleans up error msg on new submit', async () => {
-    const component = render();
-    const transaction = TransactionFactory.build();
-
-    findTransactionPicker(component).invoke('onGetTransactionFailure')("Foo");
-    await waitFor(() => {
-      component.update();
-      return findErrorMessage(component).props().value == "Foo";
-    });
-
-    findTransactionPicker(component).invoke('onPicked')(transaction);
-    await waitFor(() => {
-      component.update();
-      return findErrorMessage(component).props().value == null;
-    });
-
-    expect(findErrorMessage(component).props().value).toEqual(null);
-  });
 
   it('Cleans up picked transaction on error', async () => {
-    const component = render();
-    const transaction = TransactionFactory.build();
-
-    findTransactionPicker(component).invoke('onPicked')(transaction);
-    await waitFor(() => {
-      component.update();
-      return findTransactionDisplayer(component).length == 1;
-    });
-
+    const transactionState = [TransactionFactory.build(), sinon.fake()];
+    const component = render({transactionState});
     findTransactionPicker(component).invoke('onGetTransactionFailure')("Foo");
-    await waitFor(() => {
-      component.update();
-      return findTransactionDisplayer(component).length == 0;
-    });
-    
-    expect(findTransactionDisplayer(component)).toHaveLength(0);
-    
+    expect(transactionState[1].args).toEqual([[null]]);    
   });
 
 });
