@@ -1,15 +1,16 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, MovementFactory, TransactionFactory } from '../../testUtils.jsx';
 import * as sut from '../TransactionDisplayer.jsx';
 import { DateUtil } from '../../utils.jsx';
 
 
 describe('TransactionDisplayer', () => {
 
-  const defaultProps = () => {
-    transaction: TransactionFactory.build();
-  };
+  const defaultProps = () => ({
+    transaction: TransactionFactory.build(),
+    getAccount: () => AccountFactory.build(),
+  });
 
   const render = (props) => {
     return mount(<sut.TransactionDisplayer {...defaultProps()} {...props} />);
@@ -46,6 +47,25 @@ describe('TransactionDisplayer', () => {
     const transaction = TransactionFactory.build();
     const component = render({transaction});;
     expect(component.find(sut.TagDisplayer)).toHaveLength(transaction.tags.length);    
+  });
+
+});
+
+
+describe('MovementDisplayer', () => {
+
+  const defaultProps = () => ({
+    movement: MovementFactory.build(),
+    getAccount: () => AccountFactory.build(),
+  });
+
+  const render = (props) => mount(<sut.MovementDisplayer {...defaultProps()} {...props}/>);
+
+  it('Renders account', () => {
+    const account = AccountFactory.build();
+    const getAccount = () => account;
+    const component = render({getAccount});
+    expect(component.html()).toContain(`<span>${account.name}</span>`);
   });
 
 });

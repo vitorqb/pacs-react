@@ -1,17 +1,19 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../DeleteTransactionComponent';
-import { TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, TransactionFactory } from '../../testUtils.jsx';
 import { waitFor } from '../../testUtils.jsx';
 
 
 describe('DeleteTransactionComponent', () => {
 
-  const defaultProps = {};
+  const defaultProps = () => ({
+    getTransaction: () => TransactionFactory.build(),
+    getAccount: () => AccountFactory.build(),
+  });
 
   const render = (props) => {
-    const finalProps = {...defaultProps, ...props};
-    return mount(<sut.DeleteTransactionComponent {...props}/>);
+    return mount(<sut.DeleteTransactionComponent {...defaultProps()} {...props}/>);
   };
 
   const findDeleteButton = c => c.find('[data-testid="delete-button"]');
@@ -30,6 +32,20 @@ describe('DeleteTransactionComponent', () => {
       return findTransactionDisplayer(component).length > 0;
     });
     expect(findTransactionDisplayer(component).props().transaction).toEqual(transaction);
+  });
+
+  it('Renders TransactionDisplayer with proper props', async () => {
+    const props = defaultProps();
+    const component = render(props);
+    const transaction = TransactionFactory.build();
+
+    findTransactionPicker(component).invoke('onPicked')(transaction);
+    await waitFor(() => {
+      component.update();
+      return findTransactionDisplayer(component).length > 0;
+    });
+
+    expect(findTransactionDisplayer(component).props().getAccount).toEqual(props.getAccount);
   });
 
   it('Displays the delete button once an transaction is selected', async () => {

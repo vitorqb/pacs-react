@@ -5,9 +5,12 @@ import * as R from 'ramda';
 import Tags from '../domain/Tags.js';
 
 export const TransactionDisplayer = (props) => {
-  const { transaction } = props;
+  const { transaction, getAccount } = props;
   const formattedDate = DateUtil.formatFullReadable(transaction.date);
   const tags = R.pathOr([], ['tags'], transaction);
+  const renderMovement = (movement, index) => {
+    return <MovementDisplayer key={index} movement={movement} getAccount={getAccount} />;
+  };
   return (
     <div className={styles.transactionDisplayer}>
       <div>
@@ -34,21 +37,20 @@ export const TransactionDisplayer = (props) => {
       </div>
       <div>
         <span>Movements: </span>
-        {R.addIndex(R.map)(
-          (movement, index) => <MovementDisplayer key={index} movement={movement} />
-        )(transaction.movements)}
+        {R.addIndex(R.map)(renderMovement)(transaction.movements)}
     </div>
     </div>
   );
 };
 
 export const MovementDisplayer = (props) => {
-  const { movement } = props;
+  const { movement, getAccount } = props;
+  const accountName = R.pipe(R.prop('account'), getAccount, R.prop('name'))(movement);
   return (
     <div className={styles.movementDisplayer}>
       <div>
         <span>Account: </span>
-        <span>{movement.account}</span>
+        <span>{accountName}</span>
       </div>
       <div>
         <span>Comment: </span>
