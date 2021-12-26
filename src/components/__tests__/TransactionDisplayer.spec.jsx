@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { AccountFactory, MovementFactory, TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, CurrencyFactory, MoneyFactory, MovementFactory, TransactionFactory } from '../../testUtils.jsx';
 import * as sut from '../TransactionDisplayer.jsx';
-import { DateUtil } from '../../utils.jsx';
+import { DateUtil, moneyToRepr } from '../../utils.jsx';
+import * as R from 'ramda';
 
 
 describe('TransactionDisplayer', () => {
@@ -10,6 +11,7 @@ describe('TransactionDisplayer', () => {
   const defaultProps = () => ({
     transaction: TransactionFactory.build(),
     getAccount: () => AccountFactory.build(),
+    getCurrency: () => CurrencyFactory.build(),
   });
 
   const render = (props) => {
@@ -57,6 +59,7 @@ describe('MovementDisplayer', () => {
   const defaultProps = () => ({
     movement: MovementFactory.build(),
     getAccount: () => AccountFactory.build(),
+    getCurrency: () => CurrencyFactory.build(),
   });
 
   const render = (props) => mount(<sut.MovementDisplayer {...defaultProps()} {...props}/>);
@@ -66,6 +69,16 @@ describe('MovementDisplayer', () => {
     const getAccount = () => account;
     const component = render({getAccount});
     expect(component.html()).toContain(`<span>${account.name}</span>`);
+  });
+
+  it('Renders money', () => {
+    const movement = MovementFactory.build();
+    const money = R.prop('money', movement);
+    const currency = CurrencyFactory.build();
+    const getCurrency = () => currency;
+    const component = render({movement, getCurrency});
+    const expMoneyRepr = moneyToRepr(getCurrency)(money);
+    expect(component.html()).toContain(`<span>${expMoneyRepr}</span>`);
   });
 
 });

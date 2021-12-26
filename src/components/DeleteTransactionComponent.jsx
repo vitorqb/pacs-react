@@ -14,7 +14,7 @@ export const DeleteButton = (props) => {
 
 
 export const DeleteTransactionComponent = (props) => {
-  const { getTransaction, getAccount } = props;
+  const { getTransaction, getAccount, getCurrency } = props;
   const [pickedTransaction, setPickedTransaction] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   return (
@@ -31,7 +31,11 @@ export const DeleteTransactionComponent = (props) => {
         }}
       />
       {pickedTransaction &&
-       <TransactionDisplayer transaction={pickedTransaction} getAccount={getAccount}/>
+       <TransactionDisplayer
+         transaction={pickedTransaction}
+         getAccount={getAccount}
+         getCurrency={getCurrency}
+       />
       }
       {pickedTransaction && <DeleteButton/>}
       <ErrorMessage value={errorMessage} />

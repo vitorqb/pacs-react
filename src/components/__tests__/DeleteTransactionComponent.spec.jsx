@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../DeleteTransactionComponent';
-import { AccountFactory, TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../testUtils.jsx';
 import { waitFor } from '../../testUtils.jsx';
 
 
@@ -10,6 +10,7 @@ describe('DeleteTransactionComponent', () => {
   const defaultProps = () => ({
     getTransaction: () => TransactionFactory.build(),
     getAccount: () => AccountFactory.build(),
+    getCurrency: () => CurrencyFactory.build(),
   });
 
   const render = (props) => {
@@ -45,7 +46,12 @@ describe('DeleteTransactionComponent', () => {
       return findTransactionDisplayer(component).length > 0;
     });
 
-    expect(findTransactionDisplayer(component).props().getAccount).toEqual(props.getAccount);
+    const expectedProps = {
+      getAccount: props.getAccount,
+      getCurrency: props.getCurrency,
+      transaction,
+    };
+    expect(findTransactionDisplayer(component).props()).toEqual(expectedProps);
   });
 
   it('Displays the delete button once an transaction is selected', async () => {

@@ -1,15 +1,20 @@
 import React from 'react';
 import styles from './TransactionDisplayer.module.scss';
-import { DateUtil } from '../utils.jsx';
+import { DateUtil, moneyToRepr } from '../utils.jsx';
 import * as R from 'ramda';
 import Tags from '../domain/Tags.js';
 
 export const TransactionDisplayer = (props) => {
-  const { transaction, getAccount } = props;
+  const { transaction, getAccount, getCurrency } = props;
   const formattedDate = DateUtil.formatFullReadable(transaction.date);
   const tags = R.pathOr([], ['tags'], transaction);
   const renderMovement = (movement, index) => {
-    return <MovementDisplayer key={index} movement={movement} getAccount={getAccount} />;
+    return <MovementDisplayer
+             key={index}
+             movement={movement}
+             getAccount={getAccount}
+             getCurrency={getCurrency}
+           />;
   };
   return (
     <div className={styles.transactionDisplayer}>
@@ -44,8 +49,9 @@ export const TransactionDisplayer = (props) => {
 };
 
 export const MovementDisplayer = (props) => {
-  const { movement, getAccount } = props;
+  const { movement, getAccount, getCurrency } = props;
   const accountName = R.pipe(R.prop('account'), getAccount, R.prop('name'))(movement);
+  const moneyRepr = R.pipe(R.prop('money'), moneyToRepr(getCurrency))(movement);
   return (
     <div className={styles.movementDisplayer}>
       <div>
@@ -58,7 +64,7 @@ export const MovementDisplayer = (props) => {
       </div>
       <div>
         <span>Money: </span>
-        <span>{JSON.stringify(movement.money)}</span>
+        <span>{moneyRepr}</span>
       </div>
     </div>
   );
