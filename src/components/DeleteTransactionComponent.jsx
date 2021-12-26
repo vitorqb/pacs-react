@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
-import "./DeleteTransactionComponent.module.scss";
+import styles from "./DeleteTransactionComponent.module.scss";
 import TransactionDisplayer from './TransactionDisplayer.jsx';
 import TransactionPicker from './TransactionPicker';
 import * as R from 'ramda';
 import ErrorMessage from './ErrorMessage.jsx';
 
+export const DeletionConfirmationBox = (props) => {
+  const { deletionRequestedState } = props;
+  const [deletionRequested, setDeletionRequested] = deletionRequestedState;
+  return (
+    <div className={styles.deletionConfirmationBox}>
+      {"Are you sure you want to delete this transaction?"}
+      <div>
+        <button>Yes</button>
+        <button onClick={() => setDeletionRequested(false)}>No</button>
+      </div>
+    </div>
+  );
+};
 
 export const DeleteButton = (props) => {
   const { deletionRequestedState } = props;
@@ -35,7 +48,7 @@ export const DeleteTransactionComponentCore = (props) => {
   const [errorMessage, setErrorMessage] = errorMessageState;
   const [deletionRequested, setDeletionRequested] = deletionRequestedState;
   return (
-    <div>
+    <div className={styles.deleteTransactionComponent}>
       <TransactionPicker
         getTransaction={getTransaction}
         onPicked={(transaction) => {
@@ -48,13 +61,17 @@ export const DeleteTransactionComponentCore = (props) => {
         }}
       />
       {pickedTransaction &&
-       <TransactionDisplayer
-         transaction={pickedTransaction}
-         getAccount={getAccount}
-         getCurrency={getCurrency}
-       />}
+       <div className={styles.transactionDisplayerWrapper}>
+         <TransactionDisplayer
+           transaction={pickedTransaction}
+           getAccount={getAccount}
+           getCurrency={getCurrency}
+         />
+       </div>}
       {pickedTransaction &&
        <DeleteButton deletionRequestedState={deletionRequestedState}/>}
+      {deletionRequested &&
+       <DeletionConfirmationBox deletionRequestedState={deletionRequestedState} />}
       <ErrorMessage value={errorMessage} />
     </div>
   );

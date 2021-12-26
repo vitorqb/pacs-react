@@ -25,6 +25,7 @@ describe('DeleteTransactionComponentCore', () => {
   const findTransactionDisplayer = c => c.find('TransactionDisplayer');
   const findTransactionPicker = c => c.find('TransactionPicker');
   const findErrorMessage = c => c.find('ErrorMessage');
+  const findDeletionConfirmationBox = c => c.find('DeletionConfirmationBox');
 
   describe('...TransactionDisplayer', () => {
 
@@ -98,6 +99,18 @@ describe('DeleteTransactionComponentCore', () => {
     expect(pickedTransactionState[1].args).toEqual([[null]]);    
   });
 
+  it('Displays DeletionConfirmationBox if deletion requested', () => {
+    const deletionRequestedState = [true, () => {}];
+    const component = render({deletionRequestedState});
+    expect(findDeletionConfirmationBox(component).props()).toEqual({deletionRequestedState});
+  });
+
+  it('Does not display DeletionConfirmationBox if deletion not requested', () => {
+    const deletionRequestedState = [false, () => {}];
+    const component = render({deletionRequestedState});
+    expect(findDeletionConfirmationBox(component)).toHaveLength(0);
+  });
+
 });
 
 describe('DeleteBurron', () => {
@@ -120,5 +133,23 @@ describe('DeleteBurron', () => {
       component.find('button').simulate('click');
       expect(deletionRequestedState[1].args).toEqual([[true]]);
     });
+
+});
+
+
+describe('DeletionConfirmationBox', () => {
+  
+  const defaultProps = () => ({
+    deletionRequestedState: [false, () => {}],
+  });
+
+  const render = (props) => mount(<sut.DeletionConfirmationBox {...defaultProps()} {...props}/>);
+
+  it('Sets deetionRequested to false on click at "no"', () => {
+    const deletionRequestedState = [false, sinon.fake()];
+    const component = render({deletionRequestedState});
+    component.find('button').at(1).simulate("click");
+    expect(deletionRequestedState[1].args).toEqual([[false]]);
+  });
 
 });
