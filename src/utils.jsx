@@ -371,7 +371,9 @@ export const DateUtil = {
 
   today: () => moment(),
 
-  format: (date, fmt) => date.format(fmt || "YYYY-MM-DD")
+  format: (date, fmt) => date.format(fmt || "YYYY-MM-DD"),
+
+  formatFullReadable: (date) => date.format("LLLL"),
 };
 
 export const StrUtil = {

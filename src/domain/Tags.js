@@ -10,6 +10,8 @@ const _toUserInput = R.pipe(
   R.when(x => x.startsWith(" "), x => x.substring(1))
 );
 
+const _toStringRepr = _toUserInput;
+
 const _ErrorMessages = {
   generic: "Incorrect format for tags! Example - 'foo:bar baz:boz'"
 };
@@ -50,6 +52,7 @@ export const Tags = {
   errorMessageFromUserInput: _errorMessageFromUserInput,
   ErrorMessages: _ErrorMessages,
   fromUserInput: _fromUserInput,
+  toStringRepr: _toStringRepr
 };
 
 export default Tags;
