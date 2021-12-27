@@ -41,7 +41,13 @@ export default class TransactionPicker extends Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <input placeholder="pk" name="pk" type="number" onChange={this.handlePkChange} />
+        <input
+          placeholder="pk"
+          name="pk"
+          type="number"
+          onChange={this.handlePkChange}
+          value={this.state.pk}
+        />
         <input type="submit"/>
       </form>
     );
