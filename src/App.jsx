@@ -15,6 +15,7 @@ import CreateAccountComponentInstance from './App/Instances/CreateAccountCompone
 import EditAccountComponentInstance from './App/Instances/EditAccountComponent';
 import CreateTransactionFormInstance from './App/Instances/CreateTransactionForm';
 import EditTransactionComponentInstance from './App/Instances/EditTransactionComponent';
+import DeleteTransactionComponentInstance from './App/Instances/DeleteTransactionComponentInstance';
 import AccountTreeInstance from './App/Instances/AccountTree';
 import CurrencyTableInstance from './App/Instances/CurrencyTable';
 import JournalComponentInstance from './App/Instances/JournalComponent';
@@ -61,7 +62,8 @@ class App extends Component {
         accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
         accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
         DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
-        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs)
+        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs),
+        deleteTransactionComponent: DeleteTransactionComponentInstance(renderArgs),
       });
       return makeRouter(routeData);
     };

@@ -204,6 +204,15 @@ export const moneysToRepr = R.curry(function(getCurrency, moneys) {
 });
 
 /**
+ * Makes a nice representation of a money.
+ * @function
+ * @param {(n: number) => Currency} getCurrency
+ * @param {Money} money
+ * @returns {string}
+ */
+export const moneyToRepr = R.curry((getCurrency, money) => moneysToRepr(getCurrency, [money]));
+
+/**
  * Considering all accounts in an array, returns True if the first account
  * is a descendant of the second.
  * @function
@@ -371,7 +380,9 @@ export const DateUtil = {
 
   today: () => moment(),
 
-  format: (date, fmt) => date.format(fmt || "YYYY-MM-DD")
+  format: (date, fmt) => date.format(fmt || "YYYY-MM-DD"),
+
+  formatFullReadable: (date) => date.format("LLLL"),
 };
 
 export const StrUtil = {

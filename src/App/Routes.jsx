@@ -15,7 +15,8 @@ export const getRoutesData = ({
   accountBalanceEvolutionComponent,
   accountFlowEvolutionReportComponent,
   DeleteAccountComponent,
-  fetchCurrencyExchangeRateDataComponent
+  fetchCurrencyExchangeRateDataComponent,
+  deleteTransactionComponent,
 }) => [
   {
     text: "Transaction",
@@ -34,6 +35,11 @@ export const getRoutesData = ({
         path: "/transaction-table/",
         text: "Table",
         component: () => transactionTable
+      },
+      {
+        path: "/delete-transaction",
+        text: "Delete",
+        component: () => deleteTransactionComponent
       }
     ]
   },

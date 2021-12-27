@@ -214,6 +214,17 @@ export const ajaxDeleteAccount = R.curry(function(axios, account) {
 });
 
 /**
+ * Sends a DELETE request to a transaction.
+ */
+export const ajaxDeleteTransaction = R.curry(function(axios, transaction) {
+  return makeRequest({
+    axios,
+    url: `/transactions/${transaction.pk}/`,
+    method: "DELETE",
+  });
+});
+
+/**
  * Returns a Journal for an account.
  * @function
  * @param {Axios} axios

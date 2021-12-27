@@ -141,6 +141,32 @@ class MovementFactoryWrapper {
 export const MovementFactory = new MovementFactoryWrapper();
 
 /**
+ * A wrapper around Factory prividing fake tags for test.
+ */
+class TagsFactoryWrapper {
+
+  constructor() {
+    this.build = this.build.bind(this);
+    this.buildList = this.buildList.bind(this);
+  }
+
+  _factory = new Factory()
+    .attr("name", faker.random.word)
+    .attr("value", faker.random.word)
+
+  build(opts={}) {
+    return this._factory.build(opts);
+  }
+
+  buildList(n, opts={}) {
+    return this._factory.buildList(n, opts);
+  }
+
+}
+
+export const TagsFactory = new TagsFactoryWrapper();
+
+/**
  * A wrapper around Factory prividing fake transactions for test.
  */
 class TransactionFactoryWrapper {
@@ -156,6 +182,7 @@ class TransactionFactoryWrapper {
     .attr("reference", "Test reference")
     .attr("date", moment.utc("2018-12-23"))
     .attr("movements", () => MovementFactory.buildList(2))
+    .attr("tags", () => TagsFactory.buildList(2))
 
   /**
    * @param {object} opts
