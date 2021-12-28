@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import * as RU from '../ramda-utils';
 import * as R from 'ramda';
 import TransactionForm from './TransactionForm.jsx';
@@ -8,50 +8,49 @@ import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
 /**
  * A wrapper around TransactionForm used to create a Transaction.
  */
-export default class CreateTransactionComponent extends Component {
+export const CreateTransactionComponentCore = (props) => {
 
-  /**
-   * @param {object} props
-   * @param {function(TransactionSpec): Promise} createTransaction - A function
-   *   that performs the creation of a Transaction from a TransactionSpec.
-   * @param getTransaction - A function that fetches a transaction from a pk.
-   */
-  constructor(props) {
-    super(props);
-    this.state = {transactionSpec: null};
-  }
+  const { transactionSpecState, createTransaction, getTransaction, accounts, currencies } = props;
 
-  handleTransactionFormChange = transactionSpec => {
-    this.setState({transactionSpec});
-  }
-
-  handleTransactionFormSubmit = transactionSpec => {
-    return this.props.createTransaction(transactionSpec);
-  }
-
-  renderTemplatePicker = () => (
-    <TemplatePicker
-      getTransaction={this.props.getTransaction}
-      onPicked={this.handleTransactionFormChange}
-    />
-  )
-
-  render() {
-    const templatePicker = this.renderTemplatePicker();
-    return (
-      <TransactionForm
-        title="Create Transaction Form"
-        accounts={this.props.accounts}
-        currencies={this.props.currencies}
-        onChange={this.handleTransactionFormChange}
-        onSubmit={this.handleTransactionFormSubmit}
-        value={this.state.transactionSpec}
-        templatePicker={templatePicker}
-      />
-    );
-  }
+  const handleTransactionFormChange = transactionSpec => {
+    transactionSpecState[1](transactionSpec);
+  };
   
-}
+  return (
+    <TransactionForm
+      title="Create Transaction Form"
+      accounts={accounts}
+      currencies={currencies}
+      onChange={handleTransactionFormChange}
+      onSubmit={transactionSpec => {
+        createTransaction(transactionSpec);
+      }}
+      value={transactionSpecState[0]}
+      templatePicker={
+        <TemplatePicker
+          getTransaction={getTransaction}
+          onPicked={handleTransactionFormChange}
+        />
+      }
+    />
+  );
+
+};
+
+export const CreateTransactionComponent = (props) => {
+  const { createTransaction, accounts, currencies } = props;
+  const transactionSpecState = useState(null);
+  return (
+    <CreateTransactionComponentCore
+      createTransaction={createTransaction}
+      accounts={accounts}
+      currencies={currencies}
+      transactionSpecState={transactionSpecState}
+    />
+  );
+};
+
+export default CreateTransactionComponent;
 
 
 /**

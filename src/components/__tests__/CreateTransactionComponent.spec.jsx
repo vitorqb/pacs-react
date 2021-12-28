@@ -37,9 +37,11 @@ describe('CreateTransactionComponent', () => {
     });
     it('Updates transactionSpec on TransactionForm change', () => {
       const transactionSpec = getSpecFromTransaction(TransactionFactory.build());
-      component.find(TransactionForm).props().onChange(transactionSpec);
+      component.find(TransactionForm).invoke("onChange")(transactionSpec);
       component.update();
-      expect(component.state().transactionSpec).toBe(transactionSpec);
+      expect(
+        component.find('CreateTransactionComponentCore').props().transactionSpecState[0]
+      ).toEqual(transactionSpec);
     });
     it('Passes an instance of TemplatePicker to TransactionForm', () => {
       expect(component.find(TransactionForm).props().templatePicker.type.name)
