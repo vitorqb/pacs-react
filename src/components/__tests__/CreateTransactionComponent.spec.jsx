@@ -7,6 +7,7 @@ import { getSpecFromTransaction } from '../../utils.jsx';
 import sinon from 'sinon';
 import InputWrapper, { propLens as InputWrapperLens } from '../InputWrapper';
 import * as R from 'ramda';
+import moment from 'moment';
 
 function mountCreateTransactionComponent(opts) {
   const { accounts=AccountFactory.buildList(3) } = opts;
@@ -22,20 +23,28 @@ function mountCreateTransactionComponent(opts) {
 
 describe('CreateTransactionComponent', () => {
 
+  const defaultProps = () => ({
+    currencies:  CurrencyFactory.buildList(3),
+    accounts: AccountFactory.buildList(2),
+    createTransaction: () => Promise.resolve({}),
+  });
+
   describe('TransactionForm child', () => {
-    let accounts, currencies, component;
-    beforeEach(() => {
-      currencies = CurrencyFactory.buildList(3);
-      accounts = AccountFactory.buildList(2);
-      component = mountCreateTransactionComponent({accounts, currencies});      
-    });
+
     it('Passes accounts to TransactionForm', () => {
+      const accounts = AccountFactory.buildList(2);
+      const component = mountCreateTransactionComponent({accounts});
       expect(component.find(TransactionForm).props().accounts).toBe(accounts);
     });
+
     it('Passes currencies to TransactionForm', () => {
+      const currencies = CurrencyFactory.buildList(2);
+      const component = mountCreateTransactionComponent({currencies});
       expect(component.find(TransactionForm).props().currencies).toBe(currencies);
     });
+
     it('Updates transactionSpec on TransactionForm change', () => {
+      const component = mountCreateTransactionComponent({});
       const transactionSpec = getSpecFromTransaction(TransactionFactory.build());
       component.find(TransactionForm).invoke("onChange")(transactionSpec);
       component.update();
@@ -43,10 +52,13 @@ describe('CreateTransactionComponent', () => {
         component.find('CreateTransactionComponentCore').props().transactionSpecState[0]
       ).toEqual(transactionSpec);
     });
+
     it('Passes an instance of TemplatePicker to TransactionForm', () => {
+      const component = mountCreateTransactionComponent({});
       expect(component.find(TransactionForm).props().templatePicker.type.name)
         .toEqual('TemplatePicker');
     });
+
   });
 
   describe('Submitting...', () => {
@@ -85,7 +97,7 @@ describe('TemplatePicker', () => {
   });
 
   it('Calls onPicked after transforming to template spec', () => {
-    const transaction = {date: "2020-01-01"};
+    const transaction = {date: moment("2020-01-01")};
     component.find('TransactionPicker').props().onPicked(transaction);
     expect(onPicked.args).toHaveLength(1);
     expect(onPicked.args[0]).toEqual([{}]);

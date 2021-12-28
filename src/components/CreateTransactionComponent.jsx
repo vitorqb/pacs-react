@@ -4,6 +4,8 @@ import * as R from 'ramda';
 import TransactionForm from './TransactionForm.jsx';
 import TransactionPicker from './TransactionPicker.jsx';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
+import Tags from '../domain/Tags';
+import { getSpecFromTransaction } from '../utils';
 
 /**
  * A wrapper around TransactionForm used to create a Transaction.
@@ -13,7 +15,7 @@ export const CreateTransactionComponentCore = (props) => {
   const { transactionSpecState, createTransaction, getTransaction, accounts, currencies } = props;
 
   const handleTransactionFormChange = transactionSpec => {
-    transactionSpecState[1](transactionSpec);
+    return transactionSpecState[1](transactionSpec);
   };
   
   return (
@@ -23,7 +25,7 @@ export const CreateTransactionComponentCore = (props) => {
       currencies={currencies}
       onChange={handleTransactionFormChange}
       onSubmit={transactionSpec => {
-        createTransaction(transactionSpec);
+        return createTransaction(transactionSpec);
       }}
       value={transactionSpecState[0]}
       templatePicker={
@@ -38,7 +40,7 @@ export const CreateTransactionComponentCore = (props) => {
 };
 
 export const CreateTransactionComponent = (props) => {
-  const { createTransaction, accounts, currencies } = props;
+  const { createTransaction, accounts, currencies, getTransaction } = props;
   const transactionSpecState = useState(null);
   return (
     <CreateTransactionComponentCore
@@ -46,6 +48,7 @@ export const CreateTransactionComponent = (props) => {
       accounts={accounts}
       currencies={currencies}
       transactionSpecState={transactionSpecState}
+      getTransaction={getTransaction}
     />
   );
 };
@@ -76,9 +79,11 @@ export function TemplatePicker({getTransaction, onPicked}) {
  * Adapts a picked Transaction into a TransactionSpec, serving as a template for the
  * picked transaction.
  */
-export function transactionToTemplateSpec(transaction) {
-  return R.pipe(R.dissoc('date'), R.dissoc('pk'))(transaction);
-}
+export const transactionToTemplateSpec = R.pipe(
+  getSpecFromTransaction,
+  R.dissoc('date'),
+  R.dissoc('pk')
+);
 
 // Constants
 export const TEMPLATE_PICKER_LABEL = "Use transaction as Template";
