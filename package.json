@@ -33,6 +33,7 @@
     "file-loader": "6.0.0",
     "fork-ts-checker-webpack-plugin-alt": "0.4.14",
     "fs-extra": "9.0.0",
+    "hotkeys-js": "^3.8.7",
     "html-webpack-plugin": "4.3.0",
     "identity-obj-proxy": "3.0.0",
     "immutable": "^4.0.0-rc.12",
@@ -143,6 +144,7 @@
     "eslint-plugin-react-hooks": "^4.0.2",
     "faker": "^4.1.0",
     "jest-enzyme": "^7.1.2",
+    "jsdom": "^19.0.0",
     "rosie": "^2.0.1",
     "sinon": "^9.0.2",
     "tern": "^0.24.3"
