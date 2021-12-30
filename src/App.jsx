@@ -26,6 +26,7 @@ import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/Cu
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
 import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
+import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
 
 class App extends Component {
 
@@ -34,6 +35,10 @@ class App extends Component {
     super(props);
     this.setState = this.setState.bind(this);
     this.loginSvc = new LoginSvc({axios: mkAxiosWrapperFromSecrets(this.props.secrets)});
+  }
+
+  componentDidMount() {
+    this.shortcutService = ShortcutServiceInstance();
   }
 
   render() {

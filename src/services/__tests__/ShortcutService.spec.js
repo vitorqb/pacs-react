@@ -16,7 +16,7 @@ describe('FT ShortcutService', () => {
 
   it('Registers a shortcut and calls it', async () => {
     const handler = sinon.spy();
-    const shortcutService = new sut.ShortcutService({aDocument, hotkeys});
+    const shortcutService = new sut.ShortcutService({aDocument, aHotkeys: hotkeys});
     shortcutService.register('a', handler);
     await shortcutService.init();
 

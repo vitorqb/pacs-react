@@ -7,11 +7,11 @@ export class ShortcutService {
    * Constructor
    * @param {object} opts
    * @param {object} opts.aDocument The `window.document` to bind to.
-   * @param {function} opts.hotkeys The `hotkeys` fn from hotkeys-js package.
+   * @param {function} opts.aHotkeys The `hotkeys` fn from hotkeys-js package.
    */
-  constructor({aDocument, hotkeys}) {
+  constructor({aDocument, aHotkeys}) {
     this._document = aDocument;
-    this._hotkeys = hotkeys;
+    this._hotkeys = aHotkeys;
     this._shortcuts = [];
   }
 
@@ -37,5 +37,3 @@ export class ShortcutService {
   
 
 }
-
-
