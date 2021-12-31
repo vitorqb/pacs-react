@@ -35,3 +35,7 @@ div.success-message {
 input[type='file'] {
     color: transparent;
 }
+
+.hide {
+    display: none;
+}

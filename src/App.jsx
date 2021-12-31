@@ -23,10 +23,13 @@ import AccountBalanceEvolutionComponentInstance from './App/Instances/AccountBal
 import AccountFlowEvolutionReportComponentInstance from './App/Instances/AccountFlowEvolutionReportComponent';
 import DeleteAccountComponentInstance from './App/Instances/DeleteAccountComponent';
 import CurrencyExchangeRateDataFetcherComponentInstance from './App/Instances/CurrencyExchangeRateDataFetcherComponent.jsx';
+import MainHydraMenu from './App/Instances/MainHydraMenu.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
 import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
 import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
+import * as Actions from './domain/Actions.js';
+
 
 class App extends Component {
 
@@ -38,7 +41,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.shortcutService = ShortcutServiceInstance();
+    this.actionDispatcher = new Actions.ActionDispatcher();
+    this.shortcutService = ShortcutServiceInstance({actionDispatcher: this.actionDispatcher});
   }
 
   render() {
@@ -94,9 +98,13 @@ class App extends Component {
                         <AppContext.AppContextProvider
                           ajaxInjections={ajaxInjections}
                           featureFlagsSvc={featureFlagsSvc}
+                          actionDispatcher={this.actionDispatcher}
                         >
                           {({appContext, refreshAppContext}) => (
-                            renderRouter({appContext, refreshAppContext, ajaxInjections})
+                            <>
+                              {renderRouter({appContext, refreshAppContext, ajaxInjections})}
+                              <MainHydraMenu appContext={appContext} />
+                            </>
                           )}
                         </AppContext.AppContextProvider>
                       )}

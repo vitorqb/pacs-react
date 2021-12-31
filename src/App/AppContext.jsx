@@ -8,6 +8,7 @@ export const lens = {
   accounts: R.lensPath(['accounts']),
   currencies: R.lensPath(['currencies']),
   featureFlagsSvc: R.lensPath(['featureFlagsSvc']),
+  actionDispatcher: R.lensPath(['actionDispatcher']),
 };
 
 /**
@@ -42,7 +43,9 @@ export const fetch = _fetch(fetcherSpecs);
 /**
  * A provider that provides the data
  */
-export const AppContextProvider = ({ajaxInjections, children, featureFlagsSvc}) => {
+export const AppContextProvider = (
+  {ajaxInjections, children, featureFlagsSvc, actionDispatcher}
+) => {
   const [appContext, setAppContext] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -59,6 +62,10 @@ export const AppContextProvider = ({ajaxInjections, children, featureFlagsSvc}) 
   useEffect(() => {
     setAppContext(R.set(lens.featureFlagsSvc, featureFlagsSvc));
   }, [featureFlagsSvc]);
+
+  useEffect(() => {
+    setAppContext(R.set(lens.actionDispatcher, actionDispatcher));
+  }, [actionDispatcher]);
 
   return (
     <LoadingWrapper isLoading={isLoading}>
