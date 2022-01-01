@@ -1,4 +1,18 @@
-
+export const PATHS = {
+  CREATE_TRANSACTION: "/create-transaction/",
+  EDIT_TRANSACTION: "/edit-transaction/",
+  TRANSACTION_TABLE: "/transaction-table/",
+  DELETE_TRANSACTION: "/delete-transaction/",
+  CREATE_ACCOUNT: "/create-account/",
+  EDIT_ACCOUNT: "/edit-account/",
+  DELETE_ACCOUNT: "/delete-account/",
+  ACCOUNT_TREE: "/account-tree/",
+  ACCOUNT_JOURNAL: "/account-journal/",
+  ACCOUNT_BALANCE_EVOLUTION_REPORT: "/account-balance-evolution-report/",
+  ACCOUNT_FLOW_EVOLUTION_REPORT: "/account-flow-evolution-report/",
+  CURRENCY_TABLE: "/currency-table/",
+  EXCHANGE_RATE_DATA_FETCHER: "/exchange-rate-data/fetch/",
+};
 
 /**
  * Returns the data for the routes of the App.
@@ -22,22 +36,22 @@ export const getRoutesData = ({
     text: "Transaction",
     listOfLinkData: [
       {
-        path: "/create-transaction/",
+        path: PATHS.CREATE_TRANSACTION,
         text: "Create",
         element: createTransactionForm,
       },
       {
-        path: "/edit-transaction/",
+        path: PATHS.EDIT_TRANSACTION,
         text: "Edit",
         element: editTransactionComponent,
       },
       {
-        path: "/transaction-table/",
+        path: PATHS.TRANSACTION_TABLE,
         text: "Table",
         element: transactionTable
       },
       {
-        path: "/delete-transaction",
+        path: PATHS.DELETE_TRANSACTION,
         text: "Delete",
         element: deleteTransactionComponent
       }
@@ -47,27 +61,27 @@ export const getRoutesData = ({
     text: "Account",
     listOfLinkData: [
       {
-        path: "/create-account/",
+        path: PATHS.CREATE_ACCOUNT,
         text: "Create",
         element: createAccForm
       },
       {
-        path: "/edit-account/",
+        path: PATHS.EDIT_ACCOUNT,
         text: "Edit",
         element: editAccountComponent
       },
       {
-        path: "/delete-account/",
+        path: PATHS.DELETE_ACCOUNT,
         text: "Delete",
         element: DeleteAccountComponent
       },
       {
-        path: "/account-tree/",
+        path: PATHS.ACCOUNT_TREE,
         text: "Tree",
         element: accountTree
       },
       {
-        path: "/account-journal/",
+        path: PATHS.ACCOUNT_JOURNAL,
         text: "Journal",
         element: journalComponent
       },
@@ -77,12 +91,12 @@ export const getRoutesData = ({
     text: "Reports",
     listOfLinkData: [
       {
-        path: "/account-balance-evolution-report/",
+        path: PATHS.ACCOUNT_BALANCE_EVOLUTION_REPORT,
         text: "Balance Evolution Report",
         element: accountBalanceEvolutionComponent,
       },
       {
-        path: "/account-flow-evolution-report/",
+        path: PATHS.ACCOUNT_FLOW_EVOLUTION_REPORT,
         text: "Flow Evolution Report",
         element: accountFlowEvolutionReportComponent
       }
@@ -92,12 +106,12 @@ export const getRoutesData = ({
     text: "Currency",
     listOfLinkData: [
       {
-        path: "/currency-table/",
+        path: PATHS.CURRENCY_TABLE,
         text: "Table",
         element: currencyTable
       },
       {
-        path: "/exchange-rate-data/fetch/",
+        path: PATHS.EXCHANGE_RATE_DATA_FETCHER,
         text: "Exchange Rate Data Fetcher",
         element: fetchCurrencyExchangeRateDataComponent
       }
