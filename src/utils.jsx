@@ -548,3 +548,10 @@ export const PaginationUtils = {
   getPageCount: ({count, pageSize}) => Math.ceil(count / pageSize),
 
 };
+
+
+export const KeyPressUtils = {
+
+  getKeyFromEvent: e => String.fromCharCode(e.keyCode || e.which),
+
+};
