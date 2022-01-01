@@ -26,11 +26,11 @@ describe('App.test.jsx', () => {
   describe('makeRoute()', () => {
     it('base', () => {
       const path = "/a/b";
-      const component = () => (<h1>Hola</h1>);
+      const element = (<h1>Hola</h1>);
 
-      const exp = (<Route key={path} path={path} render={component} />);
+      const exp = (<Route key={path} path={path} element={element} />);
 
-      expect(makeRoute({path, component})).toEqual(exp);
+      expect(makeRoute({path, element})).toEqual(exp);
     });
   });
 

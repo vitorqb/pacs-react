@@ -24,22 +24,22 @@ export const getRoutesData = ({
       {
         path: "/create-transaction/",
         text: "Create",
-        component: () => createTransactionForm,
+        element: createTransactionForm,
       },
       {
         path: "/edit-transaction/",
         text: "Edit",
-        component: () => editTransactionComponent,
+        element: editTransactionComponent,
       },
       {
         path: "/transaction-table/",
         text: "Table",
-        component: () => transactionTable
+        element: transactionTable
       },
       {
         path: "/delete-transaction",
         text: "Delete",
-        component: () => deleteTransactionComponent
+        element: deleteTransactionComponent
       }
     ]
   },
@@ -49,27 +49,27 @@ export const getRoutesData = ({
       {
         path: "/create-account/",
         text: "Create",
-        component: () => createAccForm
+        element: createAccForm
       },
       {
         path: "/edit-account/",
         text: "Edit",
-        component: () => editAccountComponent
+        element: editAccountComponent
       },
       {
         path: "/delete-account/",
         text: "Delete",
-        component: () => DeleteAccountComponent
+        element: DeleteAccountComponent
       },
       {
         path: "/account-tree/",
         text: "Tree",
-        component: () => accountTree
+        element: accountTree
       },
       {
         path: "/account-journal/",
         text: "Journal",
-        component: () => journalComponent
+        element: journalComponent
       },
     ]
   },
@@ -79,12 +79,12 @@ export const getRoutesData = ({
       {
         path: "/account-balance-evolution-report/",
         text: "Balance Evolution Report",
-        component: () => accountBalanceEvolutionComponent,
+        element: accountBalanceEvolutionComponent,
       },
       {
         path: "/account-flow-evolution-report/",
         text: "Flow Evolution Report",
-        component: () => accountFlowEvolutionReportComponent
+        element: accountFlowEvolutionReportComponent
       }
     ]
   },
@@ -94,12 +94,12 @@ export const getRoutesData = ({
       {
         path: "/currency-table/",
         text: "Table",
-        component: () => currencyTable
+        element: currencyTable
       },
       {
         path: "/exchange-rate-data/fetch/",
         text: "Exchange Rate Data Fetcher",
-        component: () => fetchCurrencyExchangeRateDataComponent
+        element: fetchCurrencyExchangeRateDataComponent
       }
     ]
   }

@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import * as R from 'ramda';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import Group from './Router/Group';
 
 /**
@@ -13,7 +13,7 @@ import Group from './Router/Group';
  * @param {string} groupData.text -
  *     An object with the text describing this group.
  * @param groupData.listOfLinkData - 
- *     A list of LinkData with the `path`, `text` and `component` for each link.
+ *     A list of LinkData with the `path`, `text` and `element` for each link.
  */
 export function makeGroup({text, listOfLinkData}) {
   const links = R.map(makeLink, listOfLinkData);
@@ -38,11 +38,10 @@ export function makeLink({path, text}) {
  * Makes a Route for a router.
  * @param {Object} routeData - An object with data for the route.
  * @param {string} routeData.path - The path (url).
- * @param {Function} routeData.component - a 0-arity function returning a
- *   component to render for this route.
+ * @param {Function} routeData.element - A React element for that route.
  */
-export function makeRoute({path, component}) {
-  return (<Route key={path} path={path} render={component} />);
+export function makeRoute({path, element}) {
+  return (<Route key={path} path={path} element={element} />);
 }
 
 /**
@@ -58,7 +57,9 @@ export function makeRouter(listOfGroups) {
         {groups}
       </div>
       <div className="router__routes">
-        {routes}
+        <Routes>
+          {routes}
+        </Routes>
       </div>
     </Router>
   );
