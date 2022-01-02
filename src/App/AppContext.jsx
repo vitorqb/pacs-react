@@ -9,6 +9,7 @@ export const lens = {
   currencies: R.lensPath(['currencies']),
   featureFlagsSvc: R.lensPath(['featureFlagsSvc']),
   actionDispatcher: R.lensPath(['actionDispatcher']),
+  navigationService: R.lensPath(['navigationService']),
 };
 
 /**
@@ -44,7 +45,7 @@ export const fetch = _fetch(fetcherSpecs);
  * A provider that provides the data
  */
 export const AppContextProvider = (
-  {ajaxInjections, children, featureFlagsSvc, actionDispatcher}
+  {ajaxInjections, children, featureFlagsSvc, actionDispatcher, navigationService}
 ) => {
   const [appContext, setAppContext] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -66,6 +67,10 @@ export const AppContextProvider = (
   useEffect(() => {
     setAppContext(R.set(lens.actionDispatcher, actionDispatcher));
   }, [actionDispatcher]);
+
+  useEffect(() => {
+    setAppContext(R.set(lens.navigationService, navigationService));
+  }, [navigationService]);
 
   return (
     <LoadingWrapper isLoading={isLoading}>

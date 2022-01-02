@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import * as R from 'ramda';
-import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import Group from './Router/Group';
 
 /**
@@ -52,15 +52,18 @@ export function makeRouter(listOfGroups) {
   const groups = R.map(makeGroup, listOfGroups);
   const routes = R.pipe(R.chain(g => g.listOfLinkData), R.map(makeRoute))(listOfGroups);
   return (
-    <Router>
+    <>
       <div className="router__groups">
         {groups}
       </div>
       <div className="router__routes">
         <Routes>
           {routes}
+          <Route path={"/"} element={<div/>} />
         </Routes>
       </div>
-    </Router>
+    </>
   );
 };
+
+export const Router = BrowserRouter;

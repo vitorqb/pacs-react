@@ -6,7 +6,7 @@ import { mkAxiosWrapperFromSecrets, AxiosProvider, mkAxiosWrapper } from "./axio
 import { LoginPage as LoginPageV2 } from './components/LoginPagev2/LoginPageV2';
 import { LoginProvider } from './components/LoginProvider/LoginProvider';
 import SecretLens from './domain/Secrets/Lens.js';
-import { makeRouter } from './App/Router';
+import { makeRouter, Router } from './App/Router';
 import * as Ajax from './App/Ajax.jsx';
 import * as AppContext from './App/AppContext.jsx';
 import * as AppContextGetters from './App/AppContextGetters';
@@ -29,6 +29,7 @@ import { LoginSvc } from './services/LoginSvc';
 import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
 import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
 import * as Actions from './domain/Actions.js';
+import { NavigationServiceProvider } from './App/ServicesInstances/NavigationServiceProvider';
 
 
 class App extends Component {
@@ -81,40 +82,47 @@ class App extends Component {
 
     return (
       <div className="App">
-        <FeatureFlagsProvider axios={mkAxiosWrapper({baseUrl})}>
-          {featureFlagsSvc => (
-            <LoginProvider
-              loginSvc={this.loginSvc}
-              renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
-            >
-              {tokenValue => (
-                <AxiosProvider
-                  token={tokenValue}
-                  baseUrl={baseUrl}
-                  featureFlags={featureFlagsSvc.getAll()}>
-                  {axios => (
-                    <Ajax.AjaxInjectionsProvider axios={axios}>
-                      {ajaxInjections => (
-                        <AppContext.AppContextProvider
-                          ajaxInjections={ajaxInjections}
-                          featureFlagsSvc={featureFlagsSvc}
-                          actionDispatcher={this.actionDispatcher}
-                        >
-                          {({appContext, refreshAppContext}) => (
-                            <>
-                              {renderRouter({appContext, refreshAppContext, ajaxInjections})}
-                              <MainHydraMenu appContext={appContext} />
-                            </>
-                          )}
-                        </AppContext.AppContextProvider>
-                      )}
-                    </Ajax.AjaxInjectionsProvider>
-                  )}
-                </AxiosProvider>
-              )}
-            </LoginProvider>
-          )}
-        </FeatureFlagsProvider>
+        <Router>
+          <NavigationServiceProvider>
+            {navigationService => (
+              <FeatureFlagsProvider axios={mkAxiosWrapper({baseUrl})}>
+                {featureFlagsSvc => (
+                  <LoginProvider
+                    loginSvc={this.loginSvc}
+                    renderLoginPage={renderProps => <LoginPageV2 {...renderProps} />}
+                  >
+                    {tokenValue => (
+                      <AxiosProvider
+                        token={tokenValue}
+                        baseUrl={baseUrl}
+                        featureFlags={featureFlagsSvc.getAll()}>
+                        {axios => (
+                          <Ajax.AjaxInjectionsProvider axios={axios}>
+                            {ajaxInjections => (
+                              <AppContext.AppContextProvider
+                                ajaxInjections={ajaxInjections}
+                                featureFlagsSvc={featureFlagsSvc}
+                                actionDispatcher={this.actionDispatcher}
+                                navigationService={navigationService}
+                              >
+                                {({appContext, refreshAppContext}) => (
+                                  <>
+                                    {renderRouter({appContext, refreshAppContext, ajaxInjections})}
+                                    <MainHydraMenu appContext={appContext} />
+                                  </>
+                                )}
+                              </AppContext.AppContextProvider>
+                            )}
+                          </Ajax.AjaxInjectionsProvider>
+                        )}
+                      </AxiosProvider>
+                    )}
+                  </LoginProvider>
+                )}
+              </FeatureFlagsProvider>
+            )}
+          </NavigationServiceProvider>
+        </Router>
       </div>
     );
   }

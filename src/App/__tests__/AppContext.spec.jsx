@@ -9,6 +9,7 @@ import { FeatureFlagsSvc } from '../FeatureFlags.jsx';
 import { waitFor } from '../../testUtils.jsx';
 import { act } from 'react-dom/test-utils';
 import { ActionDispatcher } from '../../domain/Actions.js';
+import { NavigationService } from '../../services/Navigation.jsx';
 
 describe('_fetch', () => {
 
@@ -55,6 +56,7 @@ describe('AppContextProvider', () => {
   const currencies = [CurrencyFactory.build()];
   const featureFlagsSvc = new FeatureFlagsSvc({}, ()=>{});
   const actionDispatcher = new ActionDispatcher();
+  const navigationService = new NavigationService({navigateFn: () => {}});
 
   const ajaxInjections = RU.objFromPairs(
     Ajax.lens.getAccounts, () => Promise.resolve(accounts),
@@ -68,6 +70,7 @@ describe('AppContextProvider', () => {
       ajaxInjections={ajaxInjections}
       featureFlagsSvc={featureFlagsSvc}
       actionDispatcher={actionDispatcher}
+      navigationService={navigationService}
     >
       {p => <Child {...p}/>}
     </sut.AppContextProvider>
@@ -85,6 +88,7 @@ describe('AppContextProvider', () => {
         sut.lens.currencies, currencies,
         sut.lens.featureFlagsSvc, featureFlagsSvc,
         sut.lens.actionDispatcher, actionDispatcher,
+        sut.lens.navigationService, navigationService,
       ));
     });
   });
