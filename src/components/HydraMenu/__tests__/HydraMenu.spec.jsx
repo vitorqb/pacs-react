@@ -12,10 +12,19 @@ describe('handleInputChange', () => {
 
   const newEvent = (value) => ({target: {value}});
 
-  const defaultOpts = () => ({
-    hydraNodes: [Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()})],
+  const defaultOpts = (opts={}) => ({
+    currentHydraNodes: [
+      Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()})
+    ],
     isVisibleState: [false, sinon.spy()],
+    inputValueState: [false, sinon.spy()],
+    ...opts,
   });
+
+  const newBranchNode = (opts={}) => {
+    const defaultOpts = {shortcut: "a", description: "", children: []};
+    return Hydra.newBranchNode({...defaultOpts, ...opts});
+  };
 
   const call = (opts={}) => (event=null) => {
     const finalEvent = event || newEvent('');
@@ -29,24 +38,104 @@ describe('handleInputChange', () => {
     expect(call()(newEvent(""))).toEqual(undefined);
   });
 
+  it('Set value on blank input', () => {
+    const opts = defaultOpts();
+    call(opts)();
+    expect(opts.inputValueState[1].args).toEqual([['']]);
+  });
+
   it('Do not fail if node not found', () => {
     expect(call()(newEvent("b"))).toEqual(undefined);
   });
 
+  it('Does not set value if no node to select', () => {
+    const opts = defaultOpts();    
+    call(opts)(newEvent('b'));
+    expect(opts.inputValueState[1].called).toBe(false);
+  });
+
   it('Runs action if input contains shortcut for leaf', () => {
     const actionFn = sinon.spy();
-    const hydraNodes = [Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn})];
-    call({hydraNodes})(newEvent('a'));
+    const currentHydraNodes = [Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn})];
+    call({currentHydraNodes})(newEvent('a'));
     expect(actionFn.args).toEqual([[]]);
   });
+
+  it('Sets isVisible to false if leaf node is selected', () => {
+    const opts = defaultOpts();
+    call(opts)(newEvent('a'));
+    expect(opts.isVisibleState[1].args).toEqual([[false]]);
+  });
+
+  it('Does not change visibility if no node selected', () => {
+    const opts = defaultOpts();
+    call(opts)(newEvent('c'));
+    expect(opts.isVisibleState[1].called).toBe(false);
+  });
+
+  it('Does not change visibility if branch node is selected', () => {
+    const currentHydraNodes = [newBranchNode()];
+    const opts = defaultOpts({currentHydraNodes});
+    call(opts)(newEvent('a'));
+    expect(opts.isVisibleState[1].called).toBe(false);
+  });
+
+  it('Set value if branch node is selected', () => {
+    const currentHydraNodes = [newBranchNode()];
+    const opts = defaultOpts({currentHydraNodes});
+    call(opts)(newEvent('a'));
+    expect(opts.inputValueState[1].args).toEqual([['a']]);
+  });
+
+  it('Set value if user has erased an input', () => {
+    const inputValueState = ['abc', sinon.spy()];
+    call({inputValueState})(newEvent('a'));
+    expect(inputValueState[1].args).toEqual([['a']]);
+  });
   
+});
+
+describe('getCurrentHydraNodes', () => {
+
+  const defaultOpts = (opts={}) => ({
+    rootHydraNodes: [
+      Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()})
+    ],
+    currentInputValue: 'a',
+    ...opts,
+  });
+
+  const call = (opts={}) => sut.getCurrentHydraNodes(defaultOpts(opts));
+
+  it.each(
+    [[''], [null], [undefined]]
+  )('Root nodes if no input: %s', (currentInputValue) => {
+    const opts = defaultOpts({currentInputValue});
+    expect(call(opts)).toEqual(opts.rootHydraNodes);
+  });
+
+  it('Returns nested branch node matching shortcut', () => {
+    const leafHydraNode = (
+      Hydra.newLeafNode({shortcut: 'c', description: 'Foo', actionFn: () => {}})
+    );
+    const nestedBranchNode = (
+      Hydra.newBranchNode({shortcut: "b", description: "", children: [leafHydraNode]})
+    );
+    const rootBranchNode = (
+      Hydra.newBranchNode({shortcut: "a", description: "", children: [nestedBranchNode]})
+    );
+    const opts = defaultOpts({rootHydraNodes: [rootBranchNode], currentInputValue: 'ab'});
+    expect(call(opts)).toEqual([leafHydraNode]);
+  });
+
 });
 
 describe('HydraMenuCore', () => {
 
   const defaultProps = () => ({
     isVisibleState: [true, () => {}],
-    hydraNodes: [
+    inputValueState: ['', () => {}],
+    rootHydraNodes: [
       Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()}),
       Hydra.newLeafNode({shortcut: 'b', description: 'Bar', actionFn: sinon.spy()}),      
     ],
@@ -89,7 +178,7 @@ describe('HydraMenu', () => {
 
   const defaultProps = () => ({
     actionDispatcher,
-    hydraNodes: [
+    rootHydraNodes: [
       Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()}),
       Hydra.newLeafNode({shortcut: 'b', description: 'Bar', actionFn: sinon.spy()}),      
     ],    
@@ -103,13 +192,18 @@ describe('HydraMenu', () => {
 
   const getIsVisible = component => component.find(sut.HydraMenuCore).props().isVisibleState[0];
 
-  const waitForVisibility = async (component) => act(async () => {
+  const ensureVisible = async (component) => act(async () => {
     actionDispatcher.dispatch(toggleVisibilityAction);
     await waitFor(() => {
       component.update();
       return getIsVisible(component) == true;
     });
   });
+
+  const simulateInputChange = component => value => {
+    component.find('input').simulate('change', {target: {value}});
+    component.update();
+  };
 
   it('Hides on ToggleVisibility action', async () => {
     const component = render({actionDispatcher});
@@ -134,14 +228,37 @@ describe('HydraMenu', () => {
 
   it('Runs action of leaf node', async () => {
     const actionFn = sinon.spy();
-    const hydraNodes = [Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn})];
-    const component = render({hydraNodes});
+    const rootHydraNodes = [Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn})];
+    const component = render({rootHydraNodes});
 
-    await waitForVisibility(component);
+    await ensureVisible(component);
+
+    simulateInputChange(component)('a');
     
-    component.find('input').simulate('change', {target: {value: 'a'}});
     await waitFor(() => actionFn.called);
     expect(actionFn.args).toEqual([[]]);
+  });
+
+  it('Runs an action on a nested node', async () => {
+    const actionFn = sinon.spy();
+    const leafNode = Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn});
+    const branchNode = Hydra.newBranchNode({shortcut: 'b', description: '', children: [leafNode]});
+    const rootHydraNodes = [branchNode];
+    const component = render({rootHydraNodes});
+
+    await ensureVisible(component);
+
+    simulateInputChange(component)('b');
+
+    await waitFor(() => {
+      component.update();
+      return component.html().includes('Foo');
+    });
+
+    simulateInputChange(component)('ba');
+
+    await waitFor(() => actionFn.called);
+    expect(actionFn.args).toEqual([[]]);    
   });
 
 });

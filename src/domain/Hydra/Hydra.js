@@ -1,4 +1,9 @@
+import * as R from 'ramda';
 
+const NODE_TYPES = {
+  BRANCH: 'BRANCH',
+  LEAF: 'LEAF',
+};
 
 /**
  * Returns a new leaf node.
@@ -8,11 +13,12 @@
  * @param {function} opts.actionFn - A callback for when this node is selected.
  */
 export const newLeafNode = ({shortcut, description, actionFn}) => {
-  return {shortcut, description, actionFn};
+  return {shortcut, description, actionFn, _node_type: NODE_TYPES.LEAF};
 };
 
 export const newBranchNode = ({shortcut, description, children}) => {
-  return {shortcut, description, children};
+  return {shortcut, description, children, _node_type: NODE_TYPES.BRANCH};
 };
 
-
+export const isLeafNode = node => node._node_type == NODE_TYPES.LEAF;
+export const isBranchNode = node => node._node_type == NODE_TYPES.BRANCH;
