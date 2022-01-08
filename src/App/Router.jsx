@@ -3,20 +3,20 @@
  */
 import React from 'react';
 import * as R from 'ramda';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import Group from './Router/Group';
 
 /**
  * Renders a group of links.
- * @param {Object} groupData -
+ * @param {Object} groupOfRoutes -
  *     An object with data for the group.
- * @param {string} groupData.text -
+ * @param {string} groupOfRoutes.text -
  *     An object with the text describing this group.
- * @param groupData.listOfLinkData - 
- *     A list of LinkData with the `path`, `text` and `component` for each link.
+ * @param groupOfRoutes.routes - 
+ *     A list of Route with the `path`, `text` and `element` for each link.
  */
-export function makeGroup({text, listOfLinkData}) {
-  const links = R.map(makeLink, listOfLinkData);
+export function makeGroup({text, routes}) {
+  const links = R.map(makeLink, routes);
   return (
     <div key={text} className="router__group">
       <Group text={text}>{links}</Group>
@@ -38,28 +38,32 @@ export function makeLink({path, text}) {
  * Makes a Route for a router.
  * @param {Object} routeData - An object with data for the route.
  * @param {string} routeData.path - The path (url).
- * @param {Function} routeData.component - a 0-arity function returning a
- *   component to render for this route.
+ * @param {Function} routeData.element - A React element for that route.
  */
-export function makeRoute({path, component}) {
-  return (<Route key={path} path={path} render={component} />);
+export function makeRoute({path, element}) {
+  return (<Route key={path} path={path} element={element} />);
 }
 
 /**
  * Makes a Router object given a data.
- * @param listOfGroups - An array of group objects with `text` and `listOfLinkData`.
+ * @param listOfGroupsOfRoutes - An array of group objects with `text` and `routes`.
  */
-export function makeRouter(listOfGroups) {
-  const groups = R.map(makeGroup, listOfGroups);
-  const routes = R.pipe(R.chain(g => g.listOfLinkData), R.map(makeRoute))(listOfGroups);
+export function makeRouter(listOfGroupsOfRoutes) {
+  const groups = R.map(makeGroup, listOfGroupsOfRoutes);
+  const routes = R.pipe(R.chain(R.prop('routes')), R.map(makeRoute))(listOfGroupsOfRoutes);
   return (
-    <Router>
+    <>
       <div className="router__groups">
         {groups}
       </div>
       <div className="router__routes">
-        {routes}
+        <Routes>
+          {routes}
+          <Route path={"/"} element={<div/>} />
+        </Routes>
       </div>
-    </Router>
+    </>
   );
 };
+
+export const Router = BrowserRouter;

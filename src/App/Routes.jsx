@@ -1,4 +1,20 @@
+import * as Routing from '../domain/Routing/Routing.js';
 
+export const PATHS = {
+  CREATE_TRANSACTION: "/create-transaction/",
+  EDIT_TRANSACTION: "/edit-transaction/",
+  TRANSACTION_TABLE: "/transaction-table/",
+  DELETE_TRANSACTION: "/delete-transaction/",
+  CREATE_ACCOUNT: "/create-account/",
+  EDIT_ACCOUNT: "/edit-account/",
+  DELETE_ACCOUNT: "/delete-account/",
+  ACCOUNT_TREE: "/account-tree/",
+  ACCOUNT_JOURNAL: "/account-journal/",
+  ACCOUNT_BALANCE_EVOLUTION_REPORT: "/account-balance-evolution-report/",
+  ACCOUNT_FLOW_EVOLUTION_REPORT: "/account-flow-evolution-report/",
+  CURRENCY_TABLE: "/currency-table/",
+  EXCHANGE_RATE_DATA_FETCHER: "/exchange-rate-data/fetch/",
+};
 
 /**
  * Returns the data for the routes of the App.
@@ -18,89 +34,106 @@ export const getRoutesData = ({
   fetchCurrencyExchangeRateDataComponent,
   deleteTransactionComponent,
 }) => [
-  {
+  Routing.newGroupOfRoutes({
     text: "Transaction",
-    listOfLinkData: [
-      {
-        path: "/create-transaction/",
+    shortcut: "t",
+    routes: [
+      Routing.newRoute({
+        path: PATHS.CREATE_TRANSACTION,
         text: "Create",
-        component: () => createTransactionForm,
-      },
-      {
-        path: "/edit-transaction/",
+        element: createTransactionForm,
+        shortcut: "c",
+      }),
+      Routing.newRoute({
+        path: PATHS.EDIT_TRANSACTION,
         text: "Edit",
-        component: () => editTransactionComponent,
-      },
-      {
-        path: "/transaction-table/",
+        element: editTransactionComponent,
+        shortcut: "e",
+      }),
+      Routing.newRoute({
+        path: PATHS.TRANSACTION_TABLE,
         text: "Table",
-        component: () => transactionTable
-      },
-      {
-        path: "/delete-transaction",
+        element: transactionTable,
+        shortcut: "t",
+      }),
+      Routing.newRoute({
+        path: PATHS.DELETE_TRANSACTION,
         text: "Delete",
-        component: () => deleteTransactionComponent
-      }
+        element: deleteTransactionComponent,
+        shortcut: "d",
+      })
     ]
-  },
-  {
+  }),
+  Routing.newGroupOfRoutes({
+    shortcut: "a",
     text: "Account",
-    listOfLinkData: [
-      {
-        path: "/create-account/",
+    routes: [
+      Routing.newRoute({
+        path: PATHS.CREATE_ACCOUNT,
         text: "Create",
-        component: () => createAccForm
-      },
-      {
-        path: "/edit-account/",
+        element: createAccForm,
+        shortcut: "c",
+      }),
+      Routing.newRoute({
+        path: PATHS.EDIT_ACCOUNT,
         text: "Edit",
-        component: () => editAccountComponent
-      },
-      {
-        path: "/delete-account/",
+        element: editAccountComponent,
+        shortcut: "e",
+      }),
+      Routing.newRoute({
+        path: PATHS.DELETE_ACCOUNT,
         text: "Delete",
-        component: () => DeleteAccountComponent
-      },
-      {
-        path: "/account-tree/",
+        element: DeleteAccountComponent,
+        shortcut: "d",
+      }),
+      Routing.newRoute({
+        path: PATHS.ACCOUNT_TREE,
         text: "Tree",
-        component: () => accountTree
-      },
-      {
-        path: "/account-journal/",
+        element: accountTree,
+        shortcut: "t",
+      }),
+      Routing.newRoute({
+        path: PATHS.ACCOUNT_JOURNAL,
         text: "Journal",
-        component: () => journalComponent
-      },
+        element: journalComponent,
+        shortcut: "j",
+      }),
     ]
-  },
-  {
+  }),
+  Routing.newGroupOfRoutes({
+    shortcut: "r",
     text: "Reports",
-    listOfLinkData: [
-      {
-        path: "/account-balance-evolution-report/",
+    routes: [
+      Routing.newRoute({
+        path: PATHS.ACCOUNT_BALANCE_EVOLUTION_REPORT,
         text: "Balance Evolution Report",
-        component: () => accountBalanceEvolutionComponent,
-      },
-      {
-        path: "/account-flow-evolution-report/",
+        element: accountBalanceEvolutionComponent,
+        shortcut: "b",
+      }),
+      Routing.newRoute({
+        path: PATHS.ACCOUNT_FLOW_EVOLUTION_REPORT,
         text: "Flow Evolution Report",
-        component: () => accountFlowEvolutionReportComponent
-      }
+        element: accountFlowEvolutionReportComponent,
+        shortcut: "f",
+      })
     ]
-  },
-  {
+  }),
+  Routing.newGroupOfRoutes({
+    shortcut: "c",
     text: "Currency",
-    listOfLinkData: [
-      {
-        path: "/currency-table/",
+    routes: [
+      Routing.newRoute({
+        path: PATHS.CURRENCY_TABLE,
         text: "Table",
-        component: () => currencyTable
-      },
-      {
-        path: "/exchange-rate-data/fetch/",
+        element: currencyTable,
+        shortcut: "t",
+      }),
+      Routing.newRoute({
+        path: PATHS.EXCHANGE_RATE_DATA_FETCHER,
         text: "Exchange Rate Data Fetcher",
-        component: () => fetchCurrencyExchangeRateDataComponent
-      }
+        element: fetchCurrencyExchangeRateDataComponent,
+        shortcut: "f",
+      })
     ]
-  }
+  })
 ];

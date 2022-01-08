@@ -1,0 +1,55 @@
+@import '../../css/variables.scss';
+
+.hydraMenu {
+  z-index: 999;
+  top: 0;
+  left: 0;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(black, 60%);
+
+  &Modal {
+    position: fixed;
+    min-width: 350px;
+    max-height: 75vh;
+    min-height: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  &Node {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    column-gap: $padding-m;
+    align-items: baseline;
+  }
+
+  &NodesContainer {
+    flex: 1;
+    overflow: auto;
+  }
+
+  &NodeDescription {
+    flex: 1;
+  }
+
+  &NodeShortcut {
+    flex: 0;
+    font-size: $font-size-l;
+    font-weight: 600;
+  }
+
+  &Title {
+    font-size: 1.25rem;
+    text-align: center;
+    padding-bottom: $padding-xs;
+  }
+}

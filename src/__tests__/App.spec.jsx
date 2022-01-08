@@ -1,13 +1,8 @@
 // Integration tests for pacs-react
 import React from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import * as R from 'ramda';
 import { mount } from 'enzyme';
-import * as sut from '../App';
 import { makeLink, makeRoute, makeRouter } from '../App/Router';
-import SecretsLens from '../domain/Secrets/Lens';
-import * as RU from '../ramda-utils';
-import LoginPage, { valueLens as loginPageValueLens } from '../components/LoginPage';
 
 describe('App.test.jsx', () => {
 
@@ -26,19 +21,19 @@ describe('App.test.jsx', () => {
   describe('makeRoute()', () => {
     it('base', () => {
       const path = "/a/b";
-      const component = () => (<h1>Hola</h1>);
+      const element = (<h1>Hola</h1>);
 
-      const exp = (<Route key={path} path={path} render={component} />);
+      const exp = (<Route key={path} path={path} element={element} />);
 
-      expect(makeRoute({path, component})).toEqual(exp);
+      expect(makeRoute({path, element})).toEqual(exp);
     });
   });
 
   describe('makeRouter()', () => {
     it('base', () => {
       const text = "A";
-      const listOfLinkData = [];
-      const listOfGroups = [{text, listOfLinkData}];
+      const routes = [];
+      const listOfGroups = [{text, routes}];
 
       const exp = mount(
         <Router>
@@ -53,11 +48,13 @@ describe('App.test.jsx', () => {
               </div>              
             </div>
           </div>
-          <div className="router__routes"></div>
+          <div className="router__routes">
+            <div></div>
+          </div>
         </Router>
       );
 
-      const router = mount(makeRouter(listOfGroups));
+      const router = mount(<Router>{makeRouter(listOfGroups)}</Router>);
       expect(router.html()).toEqual(exp.html());
     });
   });

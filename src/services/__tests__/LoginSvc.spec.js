@@ -1,4 +1,4 @@
-import * as sut from './LoginSvc.js';
+import * as sut from '../LoginSvc.js';
 import sinon from 'sinon';
 
 const TOKEN_VALUE = "123";
