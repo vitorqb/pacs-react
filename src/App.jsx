@@ -46,37 +46,37 @@ class App extends Component {
     this.shortcutService = ShortcutServiceInstance({actionDispatcher: this.actionDispatcher});
   }
 
+  // Returns the routeData for the app
+  getRoutesData({appContext, refreshAppContext, ajaxInjections}) {
+    const appContextGetters = AppContextGetters.makeGetters(appContext);
+    const events = RU.objFromPairs(
+      EventsLens.refetchAppContext, () => refreshAppContext(),
+      EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
+      EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
+    );
+    const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
+    const routesData = Routes.getRoutesData({
+      transactionTable: TransactionTableInstace(renderArgs),
+      createAccForm: CreateAccountComponentInstance(renderArgs),
+      editAccountComponent: EditAccountComponentInstance(renderArgs),
+      createTransactionForm: CreateTransactionFormInstance(renderArgs),
+      accountTree: AccountTreeInstance(renderArgs),
+      currencyTable: CurrencyTableInstance(renderArgs),
+      editTransactionComponent: EditTransactionComponentInstance(renderArgs),
+      journalComponent: JournalComponentInstance(renderArgs),
+      accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
+      accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
+      DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
+      fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs),
+      deleteTransactionComponent: DeleteTransactionComponentInstance(renderArgs),
+    });
+    return routesData;
+  }
+
   render() {
 
     // Prepares the state, appContextGetters and ajax functions
     const state = this.state;
-
-    // Prepares the router
-    const renderRouter = ({appContext, refreshAppContext, ajaxInjections}) => {
-      const appContextGetters = AppContextGetters.makeGetters(appContext);
-      const events = RU.objFromPairs(
-        EventsLens.refetchAppContext, () => refreshAppContext(),
-        EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
-        EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
-      );
-      const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
-      const routeData = Routes.getRoutesData({
-        transactionTable: TransactionTableInstace(renderArgs),
-        createAccForm: CreateAccountComponentInstance(renderArgs),
-        editAccountComponent: EditAccountComponentInstance(renderArgs),
-        createTransactionForm: CreateTransactionFormInstance(renderArgs),
-        accountTree: AccountTreeInstance(renderArgs),
-        currencyTable: CurrencyTableInstance(renderArgs),
-        editTransactionComponent: EditTransactionComponentInstance(renderArgs),
-        journalComponent: JournalComponentInstance(renderArgs),
-        accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
-        accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
-        DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
-        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs),
-        deleteTransactionComponent: DeleteTransactionComponentInstance(renderArgs),
-      });
-      return makeRouter(routeData);
-    };
 
     const baseUrl = R.view(SecretLens.host, this.props.secrets);
 
@@ -105,12 +105,15 @@ class App extends Component {
                                 actionDispatcher={this.actionDispatcher}
                                 navigationService={navigationService}
                               >
-                                {({appContext, refreshAppContext}) => (
-                                  <>
-                                    {renderRouter({appContext, refreshAppContext, ajaxInjections})}
-                                    <MainHydraMenu appContext={appContext} />
-                                  </>
-                                )}
+                                {({appContext, refreshAppContext}) => {
+                                  const routesData = this.getRoutesData({appContext, refreshAppContext, ajaxInjections});
+                                  return (
+                                    <>
+                                      {makeRouter(routesData)}
+                                      <MainHydraMenu appContext={appContext} routesData={routesData} />
+                                    </>
+                                  );
+                                }}
                               </AppContext.AppContextProvider>
                             )}
                           </Ajax.AjaxInjectionsProvider>

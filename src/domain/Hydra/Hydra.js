@@ -20,5 +20,17 @@ export const newBranchNode = ({shortcut, description, children}) => {
   return {shortcut, description, children, _node_type: NODE_TYPES.BRANCH};
 };
 
+export const leafNodeFromRoute = goToPathFn => route => newLeafNode({
+  shortcut: route.shortcut,
+  description: route.text,
+  actionFn: () => goToPathFn(route.path),
+});
+
+export const branchNodeFromGroupOfRoutes = goToPathFn => groupOfRoutes => newBranchNode({
+  shortcut: groupOfRoutes.shortcut,
+  description: groupOfRoutes.text,
+  children: R.map(leafNodeFromRoute(goToPathFn))(groupOfRoutes.routes),
+});
+
 export const isLeafNode = node => node._node_type == NODE_TYPES.LEAF;
 export const isBranchNode = node => node._node_type == NODE_TYPES.BRANCH;
