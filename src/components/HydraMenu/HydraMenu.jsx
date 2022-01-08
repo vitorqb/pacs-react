@@ -127,6 +127,12 @@ export const HydraMenu = (props) => {
     return () => actionDispatcher.unregister(ACTIONS.TOGGLE_VISIBILITY);
   });
 
+  useEffect(function cleanupInputValueOnClose() {
+    if (isVisibleState[0] == false) {
+      inputValueState[1]("");
+    }
+  }, [isVisibleState[0]]);
+
   return <HydraMenuCore {...{isVisibleState, rootHydraNodes, inputValueState, title}}/>;
 };
 

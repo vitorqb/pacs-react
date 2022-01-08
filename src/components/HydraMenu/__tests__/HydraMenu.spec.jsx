@@ -211,10 +211,20 @@ describe('HydraMenu', () => {
     });
   });
 
+  const close = async (component) => act(async () => {
+    actionDispatcher.dispatch(toggleVisibilityAction);
+    await waitFor(() => {
+      component.update();
+      return ! getIsVisible(component);
+    });
+  });
+
   const simulateInputChange = component => value => {
     component.find('input').simulate('change', {target: {value}});
     component.update();
   };
+
+  const getInputValue = component => component.find('input').props().value;
 
   it('Hides on ToggleVisibility action', async () => {
     const component = render({actionDispatcher});
@@ -282,6 +292,20 @@ describe('HydraMenu', () => {
     await waitFor(() => ! getIsVisible(component));
 
     expect(getIsVisible(component)).toBe(false);
+  });
+
+  it('Cleans up current user input on open', async () => {
+    const rootHydraNodes = [Hydra.newBranchNode({shortcut: 'a', description: 'A', children: []})];
+    const component = render({rootHydraNodes});
+    await ensureVisible(component);
+    simulateInputChange(component)('a');
+    await act( async () => await waitFor(() => {
+      component.update();
+      return getInputValue(component) == "a";
+    }));
+    await close(component);
+    await ensureVisible(component);
+    expect(getInputValue(component)).toEqual("");
   });
 
 });
