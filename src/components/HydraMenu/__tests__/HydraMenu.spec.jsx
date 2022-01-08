@@ -272,4 +272,16 @@ describe('HydraMenu', () => {
     expect(actionFn.args).toEqual([[]]);    
   });
 
+  it('Quits on "q"', async () => {
+    const component = render();
+
+    await ensureVisible(component);
+
+    simulateInputChange(component)('q');
+
+    await waitFor(() => ! getIsVisible(component));
+
+    expect(getIsVisible(component)).toBe(false);
+  });
+
 });

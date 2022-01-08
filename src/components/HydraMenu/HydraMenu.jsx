@@ -8,6 +8,14 @@ export const ACTIONS = {
   TOGGLE_VISIBILITY: "TOGGLE_VISIBILITY"
 };
 
+export const addQuitNode = isVisibleState => R.append(Hydra.newLeafNode({
+  shortcut: 'q',
+  description: 'Quit',
+  actionFn: () => {
+    isVisibleState[1](false);
+  }
+}));
+
 export const handleInputChange = (opts) => (e) => {
   const {currentHydraNodes, isVisibleState, inputValueState} = opts;
   const newValue = e.target.value;
@@ -109,7 +117,8 @@ export const HydraMenuCore = (props) => {
 };
 
 export const HydraMenu = (props) => {
-  const {actionDispatcher, rootHydraNodes, title} = props;
+  const {actionDispatcher, title} = props;
+  const rootHydraNodes = R.pipe(R.prop('rootHydraNodes'), addQuitNode(isVisibleState))(props);
   const isVisibleState = useState(false);
   const [, setIsVisible] = isVisibleState;
   const inputValueState = useState('');
