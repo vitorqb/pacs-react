@@ -32,8 +32,8 @@ describe('App.test.jsx', () => {
   describe('makeRouter()', () => {
     it('base', () => {
       const text = "A";
-      const listOfLinkData = [];
-      const listOfGroups = [{text, listOfLinkData}];
+      const routes = [];
+      const listOfGroups = [{text, routes}];
 
       const exp = mount(
         <Router>

@@ -4,7 +4,7 @@ import * as sut from '../Router';
 
 describe('makeGroup', () => {
 
-  const data = {text: "Foo", listOfLinkData: []};
+  const data = {text: "Foo", routes: []};
   const component = mount(<sut.Router>{sut.makeGroup(data)}</sut.Router>);
 
   it('Renders a Group with correct text and children', () => {
