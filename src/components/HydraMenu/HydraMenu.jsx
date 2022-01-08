@@ -118,22 +118,16 @@ export const HydraMenuCore = (props) => {
 
 export const HydraMenu = (props) => {
   const {actionDispatcher, title} = props;
-  const rootHydraNodes = R.pipe(R.prop('rootHydraNodes'), addQuitNode(isVisibleState))(props);
   const isVisibleState = useState(false);
-  const [, setIsVisible] = isVisibleState;
+  const rootHydraNodes = R.pipe(R.prop('rootHydraNodes'), addQuitNode(isVisibleState))(props);
   const inputValueState = useState('');
 
   useEffect(() => {
-    actionDispatcher.register(ACTIONS.TOGGLE_VISIBILITY, () => setIsVisible(R.not));
+    actionDispatcher.register(ACTIONS.TOGGLE_VISIBILITY, () => isVisibleState[1](R.not));
     return () => actionDispatcher.unregister(ACTIONS.TOGGLE_VISIBILITY);
   });
 
-  return <HydraMenuCore
-           isVisibleState={isVisibleState}
-           rootHydraNodes={rootHydraNodes}
-           inputValueState={inputValueState}
-           title={title}
-         />;
+  return <HydraMenuCore {...{isVisibleState, rootHydraNodes, inputValueState, title}}/>;
 };
 
 export default HydraMenu;
