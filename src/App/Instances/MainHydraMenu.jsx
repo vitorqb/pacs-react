@@ -25,6 +25,7 @@ export const MainHydraMenu = (props) => {
   };
   return (
     <HydraMenu
+      title={"Main Menu"}
       actionDispatcher={actionDispatcher}
       rootHydraNodes={rootHydraNodes(navigationService)}
     />

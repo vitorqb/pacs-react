@@ -68,6 +68,9 @@ export const HydraNode = (props) => {
   const {hydraNode} = props;
   return (
     <div className={styles.hydraMenuNode}>
+      <span className={styles.hydraMenuNodeShortcut}>
+        {hydraNode.shortcut}
+      </span>
       <span className={styles.hydraMenuNodeDescription}>
         {hydraNode.description}
       </span>
@@ -76,26 +79,27 @@ export const HydraNode = (props) => {
 };
 
 export const HydraMenuCore = (props) => {
-  const {isVisibleState, inputValueState, rootHydraNodes} = props;
+  const {isVisibleState, inputValueState, rootHydraNodes, title} = props;
   const [currentInputValue,] = inputValueState;
   const currentHydraNodes = getCurrentHydraNodes({rootHydraNodes, currentInputValue});
-  const className = classnames({
-    [styles.hydraMenu]: true,
-    hide: !isVisibleState[0],
-  });
+  const titleComponent = R.unless(
+    R.either(R.isEmpty, R.isNil),
+    title => <div className={styles.hydraMenuTitle}>{title}</div>
+  )(title);
   if (! isVisibleState[0]) {
     return <></>;
   }
   return (
-    <div className={className}>
+    <div className={styles.hydraMenu}>
       <div className={styles.hydraMenuModal}>
-        {R.map(hydraNode => {
-          return <HydraNode key={hydraNode.shortcut} hydraNode={hydraNode} />;
-        })(currentHydraNodes)}
+        {titleComponent}
+        <div className={styles.hydraMenuNodesContainer}>
+          {R.map(
+            hydraNode => <HydraNode key={hydraNode.shortcut} hydraNode={hydraNode} />
+          )(currentHydraNodes)}
+        </div>
         <input
-          onChange={
-            handleInputChange({currentHydraNodes, isVisibleState, inputValueState})
-          }
+          onChange={handleInputChange({currentHydraNodes, isVisibleState, inputValueState})}
           value={inputValueState[0]}
           autoFocus
         />
@@ -105,7 +109,7 @@ export const HydraMenuCore = (props) => {
 };
 
 export const HydraMenu = (props) => {
-  const {actionDispatcher, rootHydraNodes} = props;
+  const {actionDispatcher, rootHydraNodes, title} = props;
   const isVisibleState = useState(false);
   const [, setIsVisible] = isVisibleState;
   const inputValueState = useState('');
@@ -119,6 +123,7 @@ export const HydraMenu = (props) => {
            isVisibleState={isVisibleState}
            rootHydraNodes={rootHydraNodes}
            inputValueState={inputValueState}
+           title={title}
          />;
 };
 

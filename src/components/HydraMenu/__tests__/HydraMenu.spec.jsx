@@ -133,6 +133,7 @@ describe('getCurrentHydraNodes', () => {
 describe('HydraMenuCore', () => {
 
   const defaultProps = () => ({
+    title: "Title",
     isVisibleState: [true, () => {}],
     inputValueState: ['', () => {}],
     rootHydraNodes: [
@@ -144,6 +145,8 @@ describe('HydraMenuCore', () => {
   const render = (props) => {
     return mount(<sut.HydraMenuCore {...defaultProps()} {...props}/>);
   };
+
+  const findTitle = x => x.find(`.${styles.hydraMenuTitle}`);
 
   describe('Sets visibility based on isVisibleState', () => {
 
@@ -163,6 +166,14 @@ describe('HydraMenuCore', () => {
     const component = render();
     expect(component.find(`.${styles.hydraMenuNodeDescription}`).at(0).text()).toEqual("Foo");
     expect(component.find(`.${styles.hydraMenuNodeDescription}`).at(1).text()).toEqual("Bar");
+  });
+
+  it('Renders title', () => {
+    expect(findTitle(render()).text()).toEqual("Title");
+  });
+
+  it.each([[""], [null], [undefined]])("Skipts title if equals %s", title => {
+    expect(findTitle(render({title}))).toHaveLength(0);
   });
 
 });
