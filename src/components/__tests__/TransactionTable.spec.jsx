@@ -2,10 +2,10 @@ import React from 'react';
 import { mount } from 'enzyme';
 import TransactionTable, { extractQuantityMoved, extractAccountsRepr } from '../TransactionTable';
 import * as sut from '../TransactionTable';
-import { MovementFactory, TransactionFactory, CurrencyFactory, AccountFactory } from '../../testUtils';
+import { MovementFactory, CurrencyFactory, AccountFactory } from '../../testUtils';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
-import { getSourceAccsPks, getTargetAccsPks, newGetter, memoizeSimple } from '../../utils';
+import { getSourceAccsPks, getTargetAccsPks, newGetter } from '../../utils';
 import sinon from 'sinon';
 import ReactTable from 'react-table';
 import moment from 'moment';
@@ -129,7 +129,7 @@ describe('Testing ReactTableProps', () => {
   /**
    * Helpers that selects the column with a specific id from the props.
    */
-  const selectColumnById = (id, props) => RU.findFirst(x => x.id == id, props.columns);
+  const selectColumnById = (id, props) => RU.findFirst(x => x.id === id, props.columns);
 
   describe('.gen()', () => {
 
@@ -268,7 +268,7 @@ describe('transactionTableHeader', () => {
 
   describe('_searchTermChangeHandler', () => {
 
-    let setSearchTerm, newSearchTerm, event, result;
+    let setSearchTerm, newSearchTerm, event;
 
     beforeEach(() => {
       newSearchTerm = "Foo";
@@ -277,7 +277,7 @@ describe('transactionTableHeader', () => {
         preventDefault: sinon.fake(),
         target: {value: newSearchTerm}
       };
-      result = sut.transactionTableHeader._searchTermChangeHandler(setSearchTerm, event);
+      sut.transactionTableHeader._searchTermChangeHandler(setSearchTerm, event);
     });
 
     afterEach(() => {

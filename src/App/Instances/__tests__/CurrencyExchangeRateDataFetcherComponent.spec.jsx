@@ -1,6 +1,5 @@
 import React from 'react';
 import CurrencyExchangeRateDataFetcherComponentInstance from '../CurrencyExchangeRateDataFetcherComponent';
-import * as R from 'ramda';
 import * as RU from '../../../ramda-utils';
 import * as AppContext from '../../AppContext.jsx';
 import { mount } from 'enzyme';

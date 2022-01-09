@@ -8,5 +8,6 @@ jobs:
       - setup_remote_docker
       - run: echo 'export NODE_OPTIONS=--max_old_space_size=4096' >> $BASH_ENV
       - run: npm ci
+      - run: npm run lint
       - run: npm run test -- --runInBand
       - run: npm run build

@@ -7,7 +7,7 @@ import ErrorMessage from './ErrorMessage.jsx';
 
 export const DeletionConfirmationBox = (props) => {
   const { deletionRequestedState, onSubmit } = props;
-  const [deletionRequested, setDeletionRequested] = deletionRequestedState;
+  const [,setDeletionRequested] = deletionRequestedState;
   return (
     <div className={styles.deletionConfirmationBox}>
       {"Are you sure you want to delete this transaction?"}
@@ -47,7 +47,7 @@ export const DeleteTransactionComponentCore = (props) => {
   } = props;
   const [pickedTransaction, setPickedTransaction] = pickedTransactionState;
   const [errorMessage, setErrorMessage] = errorMessageState;
-  const [deletionRequested, setDeletionRequested] = deletionRequestedState;
+  const [deletionRequested, ] = deletionRequestedState;
   return (
     <div className={styles.deleteTransactionComponent}>
       <TransactionPicker

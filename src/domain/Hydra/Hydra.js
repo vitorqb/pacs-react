@@ -32,5 +32,5 @@ export const branchNodeFromGroupOfRoutes = goToPathFn => groupOfRoutes => newBra
   children: R.map(leafNodeFromRoute(goToPathFn))(groupOfRoutes.routes),
 });
 
-export const isLeafNode = node => node._node_type == NODE_TYPES.LEAF;
-export const isBranchNode = node => node._node_type == NODE_TYPES.BRANCH;
+export const isLeafNode = node => node._node_type === NODE_TYPES.LEAF;
+export const isBranchNode = node => node._node_type === NODE_TYPES.BRANCH;

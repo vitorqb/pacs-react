@@ -1,7 +1,6 @@
 import React from 'react';
 import { lens as AppContextLens } from '../../AppContext';
-import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../../testUtils';
-import * as R from 'ramda';
+import { AccountFactory, CurrencyFactory } from '../../../testUtils';
 import * as RU from '../../../ramda-utils';
 import TransactionTableInstance from '../TransactionTable';
 import sinon from 'sinon';

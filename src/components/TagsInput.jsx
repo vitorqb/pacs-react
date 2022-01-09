@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './TagsInput.module.scss';
 import * as R from 'ramda';
 import ErrorMessage from './ErrorMessage.jsx';
 import Tags from '../domain/Tags.js';

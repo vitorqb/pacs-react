@@ -68,7 +68,6 @@ describe('DateInputStateHandler', () => {
   };
 
   it('Renders a DateInput with value', () => {
-    const date = moment.utc("2020-01-01");
     const comp = mountComponent({});
 
     act(() => {

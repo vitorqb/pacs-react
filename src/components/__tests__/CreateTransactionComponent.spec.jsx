@@ -23,12 +23,6 @@ function mountCreateTransactionComponent(opts) {
 
 describe('CreateTransactionComponent', () => {
 
-  const defaultProps = () => ({
-    currencies:  CurrencyFactory.buildList(3),
-    accounts: AccountFactory.buildList(2),
-    createTransaction: () => Promise.resolve({}),
-  });
-
   describe('TransactionForm child', () => {
 
     it('Passes accounts to TransactionForm', () => {

@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 
-const TAGS_REGEX = /^[a-zA-Z0-9\_\-]+\:[a-zA-Z0-9\_\-]+$/;
+const TAGS_REGEX = /^[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+$/;
 
 const _isEmptyUserInput = R.either(R.isNil, R.isEmpty);
 

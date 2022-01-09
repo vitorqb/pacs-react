@@ -135,12 +135,12 @@ describe('Test ajax', () => {
 
         it('Adds page', () => {
           expect(sut.AjaxGetPaginatedTransactions._parseResponse({page: 1}, {}).page).toEqual(1);
-        }),
+        });
 
         it('Adds pageSize', () => {
           expect(sut.AjaxGetPaginatedTransactions._parseResponse({pageSize: 2}, {}).pageSize)
             .toEqual(2);
-        }),
+        });
 
         it('Adds pageCount', () => {
           const pageSize = 2;

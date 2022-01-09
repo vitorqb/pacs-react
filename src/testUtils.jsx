@@ -372,7 +372,7 @@ export const waitFor = async (f) => {
   while (i < 20) {
     const result = f();
     if (result) {
-      return
+      return;
     }
     i++;
     await waitPromise();

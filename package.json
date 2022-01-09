@@ -79,7 +79,9 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "test:watch": "node scripts/test.js --watch",
-    "tern": "NODE_ENV=development tern --persistent --verbose --ignore-stdin --strip-crs --port 4123"
+    "tern": "NODE_ENV=development tern --persistent --verbose --ignore-stdin --strip-crs --port 4123",
+    "lint": "eslint 'src/**/*.{js,jsx}' --max-warnings '0'",
+    "lint:fix": "npm run lint -- --fix"
   },
   "eslintConfig": {
     "extends": "react-app"

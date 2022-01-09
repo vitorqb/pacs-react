@@ -207,7 +207,7 @@ describe('HydraMenu', () => {
     actionDispatcher.dispatch(toggleVisibilityAction);
     await waitFor(() => {
       component.update();
-      return getIsVisible(component) == true;
+      return getIsVisible(component) === true;
     });
   });
 
@@ -234,14 +234,14 @@ describe('HydraMenu', () => {
       actionDispatcher.dispatch(toggleVisibilityAction);
       await waitFor(() => {
         component.update();
-        return getIsVisible(component) == true;
+        return getIsVisible(component) === true;
       });
       expect(getIsVisible(component)).toBe(true);
 
       actionDispatcher.dispatch(toggleVisibilityAction);
       await waitFor(() => {
         component.update();
-        return getIsVisible(component) == false;
+        return getIsVisible(component) === false;
       });
       expect(getIsVisible(component)).toBe(false);
     });
@@ -301,7 +301,7 @@ describe('HydraMenu', () => {
     simulateInputChange(component)('a');
     await act( async () => await waitFor(() => {
       component.update();
-      return getInputValue(component) == "a";
+      return getInputValue(component) === "a";
     }));
     await close(component);
     await ensureVisible(component);
