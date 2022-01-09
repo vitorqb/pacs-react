@@ -55,21 +55,24 @@ class App extends Component {
       EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
     );
     const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
-    const routesData = Routes.getRoutesData({
-      transactionTableComponent: TransactionTableInstace(renderArgs),
-      createAccFormComponent: CreateAccountComponentInstance(renderArgs),
-      editAccountComponent: EditAccountComponentInstance(renderArgs),
-      createTransactionFormComponent: CreateTransactionFormInstance(renderArgs),
-      accountTreeComponent: AccountTreeInstance(renderArgs),
-      currencyTableComponent: CurrencyTableInstance(renderArgs),
-      editTransactionComponent: EditTransactionComponentInstance(renderArgs),
-      journalComponent: JournalComponentInstance(renderArgs),
-      accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
-      accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
-      DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
-      fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs),
-      deleteTransactionComponent: DeleteTransactionComponentInstance(renderArgs),
-    });
+    const routesData = Routes.getRoutesData(
+      renderArgs,
+      {
+        transactionTableComponent: TransactionTableInstace,
+        createAccFormComponent: CreateAccountComponentInstance,
+        editAccountComponent: EditAccountComponentInstance,
+        createTransactionFormComponent: CreateTransactionFormInstance,
+        accountTreeComponent: AccountTreeInstance,
+        currencyTableComponent: CurrencyTableInstance,
+        editTransactionComponent: EditTransactionComponentInstance,
+        journalComponent: JournalComponentInstance,
+        accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance,
+        accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance,
+        DeleteAccountComponent: DeleteAccountComponentInstance,
+        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance,
+        deleteTransactionComponent: DeleteTransactionComponentInstance,
+      }
+    );
     return routesData;
   }
 
