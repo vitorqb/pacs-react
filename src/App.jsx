@@ -56,12 +56,12 @@ class App extends Component {
     );
     const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
     const routesData = Routes.getRoutesData({
-      transactionTable: TransactionTableInstace(renderArgs),
-      createAccForm: CreateAccountComponentInstance(renderArgs),
+      transactionTableComponent: TransactionTableInstace(renderArgs),
+      createAccFormComponent: CreateAccountComponentInstance(renderArgs),
       editAccountComponent: EditAccountComponentInstance(renderArgs),
-      createTransactionForm: CreateTransactionFormInstance(renderArgs),
-      accountTree: AccountTreeInstance(renderArgs),
-      currencyTable: CurrencyTableInstance(renderArgs),
+      createTransactionFormComponent: CreateTransactionFormInstance(renderArgs),
+      accountTreeComponent: AccountTreeInstance(renderArgs),
+      currencyTableComponent: CurrencyTableInstance(renderArgs),
       editTransactionComponent: EditTransactionComponentInstance(renderArgs),
       journalComponent: JournalComponentInstance(renderArgs),
       accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),

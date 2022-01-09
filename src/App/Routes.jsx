@@ -20,12 +20,12 @@ export const PATHS = {
  * Returns the data for the routes of the App.
  */
 export const getRoutesData = ({
-  transactionTable,
-  createAccForm,
+  transactionTableComponent,
+  createAccFormComponent,
   editAccountComponent,
-  createTransactionForm,
-  accountTree,
-  currencyTable,
+  createTransactionFormComponent,
+  accountTreeComponent,
+  currencyTableComponent,
   editTransactionComponent,
   journalComponent,
   accountBalanceEvolutionComponent,
@@ -41,7 +41,7 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CREATE_TRANSACTION,
         text: "Create",
-        element: createTransactionForm,
+        element: createTransactionFormComponent,
         shortcut: "c",
       }),
       Routing.newRoute({
@@ -53,7 +53,7 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.TRANSACTION_TABLE,
         text: "Table",
-        element: transactionTable,
+        element: transactionTableComponent,
         shortcut: "t",
       }),
       Routing.newRoute({
@@ -71,7 +71,7 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CREATE_ACCOUNT,
         text: "Create",
-        element: createAccForm,
+        element: createAccFormComponent,
         shortcut: "c",
       }),
       Routing.newRoute({
@@ -89,7 +89,7 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.ACCOUNT_TREE,
         text: "Tree",
-        element: accountTree,
+        element: accountTreeComponent,
         shortcut: "t",
       }),
       Routing.newRoute({
@@ -125,7 +125,7 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CURRENCY_TABLE,
         text: "Table",
-        element: currencyTable,
+        element: currencyTableComponent,
         shortcut: "t",
       }),
       Routing.newRoute({
