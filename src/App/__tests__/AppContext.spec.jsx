@@ -81,7 +81,7 @@ describe('AppContextProvider', () => {
       const component = renderComponent();
       await waitFor(() => {
         component.update();
-        return component.find('LoadingWrapper').props().isLoading == false;
+        return component.find('LoadingWrapper').props().isLoading === false;
       });
       expect(component.find(Child).props().appContext).toEqual(RU.objFromPairs(
         sut.lens.accounts, accounts,

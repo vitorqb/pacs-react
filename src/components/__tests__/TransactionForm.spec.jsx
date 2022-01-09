@@ -3,7 +3,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import TransactionForm, * as sut from '../TransactionForm';
 import MovementInputs from '../MovementInputs';
-import ErrorMessage from '../ErrorMessage';
 import SuccessMessage from '../SuccessMessage';
 import { AccountFactory, TransactionFactory } from '../../testUtils';
 import { getSpecFromTransaction } from '../../utils';

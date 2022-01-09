@@ -1,9 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import * as RU from '../../../ramda-utils.js';
-import * as R from 'ramda';
 import * as sut from '../AccountBalanceEvolutionComponent';
-import AccountBalanceEvolutionComponent, { propsLens, valueLens } from '../../../components/AccountBalanceEvolutionComponent';
+import AccountBalanceEvolutionComponent from '../../../components/AccountBalanceEvolutionComponent';
 import { lens as AppContextLens } from '../../AppContext';
 import { lens as EventsLens } from '../../Events';
 import * as testUtils from '../../../testUtils.jsx';

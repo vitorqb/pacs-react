@@ -8,7 +8,7 @@ export const readFeaturesFromParams = (params) => {
   const entries = Array.from(new URLSearchParams(params).entries());
   return R.pipe(
     R.filter(([x, y]) => x.startsWith("feature_")),
-    R.map(([x, y]) => [x.substring(8), y.toLowerCase() == 'true'])
+    R.map(([x, y]) => [x.substring(8), y.toLowerCase() === 'true'])
   )(entries);
 };
 
@@ -26,7 +26,7 @@ export class FeatureFlagsSvc {
   isActive = x => {
     let fromLocalStorage = this._getItem(x);
     if (!R.isNil(fromLocalStorage)) {
-      return fromLocalStorage == 'true';
+      return fromLocalStorage === 'true';
     } else {
       return R.pathOr(false, [x], this._defaultFlags);
     }
@@ -38,7 +38,7 @@ export class FeatureFlagsSvc {
 
   setFromUrlParams = urlParams => {
     readFeaturesFromParams(urlParams).forEach(([key, value]) => {
-      if (value == true) {
+      if (value === true) {
         this.setActive(key);
       } else {
         this.setInactive(key);

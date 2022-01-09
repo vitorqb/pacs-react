@@ -1,7 +1,6 @@
 import React, { Component, useEffect, useState } from 'react';
 import moment from 'moment';
 
-
 /**
  * Input for a date.
  * @param {object} props
@@ -43,7 +42,7 @@ export const DateInputStateHandler = ({children, value, onDatePicked}) => {
   const syncUserInput = () => {
     if (value && value.isValid()) {
       const formatedValue = value.format("YYYY-MM-DD");
-      if (formatedValue != userInput) {
+      if (formatedValue !== userInput) {
         setUserInput(formatedValue);
       }
     }

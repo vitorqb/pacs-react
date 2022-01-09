@@ -7,8 +7,6 @@ import {DateInputStateHandler} from '../../components/DateInput';
 import * as RU from '../../ramda-utils';
 import moment from 'moment';
 import sinon from 'sinon';
-import { updateComponent, useStateMock } from '../../testUtils';
-import { act } from 'react-dom/test-utils';
 
 describe('CurrencyExchangeRateDataFetcherComponent', () => {
 

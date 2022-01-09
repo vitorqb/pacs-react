@@ -76,8 +76,6 @@ class App extends Component {
   render() {
 
     // Prepares the state, appContextGetters and ajax functions
-    const state = this.state;
-
     const baseUrl = R.view(SecretLens.host, this.props.secrets);
 
     return (

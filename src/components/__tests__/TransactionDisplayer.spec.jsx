@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { AccountFactory, CurrencyFactory, MoneyFactory, MovementFactory, TransactionFactory } from '../../testUtils.jsx';
+import { AccountFactory, CurrencyFactory, MovementFactory, TransactionFactory } from '../../testUtils.jsx';
 import * as sut from '../TransactionDisplayer.jsx';
 import { DateUtil, moneyToRepr } from '../../utils.jsx';
 import * as R from 'ramda';

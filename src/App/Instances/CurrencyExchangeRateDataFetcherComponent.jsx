@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import CurrencyExchangeRateDataFetcherComponent from '../../components/CurrencyExchangeRateDataFetcherComponent.jsx';
 import { lens as AjaxInjectionsLens } from '../Ajax';
 import * as R from 'ramda';
-import * as FeatureFlags from '../FeatureFlags.jsx';
 import * as AppContext from '../AppContext.jsx';
 
 export default function CurrencyExchangeRateDataFetcherComponentInstance(renderArgs) {

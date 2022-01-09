@@ -3,7 +3,7 @@ import * as sut from '../DeleteAccountComponent';
 import DeleteAccountComponent from '../DeleteAccountComponent';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
-import { AccountFactory, TransactionFactory } from '../../testUtils';
+import { AccountFactory } from '../../testUtils';
 import * as R from 'ramda';
 import * as RU from '../../ramda-utils';
 

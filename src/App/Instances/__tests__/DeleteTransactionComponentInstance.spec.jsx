@@ -94,7 +94,7 @@ describe('FT - DeleteTransactionComponentInstance', () => {
 
       await waitFor(() => {
         component.update();
-        return component.find(TransactionDisplayer).length == 0;
+        return component.find(TransactionDisplayer).length === 0;
       });
 
       expect(component.find(TransactionDisplayer)).toHaveLength(0);

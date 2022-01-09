@@ -84,7 +84,7 @@ describe('LoginProvider', () => {
   it('Calls onLoggedIn after login from cookie', async () => {
     const onLoggedIn = sinon.spy();
     await act(async () => {
-      const component = renderComponent({ onLoggedIn });
+      renderComponent({ onLoggedIn });
       await waitFor(() => onLoggedIn.args.length > 0);
       expect(onLoggedIn.args).toEqual([[TOKEN_VALUE]]);
     });    

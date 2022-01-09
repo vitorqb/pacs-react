@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import * as sut from '../DeleteTransactionComponent';
-import { AccountFactory, CurrencyFactory, TransactionFactory, useStateMock } from '../../testUtils.jsx';
-import { waitFor } from '../../testUtils.jsx';
+import { AccountFactory, CurrencyFactory, TransactionFactory } from '../../testUtils.jsx';
 import sinon from 'sinon';
 
 

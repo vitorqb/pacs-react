@@ -1,10 +1,9 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import * as RU from '../ramda-utils';
 import * as R from 'ramda';
 import TransactionForm from './TransactionForm.jsx';
 import TransactionPicker from './TransactionPicker.jsx';
 import InputWrapper, { propLens as InputWrapperLens } from './InputWrapper';
-import Tags from '../domain/Tags';
 import { getSpecFromTransaction } from '../utils';
 
 /**

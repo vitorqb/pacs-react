@@ -60,7 +60,7 @@ export const handleSubmitDelete = R.curry((renderArgs, setState, account) => {
  */
 export function DeleteAccountComponentInstance(renderArgs) {
   const [instanceState, setInstanceState] = useState({});
-  const { appContext, events } = renderArgs;
+  const { appContext } = renderArgs;
   const accounts = R.view(AppContextLens.accounts, appContext);
   if (R.isNil(accounts)) {
     return null;

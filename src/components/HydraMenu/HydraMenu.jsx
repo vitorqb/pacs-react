@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
-import classnames from 'classnames';
+import React, { useState, useEffect} from 'react';
 import styles from './HydraMenu.module.scss';
 import * as R from 'ramda';
 import * as Hydra from '../../domain/Hydra/Hydra.js';
@@ -33,7 +32,7 @@ export const handleInputChange = (opts) => (e) => {
   }
 
   const lastKey = R.nth(-1)(newValue);
-  const node = R.find(node => node.shortcut == lastKey)(currentHydraNodes);
+  const node = R.find(node => node.shortcut === lastKey)(currentHydraNodes);
 
   if (! node) {
     return;
@@ -58,14 +57,14 @@ export const getCurrentHydraNodes = (opts) => {
   const stopIterationError = new Error("SOTP!");
   try {
     R.forEach((key) => {
-      const nextNode = R.find(node => node.shortcut == key)(resultNodes);
+      const nextNode = R.find(node => node.shortcut === key)(resultNodes);
       if (!nextNode || !Hydra.isBranchNode(nextNode)) {
         throw stopIterationError;
       }
       resultNodes = nextNode.children;
     })(currentInputValue);
   } catch(e) {
-    if (e != stopIterationError) {
+    if (e !== stopIterationError) {
       throw e;
     }
   }
@@ -128,7 +127,7 @@ export const HydraMenu = (props) => {
   });
 
   useEffect(function cleanupInputValueOnClose() {
-    if (isVisibleState[0] == false) {
+    if (isVisibleState[0] === false) {
       inputValueState[1]("");
     }
   }, [isVisibleState[0]]);
