@@ -30,6 +30,7 @@ import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
 import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
 import * as Actions from './domain/Actions.js';
 import { NavigationServiceProvider } from './App/ServicesInstances/NavigationServiceProvider';
+import AppContextServiceInstance from './App/ServicesInstances/AppContextServiceInstance.ts';
 
 
 class App extends Component {
@@ -44,6 +45,7 @@ class App extends Component {
   componentDidMount() {
     this.actionDispatcher = new Actions.ActionDispatcher();
     this.shortcutService = ShortcutServiceInstance({actionDispatcher: this.actionDispatcher});
+    this.appContextService = AppContextServiceInstance();
   }
 
   // Returns the routeData for the app
@@ -54,7 +56,12 @@ class App extends Component {
       EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
       EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
     );
-    const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
+    const renderArgs = {
+      appContext,
+      appContextGetters,
+      ajaxInjections,
+      events,
+    };
     const routesData = Routes.getRoutesData(
       renderArgs,
       {
@@ -105,6 +112,7 @@ class App extends Component {
                                 featureFlagsSvc={featureFlagsSvc}
                                 actionDispatcher={this.actionDispatcher}
                                 navigationService={navigationService}
+                                appContextService={this.appContextService}
                               >
                                 {({appContext, refreshAppContext}) => {
                                   const routesData = this.getRoutesData({appContext, refreshAppContext, ajaxInjections});

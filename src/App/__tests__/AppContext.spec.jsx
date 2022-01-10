@@ -10,6 +10,7 @@ import { waitFor } from '../../testUtils.jsx';
 import { act } from 'react-dom/test-utils';
 import { ActionDispatcher } from '../../domain/Actions.js';
 import { NavigationService } from '../../services/Navigation.jsx';
+import { AppContextService } from '../../services/AppContextService.ts';
 
 describe('_fetch', () => {
 
@@ -57,6 +58,7 @@ describe('AppContextProvider', () => {
   const featureFlagsSvc = new FeatureFlagsSvc({}, ()=>{});
   const actionDispatcher = new ActionDispatcher();
   const navigationService = new NavigationService({navigateFn: () => {}});
+  const appContextService = new AppContextService();
 
   const ajaxInjections = RU.objFromPairs(
     Ajax.lens.getAccounts, () => Promise.resolve(accounts),
@@ -71,6 +73,7 @@ describe('AppContextProvider', () => {
       featureFlagsSvc={featureFlagsSvc}
       actionDispatcher={actionDispatcher}
       navigationService={navigationService}
+      appContextService={appContextService}
     >
       {p => <Child {...p}/>}
     </sut.AppContextProvider>
@@ -89,6 +92,7 @@ describe('AppContextProvider', () => {
         sut.lens.featureFlagsSvc, featureFlagsSvc,
         sut.lens.actionDispatcher, actionDispatcher,
         sut.lens.navigationService, navigationService,
+        sut.lens.appContextService, appContextService,
       ));
     });
   });
