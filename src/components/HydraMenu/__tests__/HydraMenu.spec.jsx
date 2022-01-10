@@ -16,7 +16,7 @@ describe('handleInputChange', () => {
     currentHydraNodes: [
       Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()})
     ],
-    isVisibleState: [false, sinon.spy()],
+    hideFn: sinon.spy(),
     inputValueState: [false, sinon.spy()],
     ...opts,
   });
@@ -61,23 +61,23 @@ describe('handleInputChange', () => {
     expect(actionFn.args).toEqual([[]]);
   });
 
-  it('Sets isVisible to false if leaf node is selected', () => {
+  it('Calls hideFn if leaf node is selected', () => {
     const opts = defaultOpts();
     call(opts)(newEvent('a'));
-    expect(opts.isVisibleState[1].args).toEqual([[false]]);
+    expect(opts.hideFn.callCount).toEqual(1);
   });
 
   it('Does not change visibility if no node selected', () => {
     const opts = defaultOpts();
     call(opts)(newEvent('c'));
-    expect(opts.isVisibleState[1].called).toBe(false);
+    expect(opts.hideFn.callCount).toEqual(0);
   });
 
   it('Does not change visibility if branch node is selected', () => {
     const currentHydraNodes = [newBranchNode()];
     const opts = defaultOpts({currentHydraNodes});
     call(opts)(newEvent('a'));
-    expect(opts.isVisibleState[1].called).toBe(false);
+    expect(opts.hideFn.callCount).toEqual(0);
   });
 
   it('Set value if branch node is selected', () => {
@@ -134,7 +134,8 @@ describe('HydraMenuCore', () => {
 
   const defaultProps = () => ({
     title: "Title",
-    isVisibleState: [true, () => {}],
+    isVisible: true,
+    hideFn: () => {},
     inputValueState: ['', () => {}],
     rootHydraNodes: [
       Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()}),
@@ -148,15 +149,15 @@ describe('HydraMenuCore', () => {
 
   const findTitle = x => x.find(`.${styles.hydraMenuTitle}`);
 
-  describe('Sets visibility based on isVisibleState', () => {
+  describe('Sets visibility based on isVisible', () => {
 
     it('...true', () => {
-      const component = render({isVisibleState: [true, () => {}]});
+      const component = render({isVisible: true});
       expect(component.html()).toContain('Foo');
     });
     
     it('...false', () => {
-      const component = render({isVisibleState: [false, () => {}]});
+      const component = render({isVisible: false});
       expect(component.html()).toEqual(null);
     });
 
@@ -192,7 +193,9 @@ describe('HydraMenu', () => {
     rootHydraNodes: [
       Hydra.newLeafNode({shortcut: 'a', description: 'Foo', actionFn: sinon.spy()}),
       Hydra.newLeafNode({shortcut: 'b', description: 'Bar', actionFn: sinon.spy()}),      
-    ],    
+    ],
+    onHide: () => {},
+    onDisplay: () => {},
   });
 
   const render = (props) => {
@@ -201,7 +204,7 @@ describe('HydraMenu', () => {
 
   const toggleVisibilityAction = Actions.newAction(sut.ACTIONS.TOGGLE_VISIBILITY);
 
-  const getIsVisible = component => component.find(sut.HydraMenuCore).props().isVisibleState[0];
+  const getIsVisible = component => component.find(sut.HydraMenuCore).props().isVisible;
 
   const ensureVisible = async (component) => act(async () => {
     actionDispatcher.dispatch(toggleVisibilityAction);
@@ -306,6 +309,26 @@ describe('HydraMenu', () => {
     await close(component);
     await ensureVisible(component);
     expect(getInputValue(component)).toEqual("");
+  });
+
+  it('Calls onDisplay and onhide when displayed and hidden', async () => {
+    const onDisplay = sinon.spy();
+    const onHide = sinon.spy();
+    const component = render({onDisplay, onHide});
+    expect(onDisplay.callCount).toEqual(0);
+    expect(onHide.callCount).toEqual(0);
+    await ensureVisible(component);
+    expect(onDisplay.callCount).toEqual(1);
+    expect(onHide.callCount).toEqual(0);
+    await close(component);
+    expect(onDisplay.callCount).toEqual(1);
+    expect(onHide.callCount).toEqual(1);
+    await ensureVisible(component);
+    expect(onDisplay.callCount).toEqual(2);
+    expect(onHide.callCount).toEqual(1);
+    await close(component);
+    expect(onDisplay.callCount).toEqual(2);
+    expect(onHide.callCount).toEqual(2);
   });
 
 });

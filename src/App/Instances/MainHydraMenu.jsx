@@ -14,10 +14,13 @@ export const getRootHydraNodes = (navigationService, routesData) => {
   ];
 };
 
+export const _COMPONENT_INSTANCE = {name: "MainHydraMenu"};
+
 export const MainHydraMenu = (props) => {
   const {appContext, routesData} = props;
   const actionDispatcher = R.view(AppContext.lens.actionDispatcher, appContext);
   const navigationService = R.view(AppContext.lens.navigationService, appContext);
+  const appContextService = R.view(AppContext.lens.appContextService, appContext);
   if (!actionDispatcher) {
     return <div/>;
   };
@@ -26,6 +29,8 @@ export const MainHydraMenu = (props) => {
       title={"Main Menu"}
       actionDispatcher={actionDispatcher}
       rootHydraNodes={getRootHydraNodes(navigationService, routesData)}
+      onDisplay={() => appContextService.pushActiveComponentInstance(_COMPONENT_INSTANCE)}
+      onHide={() => appContextService.filterOutActiveComponentInstance(_COMPONENT_INSTANCE)}
     />
   );
 };
