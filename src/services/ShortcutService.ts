@@ -1,14 +1,19 @@
 import * as R from 'ramda';
+import { KeyHandler } from 'hotkeys-js';
 
+interface IHotkeysOptions {
+  element?: HTMLElement | Document | null;
+}
+
+interface IHotkeys {(key: string, options: IHotkeysOptions, method: KeyHandler): void;
+}
 
 export class ShortcutService {
 
-  /**
-   * Constructor
-   * @param {object} opts
-   * @param {object} opts.aDocument The `window.document` to bind to.
-   * @param {function} opts.aHotkeys The `hotkeys` fn from hotkeys-js package.
-   */
+  _document: Document
+  _hotkeys: IHotkeys;
+  _shortcuts: [string, () => void][]
+
   constructor({aDocument, aHotkeys}) {
     this._document = aDocument;
     this._hotkeys = aHotkeys;
@@ -26,12 +31,7 @@ export class ShortcutService {
     ;
   }
 
-  /**
-   * Register a new shortcut.
-   * @param {string} shortcut The shortcut (string).
-   * @param {Function} handler The 0-arg handler.
-   */
-  register(shortcut, handler) {
+  register(shortcut: string, handler: () => void) {
     this._shortcuts = R.append([shortcut, handler])(this._shortcuts);
   }
   

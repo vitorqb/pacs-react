@@ -1,4 +1,4 @@
-import { ShortcutService } from '../../services/ShortcutService';
+import { ShortcutService } from '../../services/ShortcutService.ts';
 import hotkeys from 'hotkeys-js';
 import * as Actions from '../../domain/Actions';
 import * as HydraMenu from '../../components/HydraMenu/HydraMenu';

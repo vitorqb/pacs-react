@@ -1,5 +1,5 @@
 import jsdom from 'jsdom';
-import * as sut from '../ShortcutService.js';
+import * as sut from '../ShortcutService.ts';
 import sinon from 'sinon';
 import hotkeys from 'hotkeys-js';
 import { waitFor } from '../../testUtils.jsx';
