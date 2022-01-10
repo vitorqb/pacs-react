@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 export type TActiveComponentInstance = {
   name: string
 }
@@ -7,18 +9,22 @@ export type TActiveComponentInstance = {
  */
 export class AppContextService {
 
-  _active_component_instance: TActiveComponentInstance
+  _active_components: TActiveComponentInstance[]
 
   constructor() {
-    this._active_component_instance = null;
+    this._active_components = [];
   }
 
-  setActiveComponentInstance(activeComponentInstance: TActiveComponentInstance) {
-    this._active_component_instance = activeComponentInstance;
+  pushActiveComponentInstance(activeComponentInstance: TActiveComponentInstance) {
+    this._active_components.push(activeComponentInstance);
   }
 
-  getActiveComponentInstance(): TActiveComponentInstance {
-    return this._active_component_instance;
+  getTopActiveComponentInstance(): TActiveComponentInstance {
+    return R.last(this._active_components);
+  }
+
+  filterOutActiveComponentInstance(activeComponentInstance: TActiveComponentInstance) {
+    this._active_components = R.reject(R.equals(activeComponentInstance), this._active_components);
   }
 
 }
