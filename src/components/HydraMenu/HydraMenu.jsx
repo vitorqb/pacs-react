@@ -7,16 +7,14 @@ export const ACTIONS = {
   TOGGLE_VISIBILITY: "TOGGLE_VISIBILITY"
 };
 
-export const addQuitNode = isVisibleState => R.append(Hydra.newLeafNode({
+export const addQuitNode = R.append(Hydra.newLeafNode({
   shortcut: 'q',
   description: 'Quit',
-  actionFn: () => {
-    isVisibleState[1](false);
-  }
+  actionFn: () => {},
 }));
 
 export const handleInputChange = (opts) => (e) => {
-  const {currentHydraNodes, isVisibleState, inputValueState} = opts;
+  const {currentHydraNodes, hideFn, inputValueState} = opts;
   const newValue = e.target.value;
   const isEmptyNewValue = () => R.isEmpty(newValue) || R.isNil(newValue);
   const newInputIsShorter = () => newValue.length < inputValueState[0].length;
@@ -40,7 +38,7 @@ export const handleInputChange = (opts) => (e) => {
 
   if (Hydra.isLeafNode(node)) {
     node.actionFn();
-    isVisibleState[1](false);
+    hideFn();
   }
 
   if (Hydra.isBranchNode(node)) {
@@ -86,14 +84,14 @@ export const HydraNode = (props) => {
 };
 
 export const HydraMenuCore = (props) => {
-  const {isVisibleState, inputValueState, rootHydraNodes, title} = props;
+  const {hideFn, isVisible, inputValueState, rootHydraNodes, title} = props;
   const [currentInputValue,] = inputValueState;
   const currentHydraNodes = getCurrentHydraNodes({rootHydraNodes, currentInputValue});
   const titleComponent = R.unless(
     R.either(R.isEmpty, R.isNil),
     title => <div className={styles.hydraMenuTitle}>{title}</div>
   )(title);
-  if (! isVisibleState[0]) {
+  if (! isVisible) {
     return <></>;
   }
   return (
@@ -106,7 +104,7 @@ export const HydraMenuCore = (props) => {
           )(currentHydraNodes)}
         </div>
         <input
-          onChange={handleInputChange({currentHydraNodes, isVisibleState, inputValueState})}
+          onChange={handleInputChange({currentHydraNodes, hideFn, inputValueState})}
           value={inputValueState[0]}
           autoFocus
         />
@@ -116,23 +114,41 @@ export const HydraMenuCore = (props) => {
 };
 
 export const HydraMenu = (props) => {
-  const {actionDispatcher, title} = props;
+  const {actionDispatcher, title, onHide, onDisplay} = props;
   const isVisibleState = useState(false);
-  const rootHydraNodes = R.pipe(R.prop('rootHydraNodes'), addQuitNode(isVisibleState))(props);
   const inputValueState = useState('');
+  const hideFn = () => {
+    if (isVisibleState[0]) {
+      isVisibleState[1](false);
+      inputValueState[1]("");
+      onHide();
+    }
+  };
+  const displayFn = () => {
+    if (!isVisibleState[0]) {
+      isVisibleState[1](true);
+      onDisplay();
+    }
+  };
+  const toggleVisibility = () => {
+    if (isVisibleState[0]) {
+      hideFn();
+    } else {
+      displayFn();
+    }
+  };
+  const rootHydraNodes = R.pipe(R.prop('rootHydraNodes'), addQuitNode)(props);
 
   useEffect(() => {
-    actionDispatcher.register(ACTIONS.TOGGLE_VISIBILITY, () => isVisibleState[1](R.not));
+    actionDispatcher.register(ACTIONS.TOGGLE_VISIBILITY, toggleVisibility);
     return () => actionDispatcher.unregister(ACTIONS.TOGGLE_VISIBILITY);
-  });
-
-  useEffect(function cleanupInputValueOnClose() {
-    if (isVisibleState[0] === false) {
-      inputValueState[1]("");
-    }
   }, [isVisibleState[0]]);
 
-  return <HydraMenuCore {...{isVisibleState, rootHydraNodes, inputValueState, title}}/>;
+  return (
+    <HydraMenuCore
+      {...{isVisible: isVisibleState[0], hideFn, rootHydraNodes, inputValueState, title}}
+    />
+  );
 };
 
 export default HydraMenu;

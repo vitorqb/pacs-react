@@ -10,6 +10,7 @@ export const lens = {
   featureFlagsSvc: R.lensPath(['featureFlagsSvc']),
   actionDispatcher: R.lensPath(['actionDispatcher']),
   navigationService: R.lensPath(['navigationService']),
+  appContextService: R.lensPath(['appContextService']),
 };
 
 /**
@@ -44,9 +45,14 @@ export const fetch = _fetch(fetcherSpecs);
 /**
  * A provider that provides the data
  */
-export const AppContextProvider = (
-  {ajaxInjections, children, featureFlagsSvc, actionDispatcher, navigationService}
-) => {
+export const AppContextProvider = ({
+  ajaxInjections,
+  children,
+  featureFlagsSvc,
+  actionDispatcher,
+  navigationService,
+  appContextService,
+}) => {
   const [appContext, setAppContext] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,6 +77,10 @@ export const AppContextProvider = (
   useEffect(() => {
     setAppContext(R.set(lens.navigationService, navigationService));
   }, [navigationService]);
+
+  useEffect(() => {
+    setAppContext(R.set(lens.appContextService, appContextService));
+  }, [appContextService]);
 
   return (
     <LoadingWrapper isLoading={isLoading}>

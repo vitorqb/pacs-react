@@ -27,9 +27,10 @@ import MainHydraMenu from './App/Instances/MainHydraMenu.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
 import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
-import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
+import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance.ts';
 import * as Actions from './domain/Actions.js';
 import { NavigationServiceProvider } from './App/ServicesInstances/NavigationServiceProvider';
+import AppContextServiceInstance from './App/ServicesInstances/AppContextServiceInstance.ts';
 
 
 class App extends Component {
@@ -44,6 +45,7 @@ class App extends Component {
   componentDidMount() {
     this.actionDispatcher = new Actions.ActionDispatcher();
     this.shortcutService = ShortcutServiceInstance({actionDispatcher: this.actionDispatcher});
+    this.appContextService = AppContextServiceInstance();
   }
 
   // Returns the routeData for the app
@@ -54,22 +56,30 @@ class App extends Component {
       EventsLens.setState, R.curry((lens, val) => this.setState(R.set(lens, val))),
       EventsLens.overState, R.curry((lens, fn) => this.setState(R.over(lens, fn))),
     );
-    const renderArgs = { appContext, appContextGetters, ajaxInjections, events };
-    const routesData = Routes.getRoutesData({
-      transactionTable: TransactionTableInstace(renderArgs),
-      createAccForm: CreateAccountComponentInstance(renderArgs),
-      editAccountComponent: EditAccountComponentInstance(renderArgs),
-      createTransactionForm: CreateTransactionFormInstance(renderArgs),
-      accountTree: AccountTreeInstance(renderArgs),
-      currencyTable: CurrencyTableInstance(renderArgs),
-      editTransactionComponent: EditTransactionComponentInstance(renderArgs),
-      journalComponent: JournalComponentInstance(renderArgs),
-      accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance(renderArgs),
-      accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance(renderArgs),
-      DeleteAccountComponent: DeleteAccountComponentInstance(renderArgs),
-      fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance(renderArgs),
-      deleteTransactionComponent: DeleteTransactionComponentInstance(renderArgs),
-    });
+    const renderArgs = {
+      appContext,
+      appContextGetters,
+      ajaxInjections,
+      events,
+    };
+    const routesData = Routes.getRoutesData(
+      renderArgs,
+      {
+        transactionTableComponent: TransactionTableInstace,
+        createAccFormComponent: CreateAccountComponentInstance,
+        editAccountComponent: EditAccountComponentInstance,
+        createTransactionFormComponent: CreateTransactionFormInstance,
+        accountTreeComponent: AccountTreeInstance,
+        currencyTableComponent: CurrencyTableInstance,
+        editTransactionComponent: EditTransactionComponentInstance,
+        journalComponent: JournalComponentInstance,
+        accountBalanceEvolutionComponent: AccountBalanceEvolutionComponentInstance,
+        accountFlowEvolutionReportComponent: AccountFlowEvolutionReportComponentInstance,
+        DeleteAccountComponent: DeleteAccountComponentInstance,
+        fetchCurrencyExchangeRateDataComponent: CurrencyExchangeRateDataFetcherComponentInstance,
+        deleteTransactionComponent: DeleteTransactionComponentInstance,
+      }
+    );
     return routesData;
   }
 
@@ -102,6 +112,7 @@ class App extends Component {
                                 featureFlagsSvc={featureFlagsSvc}
                                 actionDispatcher={this.actionDispatcher}
                                 navigationService={navigationService}
+                                appContextService={this.appContextService}
                               >
                                 {({appContext, refreshAppContext}) => {
                                   const routesData = this.getRoutesData({appContext, refreshAppContext, ajaxInjections});

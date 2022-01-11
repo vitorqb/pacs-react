@@ -1,3 +1,4 @@
+import React from 'react';
 import * as Routing from '../domain/Routing/Routing.js';
 
 export const PATHS = {
@@ -19,21 +20,24 @@ export const PATHS = {
 /**
  * Returns the data for the routes of the App.
  */
-export const getRoutesData = ({
-  transactionTable,
-  createAccForm,
-  editAccountComponent,
-  createTransactionForm,
-  accountTree,
-  currencyTable,
-  editTransactionComponent,
-  journalComponent,
-  accountBalanceEvolutionComponent,
-  accountFlowEvolutionReportComponent,
-  DeleteAccountComponent,
-  fetchCurrencyExchangeRateDataComponent,
-  deleteTransactionComponent,
-}) => [
+export const getRoutesData = (
+  renderArgs,
+  {
+    transactionTableComponent,
+    createAccFormComponent,
+    editAccountComponent,
+    createTransactionFormComponent,
+    accountTreeComponent,
+    currencyTableComponent,
+    editTransactionComponent,
+    journalComponent,
+    accountBalanceEvolutionComponent,
+    accountFlowEvolutionReportComponent,
+    DeleteAccountComponent,
+    fetchCurrencyExchangeRateDataComponent,
+    deleteTransactionComponent,
+  }
+) => [
   Routing.newGroupOfRoutes({
     text: "Transaction",
     shortcut: "t",
@@ -41,25 +45,25 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CREATE_TRANSACTION,
         text: "Create",
-        element: createTransactionForm,
+        element: React.createElement(createTransactionFormComponent, renderArgs),
         shortcut: "c",
       }),
       Routing.newRoute({
         path: PATHS.EDIT_TRANSACTION,
         text: "Edit",
-        element: editTransactionComponent,
+        element: React.createElement(editTransactionComponent, renderArgs),
         shortcut: "e",
       }),
       Routing.newRoute({
         path: PATHS.TRANSACTION_TABLE,
         text: "Table",
-        element: transactionTable,
+        element: React.createElement(transactionTableComponent, renderArgs),
         shortcut: "t",
       }),
       Routing.newRoute({
         path: PATHS.DELETE_TRANSACTION,
         text: "Delete",
-        element: deleteTransactionComponent,
+        element: React.createElement(deleteTransactionComponent, renderArgs),
         shortcut: "d",
       })
     ]
@@ -71,31 +75,31 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CREATE_ACCOUNT,
         text: "Create",
-        element: createAccForm,
+        element: React.createElement(createAccFormComponent, renderArgs),
         shortcut: "c",
       }),
       Routing.newRoute({
         path: PATHS.EDIT_ACCOUNT,
         text: "Edit",
-        element: editAccountComponent,
+        element: React.createElement(editAccountComponent, renderArgs),
         shortcut: "e",
       }),
       Routing.newRoute({
         path: PATHS.DELETE_ACCOUNT,
         text: "Delete",
-        element: DeleteAccountComponent,
+        element: React.createElement(DeleteAccountComponent, renderArgs),
         shortcut: "d",
       }),
       Routing.newRoute({
         path: PATHS.ACCOUNT_TREE,
         text: "Tree",
-        element: accountTree,
+        element: React.createElement(accountTreeComponent, renderArgs),
         shortcut: "t",
       }),
       Routing.newRoute({
         path: PATHS.ACCOUNT_JOURNAL,
         text: "Journal",
-        element: journalComponent,
+        element: React.createElement(journalComponent, renderArgs),
         shortcut: "j",
       }),
     ]
@@ -107,13 +111,13 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.ACCOUNT_BALANCE_EVOLUTION_REPORT,
         text: "Balance Evolution Report",
-        element: accountBalanceEvolutionComponent,
+        element: React.createElement(accountBalanceEvolutionComponent, renderArgs),
         shortcut: "b",
       }),
       Routing.newRoute({
         path: PATHS.ACCOUNT_FLOW_EVOLUTION_REPORT,
         text: "Flow Evolution Report",
-        element: accountFlowEvolutionReportComponent,
+        element: React.createElement(accountFlowEvolutionReportComponent, renderArgs),
         shortcut: "f",
       })
     ]
@@ -125,13 +129,13 @@ export const getRoutesData = ({
       Routing.newRoute({
         path: PATHS.CURRENCY_TABLE,
         text: "Table",
-        element: currencyTable,
+        element: React.createElement(currencyTableComponent, renderArgs),
         shortcut: "t",
       }),
       Routing.newRoute({
         path: PATHS.EXCHANGE_RATE_DATA_FETCHER,
         text: "Exchange Rate Data Fetcher",
-        element: fetchCurrencyExchangeRateDataComponent,
+        element: React.createElement(fetchCurrencyExchangeRateDataComponent, renderArgs),
         shortcut: "f",
       })
     ]
