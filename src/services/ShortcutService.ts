@@ -1,22 +1,50 @@
 import * as R from 'ramda';
-import { KeyHandler } from 'hotkeys-js';
 
-interface IHotkeysOptions {
-  element?: HTMLElement | Document | null;
+/**
+ * Represents a key that can be pressed by the user, trigering a shortcut.
+ */
+export interface IKey {
+  key: string,
+  shift: boolean,
+  ctrl: boolean,
+  alt: boolean,
+  caseSensitive: boolean,
 }
 
-interface IHotkeys {(key: string, options: IHotkeysOptions, method: KeyHandler): void;
+/**
+ * Represents a shortcut to be assigned to some key.
+ */
+export interface IShortcut {
+  key: IKey,
+  handler: () => void,
 }
 
-export class ShortcutService {
+/**
+ * Service responsible for calling shortcuts from user key presses.
+ */
+export interface IShortcutService {
+  init: () => void,
+  register: (shortcut: IShortcut) => void,
+}
+
+export function newKey(
+  key: string,
+  opts?: {shift?: boolean, ctrl?: boolean, alt?: boolean, caseSensitive?: boolean}
+): IKey {
+  const shift: boolean =  R.propOr(false, 'shift', opts)
+  const ctrl: boolean = R.propOr(false, 'ctrl', opts)
+  const alt: boolean = R.propOr(false, 'alt', opts)
+  const caseSensitive: boolean = R.propOr(true, 'caseSensitive', opts)  
+  return {key, shift, ctrl, alt, caseSensitive};
+}
+
+export class ShortcutService implements IShortcutService {
 
   _document: Document
-  _hotkeys: IHotkeys;
-  _shortcuts: [string, () => void][]
+  _shortcuts: IShortcut[];
 
-  constructor({aDocument, aHotkeys}) {
+  constructor({aDocument}) {
     this._document = aDocument;
-    this._hotkeys = aHotkeys;
     this._shortcuts = [];
   }
 
@@ -24,16 +52,31 @@ export class ShortcutService {
    * Initializes the service by listening to the shortcuts.
    */
   async init() {
-    const promises = this._shortcuts.map(([shortcut, handler]) => {
-      return this._hotkeys(shortcut, {element: this._document}, () => handler());
+    this._document.addEventListener('keydown', (e) => {
+      const pressedKey = e.key;
+      const shift = e.shiftKey;
+      const ctrl = e.ctrlKey;
+      const alt = e.altKey;
+      this._shortcuts.forEach(shortcut => {
+        const keysAreEqual = shortcut.key.caseSensitive
+          ? shortcut.key.key == pressedKey
+          : shortcut.key.key.toLowerCase() == pressedKey.toLowerCase();
+        if (
+          keysAreEqual
+          && shortcut.key.shift == shift
+          && shortcut.key.ctrl == ctrl
+          && shortcut.key.alt == alt
+        ) {
+          shortcut.handler();
+        }
+      });
     });
-    return await Promise.all(promises);
-    ;
   }
 
-  register(shortcut: string, handler: () => void) {
-    this._shortcuts = R.append([shortcut, handler])(this._shortcuts);
-  }
-  
+  register(shortcut: IShortcut): void {
+    this._shortcuts.push(shortcut);
+  }  
 
 }
+
+

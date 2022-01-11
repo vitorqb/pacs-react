@@ -27,7 +27,7 @@ import MainHydraMenu from './App/Instances/MainHydraMenu.jsx';
 import { lens as EventsLens } from './App/Events';
 import { LoginSvc } from './services/LoginSvc';
 import { FeatureFlagsProvider } from './App/FeatureFlags.jsx';
-import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance';
+import ShortcutServiceInstance from './App/ServicesInstances/ShortcutServiceInstance.ts';
 import * as Actions from './domain/Actions.js';
 import { NavigationServiceProvider } from './App/ServicesInstances/NavigationServiceProvider';
 import AppContextServiceInstance from './App/ServicesInstances/AppContextServiceInstance.ts';
